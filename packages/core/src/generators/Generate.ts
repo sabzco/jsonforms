@@ -33,7 +33,8 @@ export const Generate: {
     jsonSchema: JsonSchema,
     layoutType?: string,
     prefix?: string,
-    rootSchema?: JsonSchema
+    rootSchema?: JsonSchema,
+    path?: string[],
   ): UISchemaElement;
   controlElement(ref: string): ControlElement;
 } = {

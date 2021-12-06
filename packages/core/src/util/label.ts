@@ -34,6 +34,9 @@ const deriveLabel = (
   if (schemaElement && typeof schemaElement.title === 'string') {
     return schemaElement.title;
   }
+  if (typeof controlElement.dataPath === 'string') {
+    return startCase(controlElement.dataPath);
+  }
   if (typeof controlElement.scope === 'string') {
     const ref = controlElement.scope;
     const label = ref.substr(ref.lastIndexOf('/') + 1);
