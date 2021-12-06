@@ -33,6 +33,7 @@ import {
   JsonFormsRendererRegistryEntry,
   JsonSchema,
   OwnPropsOfRenderer,
+  stringifyPath,
 } from '@jsonforms/core';
 import { JsonFormsDispatch, useJsonForms } from '@jsonforms/react';
 import { Grid, Hidden } from '@mui/material';
@@ -46,7 +47,7 @@ export const renderLayoutElements = (
   cells?: JsonFormsCellRendererRegistryEntry[]
 ) => {
   return elements.map((child, index) => (
-    <Grid item key={`${path}-${index}`} xs>
+    <Grid item key={`${stringifyPath(path)}-${index}`} xs>
       <JsonFormsDispatch
         uischema={child}
         schema={schema}
