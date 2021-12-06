@@ -23,31 +23,33 @@
   THE SOFTWARE.
 */
 
+import type { DynamicGroupLayout } from '@jsonforms/core';
 import {
   Actions,
   ArrayControlProps,
   ArrayLayoutProps,
   CellProps,
   CombinatorRendererProps,
+  configReducer,
   ControlProps,
+  coreReducer,
+  createDynamicControlElement,
   defaultMapStateToEnumCellProps,
   DispatchCellProps,
   DispatchPropsOfControl,
+  DispatchPropsOfDynamicLayout,
+  DispatchPropsOfMultiEnumControl,
+  DynamicLayoutProps,
   EnumCellProps,
+  i18nReducer,
   JsonFormsCore,
   JsonFormsSubStates,
   LayoutProps,
-  OwnPropsOfCell,
-  OwnPropsOfControl,
-  OwnPropsOfEnum,
-  OwnPropsOfEnumCell,
-  OwnPropsOfJsonFormsRenderer,
-  OwnPropsOfLayout,
-  OwnPropsOfMasterListItem,
-  StatePropsOfControlWithDetail,
-  StatePropsOfMasterItem,
-  configReducer,
-  coreReducer,
+  mapDispatchToArrayControlProps,
+  mapDispatchToControlProps,
+  mapDispatchToDynamicControlProps,
+  mapDispatchToDynamicLayoutProps,
+  mapDispatchToMultiEnumProps,
   mapStateToAllOfProps,
   mapStateToAnyOfProps,
   mapStateToArrayControlProps,
@@ -60,17 +62,32 @@ import {
   mapStateToJsonFormsRendererProps,
   mapStateToLayoutProps,
   mapStateToMasterListItemProps,
-  mapStateToOneOfProps,
-  mapStateToOneOfEnumControlProps,
-  mapStateToOneOfEnumCellProps,
-  mapDispatchToMultiEnumProps,
   mapStateToMultiEnumControlProps,
-  DispatchPropsOfMultiEnumControl,
-  mapDispatchToControlProps,
-  mapDispatchToArrayControlProps,
-  i18nReducer
+  mapStateToOneOfEnumCellProps,
+  mapStateToOneOfEnumControlProps,
+  mapStateToOneOfProps,
+  OwnPropsOfCell,
+  OwnPropsOfControl,
+  OwnPropsOfEnum,
+  OwnPropsOfEnumCell,
+  OwnPropsOfJsonFormsRenderer,
+  OwnPropsOfLayout,
+  OwnPropsOfMasterListItem,
+  StatePropsOfControlWithDetail,
+  StatePropsOfMasterItem,
 } from '@jsonforms/core';
-import React, { ComponentType, Dispatch, ReducerAction, useContext, useEffect, useMemo, useReducer, useRef } from 'react';
+import React, {
+  ComponentType,
+  Dispatch,
+  ReducerAction,
+  useContext,
+  useEffect,
+  useMemo,
+  useReducer,
+  useRef,
+  useState,
+} from 'react';
+import useDeepEffect from './util/deep-effect';
 
 const initialCoreState: JsonFormsCore = {
   data: {},
@@ -241,6 +258,14 @@ export const ctxToAllOfProps = (
 export const ctxDispatchToControlProps = (dispatch: Dispatch<ReducerAction<any>>): DispatchPropsOfControl =>
   useMemo(() => mapDispatchToControlProps(dispatch as any), [dispatch]);
 
+export const ctxDispatchToDynamicControlProps =
+  (dispatch: Dispatch<ReducerAction<any>>): DispatchPropsOfControl =>
+  useMemo(() => mapDispatchToDynamicControlProps(dispatch as any), [dispatch]);
+
+export const ctxDispatchToDynamicLayoutProps =
+  (dispatch: Dispatch<ReducerAction<any>>): DispatchPropsOfDynamicLayout =>
+    useMemo(() => mapDispatchToDynamicLayoutProps(dispatch as any), [dispatch]);
+
 // context mappers
 
 export const ctxToAnyOfProps = (
@@ -349,11 +374,27 @@ const withContextToControlProps =
       return (<Component {...props} {...controlProps} {...dispatchProps} />);
     };
 
+const withContextToDynamicControlProps =
+  (Component: ComponentType<ControlProps>): ComponentType<OwnPropsOfControl> =>
+    ({ ctx, props }: JsonFormsStateContext & ControlProps) => {
+      const controlProps = ctxToControlProps(ctx, props);
+      const dispatchProps = ctxDispatchToDynamicControlProps(ctx.dispatch);
+      return (<Component {...props} {...controlProps} {...dispatchProps} />);
+    };
+
 const withContextToLayoutProps =
   (Component: ComponentType<LayoutProps>): ComponentType<OwnPropsOfJsonFormsRenderer> =>
     ({ ctx, props }: JsonFormsStateContext & LayoutProps) => {
       const layoutProps = ctxToLayoutProps(ctx, props);
       return (<Component {...props} {...layoutProps} />);
+    };
+
+const withContextToDynamicLayoutProps =
+  (Component: ComponentType<LayoutProps>): ComponentType<OwnPropsOfJsonFormsRenderer> =>
+    ({ ctx, props }: JsonFormsStateContext & LayoutProps) => {
+      const layoutProps = ctxToLayoutProps(ctx, props);
+      const dispatchProps = ctxDispatchToDynamicLayoutProps(ctx.dispatch);
+      return (<Component {...props} {...layoutProps} {...dispatchProps} />);
     };
 
 const withContextToOneOfProps =
@@ -445,7 +486,7 @@ const withContextToEnumProps =
     ({ ctx, props }: JsonFormsStateContext & ControlProps & OwnPropsOfEnum) => {
       const stateProps = ctxToEnumControlProps(ctx, props);
       const dispatchProps = ctxDispatchToControlProps(ctx.dispatch);
-      
+
       return (<Component {...props} {...dispatchProps} {...stateProps} />);
     };
 
@@ -473,7 +514,6 @@ const withContextToMultiEnumProps =
     return (<Component {...props} {...dispatchProps} {...stateProps} />);
   };
 
-
 // --
 
 // top level HOCs --
@@ -482,9 +522,44 @@ export const withJsonFormsControlProps =
   (Component: ComponentType<ControlProps>, memoize = true): ComponentType<OwnPropsOfControl> =>
   withJsonFormsContext(withContextToControlProps(memoize ? React.memo(Component) : Component));
 
+export const withJsonFormsDynamicControlProps =
+  (Component: ComponentType<ControlProps>, memoize = true): ComponentType<OwnPropsOfControl> =>
+    withJsonFormsContext(
+      withContextToDynamicControlProps(memoize ? React.memo(Component) : Component)
+    );
+
 export const withJsonFormsLayoutProps =
   (Component: ComponentType<LayoutProps>, memoize = true): ComponentType<OwnPropsOfLayout> =>
     withJsonFormsContext(withContextToLayoutProps(memoize ? React.memo(Component) : Component));
+
+export const withJsonFormsDynamicLayoutProps =
+  (Component: ComponentType<LayoutProps>, memoize = true): ComponentType<OwnPropsOfLayout> =>
+    withJsonFormsContext(
+      withContextToDynamicLayoutProps(memoize ? React.memo(Component) : Component)
+    );
+
+export const withAdditionalProps = (Component: ComponentType<LayoutProps>) => (ownProps: any) =>
+  React.createElement(withJsonFormsDynamicLayoutProps((props: DynamicLayoutProps) => {
+    const groupLayout = props.uischema as DynamicGroupLayout;
+    const [elements, setElements] = useState([]);
+    const uischema = {
+      ...props.uischema,
+      elements
+    };
+    const scope = groupLayout.scope;
+
+    const additionalPropertiesKeys = props.schema.properties
+      ? Object.keys(props.data ?? {}).filter(key => !(key in props.schema.properties))
+      : Object.keys(props.data ?? {});
+
+    useDeepEffect(() => {
+      setElements(additionalPropertiesKeys.map(propName =>
+        (createDynamicControlElement(scope, propName)),
+      ));
+    }, [additionalPropertiesKeys, scope]);
+
+    return <Component {...props} uischema={uischema} />;
+  }), ownProps);
 
 export const withJsonFormsOneOfProps =
   (Component: ComponentType<CombinatorRendererProps>, memoize = true): ComponentType<OwnPropsOfControl> =>
