@@ -18,7 +18,7 @@ export const getI18nKeyPrefixBySchema = (
 export const transformPathToI18nPrefix = (path: string[]) => {
   return (
     path
-      .filter(segment => !/^\d+$/.test(segment))
+      ?.filter(segment => !/^\d+$/.test(segment))
       .join('.') || 'root'
   );
 };

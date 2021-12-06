@@ -99,7 +99,7 @@ export const findUISchema = (
   // default
   const uiSchema = findMatchingUISchema(uischemas)(schema, schemaPath, path);
   if (uiSchema === undefined) {
-    return Generate.uiSchema(schema, fallbackLayoutType, '#', rootSchema);
+    return Generate.uiSchema(schema, fallbackLayoutType, '#', rootSchema, path);
   }
   return uiSchema;
 };

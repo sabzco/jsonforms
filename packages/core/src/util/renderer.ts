@@ -24,7 +24,7 @@
 */
 
 import get from 'lodash/get';
-import { ControlElement, JsonSchema, UISchemaElement } from '../models';
+import type { ControlElement, DynamicGroupLayout, JsonSchema, UISchemaElement } from '../models';
 import find from 'lodash/find';
 import type {
   JsonFormsCellRendererRegistryEntry,
@@ -53,7 +53,7 @@ import { moveDown, moveUp } from './array';
 import { AnyAction, Dispatch } from './type';
 import { Resolve } from './util';
 import { composePaths, composeWithUi } from './path';
-import { CoreActions, update } from '../actions';
+import { addNewProperty, CoreActions, removeThisProperty, update } from '../actions';
 import { ErrorObject } from 'ajv';
 import { JsonFormsState } from '../store';
 import { getCombinedErrorMessage, getI18nKey, getI18nKeyPrefix, Translator } from '../i18n';
@@ -382,11 +382,44 @@ export interface DispatchPropsOfControl {
 }
 
 /**
+ * Dispatch-based props of a Control.
+ */
+export interface DispatchPropsOfDynamicControl extends DispatchPropsOfControl {
+  /**
+   * Update handler that emits removing a key
+   *
+   * @param {string} path the path to the data to be updated
+   * to the given key in the given path
+   */
+  removeThisProperty(path: string[]): void;
+}
+
+/**
+ * Dispatch-based props of a Dynamic-Layout.
+ */
+export interface DispatchPropsOfDynamicLayout {
+  /**
+   * Update handler that emits adding a new key
+   *
+   * @param {string[]} path the path to the data to be updated
+   * @param {string} key the key of the new field
+   * @param {any} value the new value that should be written 
+   * to the given key in the given path
+   */
+  addNewProperty(path: string[], key: string, value: any): void;
+}
+
+/**
  * Props of a Control.
  */
 export interface ControlProps
   extends StatePropsOfControl,
     DispatchPropsOfControl {}
+
+/**
+ * Props of a DynamicControl.
+ */
+export interface DynamicControlProps extends StatePropsOfControl, DispatchPropsOfDynamicControl {}
 
 /**
  * State props of a layout;
@@ -399,6 +432,13 @@ export interface StatePropsOfLayout extends StatePropsOfRenderer {
 }
 
 export interface LayoutProps extends StatePropsOfLayout {}
+
+/**
+ * Props of a DynamicLayout.
+ */
+export interface DynamicLayoutProps extends LayoutProps {
+  uischema: DynamicGroupLayout;
+}
 
 /**
  * The state of a control.
@@ -427,7 +467,7 @@ export const mapStateToControlProps = (
 ): StatePropsOfControl => {
   const { uischema } = ownProps;
   const rootData = getData(state);
-  const path = composeWithUi(uischema, ownProps.path);
+  const path = composeWithUi(uischema, composePaths(ownProps.path, uischema.dataPath));
   const visible: boolean =
     ownProps.visible === undefined || hasShowRule(uischema)
       ? isVisible(uischema, rootData, ownProps.path, getAjv(state))
@@ -498,6 +538,36 @@ export const mapDispatchToControlProps = (
   handleChange(path, value) {
     dispatch(update(path, () => value));
   }
+});
+
+/**
+ *
+ * Map dispatch to dynamic-control props.
+ *
+ * @param dispatch the store's dispatch method
+ * @returns {DispatchPropsOfControl} dispatch props for a control
+ */
+export const mapDispatchToDynamicControlProps = (
+  dispatch: Dispatch
+): DispatchPropsOfDynamicControl => ({
+  ...mapDispatchToControlProps(dispatch),
+  removeThisProperty(path) {
+    dispatch(removeThisProperty(path));
+  },
+});
+
+/**
+ * Map dispatch to dynamic-layout props.
+ *
+ * @param dispatch the store's dispatch method
+ * @returns {DispatchPropsOfControl} dispatch props for a control
+ */
+export const mapDispatchToDynamicLayoutProps = (
+  dispatch: Dispatch
+): DispatchPropsOfDynamicLayout => ({
+  addNewProperty(path, key, value) {
+    dispatch(addNewProperty(path, key, value));
+  },
 });
 
 /**

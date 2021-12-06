@@ -35,6 +35,8 @@ export const INIT: 'jsonforms/INIT' = 'jsonforms/INIT';
 export const UPDATE_CORE: 'jsonforms/UPDATE_CORE' = `jsonforms/UPDATE_CORE`;
 export const SET_AJV: 'jsonforms/SET_AJV' = 'jsonforms/SET_AJV';
 export const UPDATE_DATA: 'jsonforms/UPDATE' = 'jsonforms/UPDATE';
+export const ADD_NEW_PROPERTY: 'jsonforms/ADD_PROPERTY' = 'jsonforms/ADD_PROPERTY';
+export const REMOVE_A_PROPERTY: 'jsonforms/REMOVE_PROPERTY' = 'jsonforms/REMOVE_PROPERTY';
 export const UPDATE_ERRORS: 'jsonforms/UPDATE_ERRORS' =
   'jsonforms/UPDATE_ERRORS';
 export const VALIDATE: 'jsonforms/VALIDATE' = 'jsonforms/VALIDATE';
@@ -64,6 +66,8 @@ export type CoreActions =
   | InitAction
   | UpdateCoreAction
   | UpdateAction
+  | AddPropertyAction
+  | RemovePropertyAction
   | UpdateErrorsAction
   | SetAjvAction
   | SetSchemaAction
@@ -74,6 +78,18 @@ export interface UpdateAction {
   type: 'jsonforms/UPDATE';
   path: string[];
   updater(existingData?: any): any;
+}
+
+export interface AddPropertyAction {
+  type: 'jsonforms/ADD_PROPERTY';
+  path: string[];
+  key: string;
+  value: any;
+}
+
+export interface RemovePropertyAction {
+  type: 'jsonforms/REMOVE_PROPERTY';
+  path: string[];
 }
 
 export interface UpdateErrorsAction {
@@ -173,6 +189,24 @@ export const update = (
   type: UPDATE_DATA,
   path,
   updater
+});
+
+export const addNewProperty = (
+  path: string[],
+  key: string,
+  value: any,
+): AddPropertyAction => ({
+  type: ADD_NEW_PROPERTY,
+  path,
+  key,
+  value,
+});
+
+export const removeThisProperty = (
+  path: string[],
+): RemovePropertyAction => ({
+  type: REMOVE_A_PROPERTY,
+  path,
 });
 
 export const updateErrors = (errors: ErrorObject[]): UpdateErrorsAction => ({
