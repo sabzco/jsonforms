@@ -24,24 +24,19 @@
 */
 
 import { ControlElement, UISchemaElement } from '../models';
+import type { JsonFormsCore, ValidationMode } from './core';
 import {
   coreReducer,
   errorAt,
   errorsAt,
   getControlPath,
-  JsonFormsCore,
   subErrorsAt,
-  ValidationMode
 } from './core';
 import { defaultDataReducer } from './default-data';
 import { rendererReducer } from './renderers';
 import { JsonFormsState } from '../store';
-import {
-  findMatchingUISchema,
-  JsonFormsUISchemaRegistryEntry,
-  uischemaRegistryReducer,
-  UISchemaTester
-} from './uischemas';
+import type { JsonFormsUISchemaRegistryEntry, UISchemaTester } from './uischemas';
+import { findMatchingUISchema, uischemaRegistryReducer } from './uischemas';
 import {
   fetchErrorTranslator,
   fetchLocale,
@@ -63,12 +58,11 @@ export {
   coreReducer,
   i18nReducer,
   configReducer,
-  UISchemaTester,
   uischemaRegistryReducer,
   findMatchingUISchema,
-  JsonFormsUISchemaRegistryEntry
 };
-export { JsonFormsCore, ValidationMode };
+export type { JsonFormsUISchemaRegistryEntry, UISchemaTester };
+export type { JsonFormsCore, ValidationMode };
 
 export const jsonFormsReducerConfig = {
   core: coreReducer,
@@ -77,7 +71,7 @@ export const jsonFormsReducerConfig = {
   config: configReducer,
   uischemas: uischemaRegistryReducer,
   defaultData: defaultDataReducer,
-  i18n: i18nReducer
+  i18n: i18nReducer,
 };
 
 /**

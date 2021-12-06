@@ -26,6 +26,10 @@
 import get from 'lodash/get';
 import { ControlElement, JsonSchema, UISchemaElement } from '../models';
 import find from 'lodash/find';
+import type {
+  JsonFormsCellRendererRegistryEntry,
+  JsonFormsRendererRegistryEntry,
+} from '../reducers';
 import {
   findUISchema,
   getAjv,
@@ -39,25 +43,22 @@ import {
   getSubErrorsAt,
   getTranslator,
   getUiSchema,
-  JsonFormsCellRendererRegistryEntry,
-  JsonFormsRendererRegistryEntry,
   JsonFormsUISchemaRegistryEntry,
 } from '../reducers';
 import { RankedTester } from '../testers';
-import { isInherentlyEnabled, hasShowRule } from './runtime';
+import { hasShowRule, isInherentlyEnabled, isVisible } from './runtime';
 import { createLabelDescriptionFrom } from './label';
 import { CombinatorKeyword, resolveSubSchemas } from './combinators';
 import { moveDown, moveUp } from './array';
 import { AnyAction, Dispatch } from './type';
 import { Resolve } from './util';
 import { composePaths, composeWithUi } from './path';
-import { isVisible } from './runtime';
 import { CoreActions, update } from '../actions';
 import { ErrorObject } from 'ajv';
 import { JsonFormsState } from '../store';
 import { getCombinedErrorMessage, getI18nKey, i18nJsonSchema, Translator } from '../i18n';
 
-export { JsonFormsRendererRegistryEntry, JsonFormsCellRendererRegistryEntry };
+export type { JsonFormsRendererRegistryEntry, JsonFormsCellRendererRegistryEntry };
 
 const isRequired = (
   schema: JsonSchema,
