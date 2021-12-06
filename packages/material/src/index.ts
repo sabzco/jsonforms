@@ -76,9 +76,13 @@ import {
   MaterialTextControl,
   materialTextControlTester,
   MaterialOneOfRadioGroupControl,
-  materialOneOfRadioGroupControlTester
+  materialOneOfRadioGroupControlTester,
+  materialAdditionalInputControlTester,
+  MaterialAdditionalInputControl,
 } from './controls';
 import {
+  MaterialAdditionalProperties,
+  materialAdditionalPropertiesTester,
   MaterialArrayLayout,
   materialArrayLayoutTester,
   MaterialCategorizationLayout,
@@ -88,7 +92,7 @@ import {
   MaterialHorizontalLayout,
   materialHorizontalLayoutTester,
   MaterialVerticalLayout,
-  materialVerticalLayoutTester
+  materialVerticalLayoutTester,
 } from './layouts';
 import {
   MaterialBooleanCell,
@@ -182,7 +186,15 @@ export const materialRenderers: JsonFormsRendererRegistryEntry[] = [
   {
     tester: materialEnumArrayRendererTester,
     renderer: MaterialEnumArrayRenderer
-  }
+  },
+  {
+    tester: materialAdditionalInputControlTester,
+    renderer: MaterialAdditionalInputControl,
+  },
+  {
+    tester: materialAdditionalPropertiesTester,
+    renderer: MaterialAdditionalProperties,
+  },
 ];
 
 export const materialCells: JsonFormsCellRendererRegistryEntry[] = [

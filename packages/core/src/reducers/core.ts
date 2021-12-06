@@ -25,16 +25,19 @@
 
 import cloneDeep from 'lodash/cloneDeep';
 import setFp from 'lodash/fp/set';
+import unsetFp from 'lodash/fp/unset';
 import get from 'lodash/get';
 import filter from 'lodash/filter';
 import isEqual from 'lodash/isEqual';
 import isFunction from 'lodash/isFunction';
 import Ajv, { ErrorObject, ValidateFunction } from 'ajv';
 import {
+  ADD_NEW_PROPERTY,
   CoreActions,
   INIT,
   InitAction,
   InitActionOptions,
+  REMOVE_A_PROPERTY,
   SET_AJV,
   SET_SCHEMA,
   SET_UISCHEMA,
@@ -42,9 +45,9 @@ import {
   UPDATE_CORE,
   UPDATE_DATA,
   UPDATE_ERRORS,
-  UpdateCoreAction
+  UpdateCoreAction,
 } from '../actions';
-import { pathsAreEqual, createAjv, pathStartsWith, Reducer } from '../util';
+import { composePaths, pathsAreEqual, createAjv, pathStartsWith, Reducer } from '../util';
 import { JsonSchema, UISchemaElement } from '../models';
 
 export const validate = (validator: ValidateFunction | undefined, data: any): ErrorObject[] => {
@@ -255,6 +258,37 @@ export const coreReducer: Reducer<JsonFormsCore, CoreActions> = (
           errors
         };
       }
+    }
+    case ADD_NEW_PROPERTY: {
+      if ([undefined, null].includes(action.path)) {
+        return state;
+      }
+      const newData: any = setFp(
+        composePaths(action.path, action.key),
+        action.value,
+        state.data === undefined ? {} : state.data,
+      );
+      const errors = validate(state.validator, newData);
+      return {
+        ...state,
+        data: newData,
+        errors,
+      };
+    }
+    case REMOVE_A_PROPERTY: {
+      if ([undefined, null].includes(action.path)) {
+        return state;
+      }
+      const newData: any = unsetFp(
+        action.path,
+        state.data === undefined ? {} : state.data,
+      );
+      const errors = validate(state.validator, newData);
+      return {
+        ...state,
+        data: newData,
+        errors,
+      };
     }
     case UPDATE_ERRORS: {
       return {

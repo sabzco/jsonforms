@@ -136,6 +136,11 @@ export interface UISchemaElement {
   rule?: Rule;
 
   /**
+   * An optional dataPath (for dynamic-controls)
+   */
+  dataPath?: string;
+
+  /**
    * Any additional options.
    */
   options?: { [key: string]: any };
@@ -153,6 +158,12 @@ export interface Layout extends UISchemaElement {
 }
 
 /**
+ * Represents a scopable-layout element which can order its 
+ * children in a specific way.
+ */
+export interface DynamicLayout extends Layout, Scopable {}
+
+/**
  * A layout which orders its child elements vertically (i.e. from top to bottom).
  */
 export interface VerticalLayout extends Layout {
@@ -167,15 +178,29 @@ export interface HorizontalLayout extends Layout {
 }
 
 /**
- * A group resembles a vertical layout, but additionally might have a label.
- * This layout is useful when grouping different elements by a certain criteria.
+ * A group layout without specified type
  */
-export interface GroupLayout extends Layout {
-  type: 'Group';
+export interface AbstractGroupLayout {
   /**
    * The label of this group layout.
    */
   label?: string;
+}
+
+/**
+ * A group resembles a vertical layout, but additionally might have a label.
+ * This layout is useful when grouping different elements by a certain criteria.
+ */
+export interface GroupLayout extends AbstractGroupLayout, Layout {
+  type: 'Group';
+}
+
+/**
+ * A group resembles a vertical layout, but additionally might have a label.
+ * This layout is useful when grouping different elements by a certain criteria.
+ */
+export interface DynamicGroupLayout extends AbstractGroupLayout, DynamicLayout {
+  type: 'DynamicGroup';
 }
 
 /**
@@ -245,7 +270,7 @@ export interface Categorization extends UISchemaElement {
 }
 
 export const isGroup = (layout: Layout): layout is GroupLayout =>
-  layout.type === 'Group';
+  layout.type === 'Group' || layout.type === 'DynamicGroup';
 
 export const isLayout = (uischema: UISchemaElement): uischema is Layout =>
   (uischema as Layout).elements !== undefined;

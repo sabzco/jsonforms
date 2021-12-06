@@ -29,25 +29,26 @@ import {
   ArrayLayoutProps,
   CellProps,
   CombinatorRendererProps,
+  configReducer,
   ControlProps,
+  coreReducer,
+  createDynamicControlElement,
   defaultMapStateToEnumCellProps,
   DispatchCellProps,
   DispatchPropsOfControl,
+  DispatchPropsOfDynamicLayout,
+  DispatchPropsOfMultiEnumControl,
+  DynamicLayoutProps,
   EnumCellProps,
+  i18nReducer,
   JsonFormsCore,
   JsonFormsSubStates,
   LayoutProps,
-  OwnPropsOfCell,
-  OwnPropsOfControl,
-  OwnPropsOfEnum,
-  OwnPropsOfEnumCell,
-  OwnPropsOfJsonFormsRenderer,
-  OwnPropsOfLayout,
-  OwnPropsOfMasterListItem,
-  StatePropsOfControlWithDetail,
-  StatePropsOfMasterItem,
-  configReducer,
-  coreReducer,
+  mapDispatchToArrayControlProps,
+  mapDispatchToControlProps,
+  mapDispatchToDynamicControlProps,
+  mapDispatchToDynamicLayoutProps,
+  mapDispatchToMultiEnumProps,
   mapStateToAllOfProps,
   mapStateToAnyOfProps,
   mapStateToArrayControlProps,
@@ -60,17 +61,32 @@ import {
   mapStateToJsonFormsRendererProps,
   mapStateToLayoutProps,
   mapStateToMasterListItemProps,
-  mapStateToOneOfProps,
-  mapStateToOneOfEnumControlProps,
-  mapStateToOneOfEnumCellProps,
-  mapDispatchToMultiEnumProps,
   mapStateToMultiEnumControlProps,
-  DispatchPropsOfMultiEnumControl,
-  mapDispatchToControlProps,
-  mapDispatchToArrayControlProps,
-  i18nReducer
+  mapStateToOneOfEnumCellProps,
+  mapStateToOneOfEnumControlProps,
+  mapStateToOneOfProps,
+  OwnPropsOfCell,
+  OwnPropsOfControl,
+  OwnPropsOfEnum,
+  OwnPropsOfEnumCell,
+  OwnPropsOfJsonFormsRenderer,
+  OwnPropsOfLayout,
+  OwnPropsOfMasterListItem,
+  StatePropsOfControlWithDetail,
+  StatePropsOfMasterItem,
 } from '@jsonforms/core';
-import React, { ComponentType, Dispatch, ReducerAction, useContext, useEffect, useMemo, useReducer, useRef } from 'react';
+import React, {
+  ComponentType,
+  Dispatch,
+  ReducerAction,
+  useContext,
+  useEffect,
+  useMemo,
+  useReducer,
+  useRef,
+  useState,
+} from 'react';
+import useDeepEffect from './util/deep-effect';
 
 const initialCoreState: JsonFormsCore = {
   data: {},
@@ -96,7 +112,7 @@ export const JsonFormsContext = React.createContext<JsonFormsStateContext>({
  */
 const useEffectAfterFirstRender = (
   effect: () => void,
-  dependencies: Array<any>
+  dependencies: any[]
 ) => {
   const firstExecution = useRef(true);
   useEffect(() => {
@@ -201,23 +217,22 @@ export const ctxToControlProps = (ctx: JsonFormsStateContext, props: OwnPropsOfC
 export const ctxToEnumControlProps = (ctx: JsonFormsStateContext, props: OwnPropsOfEnum) => {
   const enumProps = mapStateToEnumControlProps({ jsonforms: { ...ctx } }, props);
   /**
-   * Make sure, that options are memoized as otherwise the component will rerender for every change, 
-   * as the options array is recreated every time.
+   * Make sure, that options are memoized as otherwise the component will rerender for every
+   * change,  as the options array is recreated every time.
    */
   const options = useMemo(() => enumProps.options, [props.options, enumProps.schema]);
-  return {...enumProps, options}
-}
+  return {...enumProps, options};
+};
 
 export const ctxToOneOfEnumControlProps = (ctx: JsonFormsStateContext, props: OwnPropsOfControl & OwnPropsOfEnum) => {
   const enumProps = mapStateToOneOfEnumControlProps({ jsonforms: { ...ctx } }, props);
   /**
-   * Make sure, that options are memoized as otherwise the component will rerender for every change, 
-   * as the options array is recreated every time.
+   * Make sure, that options are memoized as otherwise the component will rerender for every
+   * change,  as the options array is recreated every time.
    */
   const options = useMemo(() => enumProps.options, [props.options, enumProps.schema]);
-  return {...enumProps, options}
-  
-}
+  return {...enumProps, options};
+};
 
 export const ctxToMultiEnumControlProps = (ctx: JsonFormsStateContext, props: OwnPropsOfControl) =>
   mapStateToMultiEnumControlProps({ jsonforms: { ...ctx } }, props);
@@ -240,6 +255,14 @@ export const ctxToAllOfProps = (
 
 export const ctxDispatchToControlProps = (dispatch: Dispatch<ReducerAction<any>>): DispatchPropsOfControl =>
   useMemo(() => mapDispatchToControlProps(dispatch as any), [dispatch]);
+
+export const ctxDispatchToDynamicControlProps =
+  (dispatch: Dispatch<ReducerAction<any>>): DispatchPropsOfControl =>
+  useMemo(() => mapDispatchToDynamicControlProps(dispatch as any), [dispatch]);
+
+export const ctxDispatchToDynamicLayoutProps =
+  (dispatch: Dispatch<ReducerAction<any>>): DispatchPropsOfDynamicLayout =>
+    useMemo(() => mapDispatchToDynamicLayoutProps(dispatch as any), [dispatch]);
 
 // context mappers
 
@@ -299,7 +322,7 @@ export const ctxToEnumCellProps = (
    * as the options array is recreated every time.
    */
   const options = useMemo(() => cellProps.options, [ownProps.options, cellProps.schema]);
-  return {...cellProps, options}
+  return {...cellProps, options};
 };
 
 export const ctxToOneOfEnumCellProps = (
@@ -311,7 +334,7 @@ export const ctxToOneOfEnumCellProps = (
    * Make sure, that options are memoized as otherwise the cell will rerender for every change, 
    * as the options array is recreated every time.
    */
-  const options = useMemo(() => enumCellProps.options, [props.options, enumCellProps.schema])
+  const options = useMemo(() => enumCellProps.options, [props.options, enumCellProps.schema]);
   return {...enumCellProps, options};
 };
 
@@ -349,11 +372,27 @@ const withContextToControlProps =
       return (<Component {...props} {...controlProps} {...dispatchProps} />);
     };
 
+const withContextToDynamicControlProps =
+  (Component: ComponentType<ControlProps>): ComponentType<OwnPropsOfControl> =>
+    ({ ctx, props }: JsonFormsStateContext & ControlProps) => {
+      const controlProps = ctxToControlProps(ctx, props);
+      const dispatchProps = ctxDispatchToDynamicControlProps(ctx.dispatch);
+      return (<Component {...props} {...controlProps} {...dispatchProps} />);
+    };
+
 const withContextToLayoutProps =
   (Component: ComponentType<LayoutProps>): ComponentType<OwnPropsOfJsonFormsRenderer> =>
     ({ ctx, props }: JsonFormsStateContext & LayoutProps) => {
       const layoutProps = ctxToLayoutProps(ctx, props);
       return (<Component {...props} {...layoutProps} />);
+    };
+
+const withContextToDynamicLayoutProps =
+  (Component: ComponentType<LayoutProps>): ComponentType<OwnPropsOfJsonFormsRenderer> =>
+    ({ ctx, props }: JsonFormsStateContext & LayoutProps) => {
+      const layoutProps = ctxToLayoutProps(ctx, props);
+      const dispatchProps = ctxDispatchToDynamicLayoutProps(ctx.dispatch);
+      return (<Component {...props} {...layoutProps} {...dispatchProps} />);
     };
 
 const withContextToOneOfProps =
@@ -445,7 +484,7 @@ const withContextToEnumProps =
     ({ ctx, props }: JsonFormsStateContext & ControlProps & OwnPropsOfEnum) => {
       const stateProps = ctxToEnumControlProps(ctx, props);
       const dispatchProps = ctxDispatchToControlProps(ctx.dispatch);
-      
+
       return (<Component {...props} {...dispatchProps} {...stateProps} />);
     };
 
@@ -473,7 +512,6 @@ const withContextToMultiEnumProps =
     return (<Component {...props} {...dispatchProps} {...stateProps} />);
   };
 
-
 // --
 
 // top level HOCs --
@@ -482,9 +520,44 @@ export const withJsonFormsControlProps =
   (Component: ComponentType<ControlProps>, memoize = true): ComponentType<OwnPropsOfControl> =>
   withJsonFormsContext(withContextToControlProps(memoize ? React.memo(Component) : Component));
 
+export const withDynamicControlProps =
+  (Component: ComponentType<ControlProps>, memoize = true): ComponentType<OwnPropsOfControl> =>
+    withJsonFormsContext(
+      withContextToDynamicControlProps(memoize ? React.memo(Component) : Component)
+    );
+
 export const withJsonFormsLayoutProps =
   (Component: ComponentType<LayoutProps>, memoize = true): ComponentType<OwnPropsOfLayout> =>
     withJsonFormsContext(withContextToLayoutProps(memoize ? React.memo(Component) : Component));
+
+const withDynamicLayoutProps =
+  (Component: ComponentType<LayoutProps>, memoize = true): ComponentType<OwnPropsOfLayout> =>
+    withJsonFormsContext(
+      withContextToDynamicLayoutProps(memoize ? React.memo(Component) : Component)
+    );
+
+const withAdditionalElements = (Component: ComponentType<LayoutProps>) => (props: DynamicLayoutProps) => {
+  const [uischema, setUischema] = useState(props.uischema);
+  const scope = props.uischema.scope;
+
+  const additionalPropertiesKeys = props.schema.properties
+    ? Object.keys(props.data ?? {}).filter(key => !(key in props.schema.properties))
+    : Object.keys(props.data ?? {});
+
+  useDeepEffect(() => {
+    setUischema({
+      ...props.uischema,
+      elements: additionalPropertiesKeys.map(propName =>
+        (createDynamicControlElement(scope, propName)),
+      ),
+    });
+  }, [additionalPropertiesKeys, scope]);
+
+  return <Component {...props} uischema={uischema}/>;
+};
+
+export const withAdditionalProperties = (Component: ComponentType<LayoutProps>) =>
+  withDynamicLayoutProps(withAdditionalElements(Component));
 
 export const withJsonFormsOneOfProps =
   (Component: ComponentType<CombinatorRendererProps>, memoize = true): ComponentType<OwnPropsOfControl> =>
