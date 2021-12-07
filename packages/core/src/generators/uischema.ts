@@ -33,7 +33,7 @@ import {
   JsonSchema,
   LabelElement,
   Layout,
-  UISchemaElement
+  UISchemaElement,
 } from '../models';
 import { deriveTypes, resolveSchema } from '../util';
 
@@ -120,7 +120,9 @@ const generateUISchema = (
   layoutType: string,
   rootSchema?: JsonSchema
 ): UISchemaElement => {
+  console.log(jsonSchema, {schemaElements, currentRef, schemaName, layoutType});
   if (!isEmpty(jsonSchema) && jsonSchema.$ref !== undefined) {
+    console.log('$ref');
     return generateUISchema(
       resolveSchema(rootSchema, jsonSchema.$ref),
       schemaElements,
@@ -132,6 +134,7 @@ const generateUISchema = (
   }
 
   if (isCombinator(jsonSchema)) {
+    console.log('isCombinator');
     const controlObject: ControlElement = createControlElement(currentRef);
     schemaElements.push(controlObject);
 
@@ -150,6 +153,7 @@ const generateUISchema = (
   }
 
   if (currentRef === '#' && types[0] === 'object') {
+    console.log('#object');
     const layout: Layout = createLayout(layoutType);
     schemaElements.push(layout);
 
@@ -177,6 +181,24 @@ const generateUISchema = (
       });
     }
 
+    if (jsonSchema.additionalProperties) {
+      let value = jsonSchema.additionalProperties as JsonSchema;
+      const ref = `${currentRef}/additionalProperties`;
+      if (value.$ref) {
+        value = resolveSchema(rootSchema, value.$ref);
+      }
+
+      generateUISchema(
+        value,
+        layout.elements,
+        ref,
+        'additionalProperties',
+        layoutType,
+        rootSchema
+      );
+    }
+
+    console.log(layout);
     return layout;
   }
 
@@ -195,6 +217,7 @@ const generateUISchema = (
       const controlObject: ControlElement = createControlElement(currentRef);
       schemaElements.push(controlObject);
 
+      console.log(types[0]);
       return controlObject;
     default:
       throw new Error('Unknown type: ' + JSON.stringify(jsonSchema));
