@@ -53,7 +53,7 @@ import { moveDown, moveUp } from './array';
 import { AnyAction, Dispatch } from './type';
 import { Resolve } from './util';
 import { composePaths, composeWithUi } from './path';
-import { CoreActions, update } from '../actions';
+import { addNewProperty, CoreActions, removeThisProperty, update } from '../actions';
 import { ErrorObject } from 'ajv';
 import { JsonFormsState } from '../store';
 import { getCombinedErrorMessage, getI18nKey, i18nJsonSchema, Translator } from '../i18n';
@@ -384,6 +384,34 @@ export interface DispatchPropsOfControl {
 }
 
 /**
+ * Dispatch-based props of a Control.
+ */
+export interface DispatchPropsOfDynamicControl extends DispatchPropsOfControl {
+  /**
+   * Update handler that emits removing a key
+   *
+   * @param {string} path the path to the data to be updated
+   * to the given key in the given path
+   */
+  removeThisProperty(path: string): void;
+}
+
+/**
+ * Dispatch-based props of a Dynamic-Layout.
+ */
+export interface DispatchPropsOfDynamicLayout {
+  /**
+   * Update handler that emits adding a new key
+   *
+   * @param {string} path the path to the data to be updated
+   * @param {string} key the key of the new field
+   * @param {any} value the new value that should be written 
+   * to the given key in the given path
+   */
+  addNewProperty(path: string, key: string, value: any): void;
+}
+
+/**
  * Props of a Control.
  */
 export interface ControlProps
@@ -429,7 +457,7 @@ export const mapStateToControlProps = (
 ): StatePropsOfControl => {
   const { uischema } = ownProps;
   const rootData = getData(state);
-  const path = composeWithUi(uischema, ownProps.path);
+  const path = composeWithUi(uischema, composePaths(ownProps.path, uischema.dataPath));
   const visible: boolean =
     ownProps.visible === undefined || hasShowRule(uischema)
       ? isVisible(uischema, rootData, ownProps.path, getAjv(state))
@@ -500,6 +528,36 @@ export const mapDispatchToControlProps = (
   handleChange(path, value) {
     dispatch(update(path, () => value));
   }
+});
+
+/**
+ *
+ * Map dispatch to dynamic-control props.
+ *
+ * @param dispatch the store's dispatch method
+ * @returns {DispatchPropsOfControl} dispatch props for a control
+ */
+export const mapDispatchToDynamicControlProps = (
+  dispatch: Dispatch
+): DispatchPropsOfDynamicControl => ({
+  ...mapDispatchToControlProps(dispatch),
+  removeThisProperty(path) {
+    dispatch(removeThisProperty(path));
+  },
+});
+
+/**
+ * Map dispatch to dynamic-layout props.
+ *
+ * @param dispatch the store's dispatch method
+ * @returns {DispatchPropsOfControl} dispatch props for a control
+ */
+export const mapDispatchToDynamicLayoutProps = (
+  dispatch: Dispatch
+): DispatchPropsOfDynamicLayout => ({
+  addNewProperty(path, key, value) {
+    dispatch(addNewProperty(path, key, value));
+  },
 });
 
 /**
