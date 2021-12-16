@@ -161,7 +161,7 @@ export interface Layout extends UISchemaElement {
  * Represents a scopable-layout element which can order its 
  * children in a specific way.
  */
-export interface ScopableLayout extends Layout, Scopable {}
+export interface DynamicLayout extends Layout, Scopable {}
 
 /**
  * A layout which orders its child elements vertically (i.e. from top to bottom).
@@ -187,6 +187,14 @@ export interface GroupLayout extends Layout {
    * The label of this group layout.
    */
   label?: string;
+}
+
+/**
+ * A group resembles a vertical layout, but additionally might have a label.
+ * This layout is useful when grouping different elements by a certain criteria.
+ */
+export interface DynamicGroupLayout extends DynamicLayout {
+  type: 'DynamicGroup';
 }
 
 /**

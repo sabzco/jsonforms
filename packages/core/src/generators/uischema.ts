@@ -33,7 +33,7 @@ import {
   JsonSchema,
   LabelElement,
   Layout,
-  ScopableLayout,
+  DynamicLayout,
   UISchemaElement
 } from '../models';
 import { deriveTypes, resolveSchema } from '../util';
@@ -54,8 +54,8 @@ const createLayout = (layoutType: string): Layout => ({
  * @param ref
  * @returns the new ILayout
  */
-const createScopableLayout = (layoutType: string, ref: string): ScopableLayout => {
-  const layout = createLayout(layoutType) as ScopableLayout;
+const createScopableLayout = (layoutType: string, ref: string): DynamicLayout => {
+  const layout = createLayout(layoutType) as DynamicLayout;
   layout.scope = ref;
   return layout;
 };

@@ -419,6 +419,11 @@ export interface ControlProps
     DispatchPropsOfControl {}
 
 /**
+ * Props of a DynamicControl.
+ */
+export interface DynamicControlProps extends StatePropsOfControl, DispatchPropsOfDynamicControl {}
+
+/**
  * State props of a layout;
  */
 export interface StatePropsOfLayout extends StatePropsOfRenderer {
@@ -429,6 +434,11 @@ export interface StatePropsOfLayout extends StatePropsOfRenderer {
 }
 
 export interface LayoutProps extends StatePropsOfLayout {}
+
+/**
+ * Props of a DynamicLayout.
+ */
+export interface DynamicLayoutProps extends StatePropsOfLayout, DispatchPropsOfDynamicLayout {}
 
 /**
  * The state of a control.

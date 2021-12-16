@@ -37,8 +37,13 @@ import MaterialCategorizationLayout, {
 import MaterialArrayLayout, {
   materialArrayLayoutTester
 } from './MaterialArrayLayoutRenderer';
+import MaterialAdditionalProperties, {
+  materialAdditionalPropertiesTester,
+} from './MaterialAdditionalProperties';
 
 export {
+  materialAdditionalPropertiesTester,
+  MaterialAdditionalProperties,
   materialArrayLayoutTester,
   MaterialArrayLayout,
   MaterialCategorizationLayout,

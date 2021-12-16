@@ -23,32 +23,32 @@
   THE SOFTWARE.
 */
 
+import type { DynamicGroupLayout } from '@jsonforms/core';
 import {
   Actions,
   ArrayControlProps,
   ArrayLayoutProps,
   CellProps,
   CombinatorRendererProps,
+  configReducer,
   ControlProps,
+  coreReducer,
+  createDynamicControlElement,
   defaultMapStateToEnumCellProps,
   DispatchCellProps,
   DispatchPropsOfControl,
   DispatchPropsOfDynamicLayout,
+  DispatchPropsOfMultiEnumControl,
   EnumCellProps,
+  i18nReducer,
   JsonFormsCore,
   JsonFormsSubStates,
   LayoutProps,
-  OwnPropsOfCell,
-  OwnPropsOfControl,
-  OwnPropsOfEnum,
-  OwnPropsOfEnumCell,
-  OwnPropsOfJsonFormsRenderer,
-  OwnPropsOfLayout,
-  OwnPropsOfMasterListItem,
-  StatePropsOfControlWithDetail,
-  StatePropsOfMasterItem,
-  configReducer,
-  coreReducer,
+  mapDispatchToArrayControlProps,
+  mapDispatchToControlProps,
+  mapDispatchToDynamicControlProps,
+  mapDispatchToDynamicLayoutProps,
+  mapDispatchToMultiEnumProps,
   mapStateToAllOfProps,
   mapStateToAnyOfProps,
   mapStateToArrayControlProps,
@@ -61,19 +61,33 @@ import {
   mapStateToJsonFormsRendererProps,
   mapStateToLayoutProps,
   mapStateToMasterListItemProps,
-  mapStateToOneOfProps,
-  mapStateToOneOfEnumControlProps,
-  mapStateToOneOfEnumCellProps,
-  mapDispatchToMultiEnumProps,
   mapStateToMultiEnumControlProps,
-  DispatchPropsOfMultiEnumControl,
-  mapDispatchToControlProps,
-  mapDispatchToArrayControlProps,
-  mapDispatchToDynamicControlProps,
-  mapDispatchToDynamicLayoutProps,
-  i18nReducer,
+  mapStateToOneOfEnumCellProps,
+  mapStateToOneOfEnumControlProps,
+  mapStateToOneOfProps,
+  OwnPropsOfCell,
+  OwnPropsOfControl,
+  OwnPropsOfEnum,
+  OwnPropsOfEnumCell,
+  OwnPropsOfJsonFormsRenderer,
+  OwnPropsOfLayout,
+  OwnPropsOfMasterListItem,
+  StatePropsOfControlWithDetail,
+  StatePropsOfMasterItem,
 } from '@jsonforms/core';
-import React, { ComponentType, Dispatch, ReducerAction, useContext, useEffect, useMemo, useReducer, useRef } from 'react';
+import React, {
+  ComponentType,
+  Dispatch,
+  ReducerAction,
+  useContext,
+  useEffect,
+  useMemo,
+  useReducer,
+  useRef,
+  useState,
+} from 'react';
+import useDeepEffect from './util/deep-effect';
+import { DynamicLayoutProps } from '../../core/src';
 
 const initialCoreState: JsonFormsCore = {
   data: {},
@@ -523,6 +537,28 @@ export const withJsonFormsDynamicLayoutProps =
     withJsonFormsContext(
       withContextToDynamicLayoutProps(memoize ? React.memo(Component) : Component)
     );
+
+export const withAdditionalProps = (Component: ComponentType<LayoutProps>) => (ownProps: any) =>
+  React.createElement(withJsonFormsDynamicLayoutProps((props: DynamicLayoutProps) => {
+    const groupLayout = props.uischema as DynamicGroupLayout;
+    const [elements, setElements] = useState([]);
+    const uischema = {
+      ...props.uischema,
+      elements
+    };
+    console.log(props);
+    const scope = groupLayout.scope;
+    const additionalPropertiesKeys = Object.keys(props.data)
+      .filter(key => !(key in props.schema.properties));
+
+    useDeepEffect(() => {
+      setElements(additionalPropertiesKeys.map(propName =>
+        (createDynamicControlElement(scope, propName)),
+      ));
+    }, [additionalPropertiesKeys, scope]);
+
+    return <Component {...props} uischema={uischema} />;
+  }), ownProps);
 
 export const withJsonFormsOneOfProps =
   (Component: ComponentType<CombinatorRendererProps>, memoize = true): ComponentType<OwnPropsOfControl> =>
