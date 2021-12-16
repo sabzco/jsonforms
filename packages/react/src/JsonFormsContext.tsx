@@ -39,6 +39,7 @@ import {
   DispatchPropsOfControl,
   DispatchPropsOfDynamicLayout,
   DispatchPropsOfMultiEnumControl,
+  DynamicLayoutProps,
   EnumCellProps,
   i18nReducer,
   JsonFormsCore,
@@ -87,7 +88,6 @@ import React, {
   useState,
 } from 'react';
 import useDeepEffect from './util/deep-effect';
-import { DynamicLayoutProps } from '../../core/src';
 
 const initialCoreState: JsonFormsCore = {
   data: {},
