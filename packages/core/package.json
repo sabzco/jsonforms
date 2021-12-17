@@ -1,6 +1,6 @@
 {
-  "name": "@jsonforms/core",
-  "version": "3.0.0-alpha.2",
+  "name": "@json-forms/core",
+  "version": "3.0.0-gamma.3",
   "description": "Core module of JSON Forms",
   "repository": "https://github.com/eclipsesource/jsonforms",
   "bugs": "https://github.com/eclipsesource/jsonforms/issues",
@@ -83,6 +83,6 @@
     "typedoc": "^0.19.2",
     "typescript": "4.2.3",
     "webpack": "^4.41.2",
-    "webpack-cli": "^3.2.1"
+    "webpack-cli": "^3.3.12"
   }
 }
