@@ -30,12 +30,12 @@ import Enzyme, { mount, ReactWrapper } from 'enzyme';
 import Adapter from 'enzyme-adapter-react-16';
 import {
   ControlElement
-} from '@jsonforms/core';
+} from '@json-forms/core';
 import {
   MaterialOneOfRenderer,
   materialRenderers
 } from '../../src';
-import { JsonForms, JsonFormsDispatch, JsonFormsStateProvider } from '@jsonforms/react';
+import { JsonForms, JsonFormsDispatch, JsonFormsStateProvider } from '@json-forms/react';
 import { Tab } from '@material-ui/core';
 import { initCore, TestEmitter } from './util';
 

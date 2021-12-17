@@ -1,6 +1,6 @@
 import './MatchMediaMock';
-import { ControlElement, NOT_APPLICABLE } from '@jsonforms/core';
-import { JsonForms } from '@jsonforms/react';
+import { ControlElement, NOT_APPLICABLE } from '@json-forms/core';
+import { JsonForms } from '@json-forms/react';
 import Enzyme, { mount, ReactWrapper } from 'enzyme';
 import Adapter from 'enzyme-adapter-react-16';
 import React from 'react';

@@ -29,12 +29,12 @@ import {
   rankWith,
   uiTypeIs,
   VerticalLayout,
-} from '@jsonforms/core';
+} from '@json-forms/core';
 import {
   MaterialLayoutRenderer,
   MaterialLayoutRendererProps
 } from '../util/layout';
-import { withJsonFormsLayoutProps } from '@jsonforms/react';
+import { withJsonFormsLayoutProps } from '@json-forms/react';
 
 /**
  * Default tester for a vertical layout.

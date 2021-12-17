@@ -9,7 +9,7 @@ import {
   OwnPropsOfEnum,
   rankWith,
   StatePropsOfControlWithDetail
-} from '@jsonforms/core';
+} from '@json-forms/core';
 
 import { JsonForms } from '../src/JsonForms';
 import { withJsonFormsDetailProps, withJsonFormsEnumCellProps, withJsonFormsEnumProps } from '../src/JsonFormsContext';

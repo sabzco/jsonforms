@@ -23,7 +23,7 @@
   THE SOFTWARE.
 */
 import React from 'react';
-import { RendererProps } from '@jsonforms/core';
+import { RendererProps } from '@json-forms/core';
 
 /**
  * Convenience wrapper around React's Component for constraining props.

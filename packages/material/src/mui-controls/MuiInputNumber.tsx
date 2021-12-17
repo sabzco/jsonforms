@@ -23,7 +23,7 @@
   THE SOFTWARE.
 */
 import React from 'react';
-import { CellProps, WithClassname } from '@jsonforms/core';
+import { CellProps, WithClassname } from '@json-forms/core';
 import Input from '@material-ui/core/Input';
 import merge from 'lodash/merge';
 import {useDebouncedChange} from '../util';

@@ -32,12 +32,12 @@ import {
   rankWith,
   uiTypeIs,
   withIncreasedRank,
-} from '@jsonforms/core';
+} from '@json-forms/core';
 import {
   MaterialLayoutRenderer,
   MaterialLayoutRendererProps
 } from '../util/layout';
-import { withJsonFormsLayoutProps } from '@jsonforms/react';
+import { withJsonFormsLayoutProps } from '@json-forms/react';
 
 export const groupTester: RankedTester = rankWith(1, uiTypeIs('Group'));
 const style: { [x: string]: any } = { marginBottom: '10px' };

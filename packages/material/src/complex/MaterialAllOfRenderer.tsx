@@ -34,8 +34,8 @@ import {
   rankWith,
   resolveSubSchemas,
   StatePropsOfCombinator
-} from '@jsonforms/core';
-import { JsonFormsDispatch, withJsonFormsAllOfProps } from '@jsonforms/react';
+} from '@json-forms/core';
+import { JsonFormsDispatch, withJsonFormsAllOfProps } from '@json-forms/react';
 
 export const MaterialAllOfRenderer = ({
   schema,

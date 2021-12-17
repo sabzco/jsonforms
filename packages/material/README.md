@@ -26,8 +26,8 @@ Use the `JsonForms` component for each form you want to render and hand over the
 
 ```js
 import React, { useState } from 'react';
-import { JsonForms } from '@jsonforms/react';
-import { materialCells, materialRenderers } from '@jsonforms/material-renderers';
+import { JsonForms } from '@json-forms/react';
+import { materialCells, materialRenderers } from '@json-forms/material-renderers';
 
 function App() {
   const [data, setData] = useState(initialData);

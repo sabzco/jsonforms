@@ -29,7 +29,7 @@ import {
   showAsRequired,
   isDescriptionHidden,
   OwnPropsOfEnum
-} from '@jsonforms/core';
+} from '@json-forms/core';
 import Radio from '@material-ui/core/Radio';
 import RadioGroup from '@material-ui/core/RadioGroup';
 import {

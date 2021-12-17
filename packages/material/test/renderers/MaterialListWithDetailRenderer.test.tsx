@@ -25,7 +25,7 @@
 import './MatchMediaMock';
 import {
   ControlElement
-} from '@jsonforms/core';
+} from '@json-forms/core';
 import * as React from 'react';
 
 import { materialRenderers } from '../../src';
@@ -34,7 +34,7 @@ import MaterialListWithDetailRenderer, {
 } from '../../src/additional/MaterialListWithDetailRenderer';
 import Enzyme, { mount, ReactWrapper } from 'enzyme';
 import Adapter from 'enzyme-adapter-react-16';
-import { JsonFormsStateProvider } from '@jsonforms/react';
+import { JsonFormsStateProvider } from '@json-forms/react';
 import { ListItem } from '@material-ui/core'
 import { initCore } from './util';
 

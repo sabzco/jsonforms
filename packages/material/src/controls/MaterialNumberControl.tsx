@@ -28,10 +28,10 @@ import {
   isNumberControl,
   RankedTester,
   rankWith
-} from '@jsonforms/core';
+} from '@json-forms/core';
 import { MuiInputNumber } from '../mui-controls/MuiInputNumber';
 import { MaterialInputControl } from './MaterialInputControl';
-import { withJsonFormsControlProps } from '@jsonforms/react';
+import { withJsonFormsControlProps } from '@json-forms/react';
 
 export const MaterialNumberControl = (props: ControlProps) => (
   <MaterialInputControl {...props} input={MuiInputNumber} />

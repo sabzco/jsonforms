@@ -23,7 +23,7 @@
   THE SOFTWARE.
 */
 
-import type { DynamicGroupLayout } from '@jsonforms/core';
+import type { DynamicGroupLayout } from '@json-forms/core';
 import {
   Actions,
   ArrayControlProps,
@@ -75,7 +75,7 @@ import {
   OwnPropsOfMasterListItem,
   StatePropsOfControlWithDetail,
   StatePropsOfMasterItem,
-} from '@jsonforms/core';
+} from '@json-forms/core';
 import React, {
   ComponentType,
   Dispatch,

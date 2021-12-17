@@ -30,8 +30,8 @@ import {
   RankedTester,
   rankWith,
   WithClassname
-} from '@jsonforms/core';
-import { withJsonFormsCellProps } from '@jsonforms/react';
+} from '@json-forms/core';
+import { withJsonFormsCellProps } from '@json-forms/react';
 import { MuiInputNumberFormat } from '../mui-controls/MuiInputNumberFormat';
 
 export const MaterialNumberFormatCell = (

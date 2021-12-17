@@ -27,14 +27,14 @@ import {
   ControlElement,
   DispatchCellProps,
   JsonSchema
-} from '@jsonforms/core';
+} from '@json-forms/core';
 import * as React from 'react';
 
 import MaterialArrayControlRenderer from '../../src/complex/MaterialArrayControlRenderer';
 import { materialCells, materialRenderers } from '../../src';
 import Enzyme, { mount, ReactWrapper } from 'enzyme';
 import Adapter from 'enzyme-adapter-react-16';
-import { JsonFormsStateProvider, StatelessRenderer } from '@jsonforms/react';
+import { JsonFormsStateProvider, StatelessRenderer } from '@json-forms/react';
 import { initCore, TestEmitter } from './util';
 
 Enzyme.configure({ adapter: new Adapter() });

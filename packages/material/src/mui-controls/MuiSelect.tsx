@@ -23,7 +23,7 @@
   THE SOFTWARE.
 */
 import React from 'react';
-import { EnumCellProps, WithClassname } from '@jsonforms/core';
+import { EnumCellProps, WithClassname } from '@json-forms/core';
 
 import Select from '@material-ui/core/Select';
 import { MenuItem } from '@material-ui/core';

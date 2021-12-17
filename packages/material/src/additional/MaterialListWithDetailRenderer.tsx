@@ -33,11 +33,11 @@ import {
   RankedTester,
   rankWith,
   uiTypeIs
-} from '@jsonforms/core';
+} from '@json-forms/core';
 import {
   JsonFormsDispatch,
   withJsonFormsArrayLayoutProps
-} from '@jsonforms/react';
+} from '@json-forms/react';
 import { Grid, Hidden, List, Typography } from '@material-ui/core';
 import map from 'lodash/map';
 import range from 'lodash/range';

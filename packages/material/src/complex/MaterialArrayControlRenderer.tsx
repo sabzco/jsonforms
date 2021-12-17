@@ -23,8 +23,8 @@
   THE SOFTWARE.
 */
 import React, { useCallback, useState } from 'react';
-import { ArrayLayoutProps } from '@jsonforms/core';
-import { withJsonFormsArrayLayoutProps } from '@jsonforms/react';
+import { ArrayLayoutProps } from '@json-forms/core';
+import { withJsonFormsArrayLayoutProps } from '@json-forms/react';
 import { MaterialTableControl } from './MaterialTableControl';
 import { Hidden } from '@material-ui/core';
 import { DeleteDialog } from './DeleteDialog';

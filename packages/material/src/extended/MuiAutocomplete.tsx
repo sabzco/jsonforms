@@ -23,7 +23,7 @@
   THE SOFTWARE.
 */
 import React, { ReactNode } from 'react';
-import { EnumCellProps, EnumOption, WithClassname } from '@jsonforms/core';
+import { EnumCellProps, EnumOption, WithClassname } from '@json-forms/core';
 
 import Input from '@material-ui/core/Input';
 import Autocomplete, { AutocompleteRenderOptionState } from '@material-ui/lab/Autocomplete';

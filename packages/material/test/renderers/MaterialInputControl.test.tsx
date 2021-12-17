@@ -36,8 +36,8 @@ import {
   JsonSchema,
   RankedTester,
   rankWith,
-} from '@jsonforms/core';
-import { Control, JsonFormsStateProvider, withJsonFormsControlProps } from '@jsonforms/react';
+} from '@json-forms/core';
+import { Control, JsonFormsStateProvider, withJsonFormsControlProps } from '@json-forms/react';
 import { MaterialInputControl } from '../../src/controls/MaterialInputControl';
 import MaterialHorizontalLayoutRenderer from '../../src/layouts/MaterialHorizontalLayout';
 import { MuiInputText } from '../../src/mui-controls';

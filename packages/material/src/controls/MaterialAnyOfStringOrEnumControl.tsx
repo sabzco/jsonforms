@@ -33,8 +33,8 @@ import {
   schemaMatches,
   uiTypeIs,
   WithClassname
-} from '@jsonforms/core';
-import { Control, withJsonFormsControlProps } from '@jsonforms/react';
+} from '@json-forms/core';
+import { Control, withJsonFormsControlProps } from '@json-forms/react';
 import { Input } from '@material-ui/core';
 import { InputBaseComponentProps } from '@material-ui/core/InputBase';
 import merge from 'lodash/merge';

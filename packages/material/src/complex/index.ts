@@ -28,7 +28,7 @@ import {
   or,
   RankedTester,
   rankWith
-} from '@jsonforms/core';
+} from '@json-forms/core';
 import MaterialArrayControlRenderer from './MaterialArrayControlRenderer';
 import MaterialObjectRenderer, {
   materialObjectControlTester

@@ -23,7 +23,7 @@
   THE SOFTWARE.
 */
 import { RendererComponent } from './Renderer';
-import { ControlProps, ControlState } from '@jsonforms/core';
+import { ControlProps, ControlState } from '@json-forms/core';
 
 /**
  * A controlled component convenience wrapper that additionally manages a focused state.

@@ -25,7 +25,7 @@
 import {
   JsonFormsCellRendererRegistryEntry,
   JsonFormsRendererRegistryEntry
-} from '@jsonforms/core';
+} from '@json-forms/core';
 import {
   materialAllOfControlTester,
   MaterialAllOfRenderer,

@@ -27,7 +27,7 @@ import {
   ControlElement,
   createDefaultValue,
   JsonSchema,
-} from '@jsonforms/core';
+} from '@json-forms/core';
 import IconButton from '@material-ui/core/IconButton';
 import { Grid, Hidden, Typography } from '@material-ui/core';
 import TableRow from '@material-ui/core/TableRow';

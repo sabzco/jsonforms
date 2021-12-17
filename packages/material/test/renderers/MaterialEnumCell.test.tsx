@@ -26,7 +26,7 @@ import './MatchMediaMock';
 import * as React from 'react';
 import {
   ControlElement
-} from '@jsonforms/core';
+} from '@json-forms/core';
 import MaterialEnumCell, {
   materialEnumCellTester
 } from '../../src/cells/MaterialEnumCell';
@@ -34,7 +34,7 @@ import { materialRenderers } from '../../src';
 
 import Enzyme, { mount } from 'enzyme';
 import Adapter from 'enzyme-adapter-react-16';
-import { JsonFormsStateProvider } from '@jsonforms/react';
+import { JsonFormsStateProvider } from '@json-forms/react';
 import { initCore } from './util';
 
 Enzyme.configure({ adapter: new Adapter() });

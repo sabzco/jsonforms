@@ -32,10 +32,10 @@ import {
   JsonFormsRendererRegistryEntry,
   JsonSchema,
   OwnPropsOfRenderer,
-} from '@jsonforms/core';
-import type { UISchemaElement } from '@jsonforms/core';
+} from '@json-forms/core';
+import type { UISchemaElement } from '@json-forms/core';
 
-import { JsonFormsDispatch, useJsonForms } from '@jsonforms/react';
+import { JsonFormsDispatch, useJsonForms } from '@json-forms/react';
 import { Grid, Hidden } from '@material-ui/core';
 
 export const renderLayoutElements = (

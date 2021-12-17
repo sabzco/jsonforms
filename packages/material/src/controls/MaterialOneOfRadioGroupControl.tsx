@@ -31,8 +31,8 @@ import {
   OwnPropsOfEnum,
   RankedTester,
   rankWith,
-} from '@jsonforms/core';
-import { withJsonFormsOneOfEnumProps } from '@jsonforms/react';
+} from '@json-forms/core';
+import { withJsonFormsOneOfEnumProps } from '@json-forms/react';
 import { MaterialRadioGroup } from './MaterialRadioGroup';
 
 export const MaterialOneOfRadioGroupControl = (props: ControlProps & OwnPropsOfEnum) => {

@@ -29,8 +29,8 @@ import {
   OwnPropsOfEnum,
   RankedTester,
   rankWith,
-} from '@jsonforms/core';
-import { withJsonFormsOneOfEnumProps } from '@jsonforms/react';
+} from '@json-forms/core';
+import { withJsonFormsOneOfEnumProps } from '@json-forms/react';
 import { MuiAutocomplete, WithOptionLabel } from './MuiAutocomplete';
 import { MuiSelect } from '../mui-controls/MuiSelect';
 import { MaterialInputControl } from '../controls/MaterialInputControl';

@@ -28,8 +28,8 @@ import {
   isStringControl,
   RankedTester,
   rankWith
-} from '@jsonforms/core';
-import { withJsonFormsControlProps } from '@jsonforms/react';
+} from '@json-forms/core';
+import { withJsonFormsControlProps } from '@json-forms/react';
 import { MuiInputText } from '../mui-controls/MuiInputText';
 import { MaterialInputControl } from './MaterialInputControl';
 

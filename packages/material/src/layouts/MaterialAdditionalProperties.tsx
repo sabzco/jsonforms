@@ -28,9 +28,9 @@ import AddIcon from '@material-ui/icons/Add';
 import { MaterialLayoutRenderer } from '../util';
 import { useTheme } from '@material-ui/core/styles';
 import ModalWindow from '../util/ModalWindow';
-import type { DynamicLayoutProps, GroupLayout, JsonSchema } from '@jsonforms/core';
-import { deriveTypes, RankedTester, rankWith, uiTypeIs } from '@jsonforms/core';
-import { withAdditionalProps } from '@jsonforms/react';
+import type { DynamicLayoutProps, GroupLayout, JsonSchema } from '@json-forms/core';
+import { deriveTypes, RankedTester, rankWith, uiTypeIs } from '@json-forms/core';
+import { withAdditionalProps } from '@json-forms/react';
 
 export const materialAdditionalPropertiesTester: RankedTester = rankWith(
   1,

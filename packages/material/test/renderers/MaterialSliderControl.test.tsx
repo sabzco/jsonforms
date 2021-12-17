@@ -28,7 +28,7 @@ import {
   ControlElement,
   JsonSchema,
   NOT_APPLICABLE
-} from '@jsonforms/core';
+} from '@json-forms/core';
 import SliderControl, {
   materialSliderControlTester
 } from '../../src/controls/MaterialSliderControl';
@@ -37,7 +37,7 @@ import { Slider } from '@material-ui/core';
 
 import Enzyme, { mount, ReactWrapper } from 'enzyme';
 import Adapter from 'enzyme-adapter-react-16';
-import { JsonForms, JsonFormsStateProvider } from '@jsonforms/react';
+import { JsonForms, JsonFormsStateProvider } from '@json-forms/react';
 import { initCore } from './util';
 
 Enzyme.configure({ adapter: new Adapter() });

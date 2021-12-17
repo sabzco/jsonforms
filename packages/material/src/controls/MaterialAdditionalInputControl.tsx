@@ -24,11 +24,11 @@
 */
 import React from 'react';
 import { MuiInputInteger, MuiInputNumber, MuiInputText } from '../mui-controls';
-import { withJsonFormsDynamicControlProps } from '@jsonforms/react';
+import { withJsonFormsDynamicControlProps } from '@json-forms/react';
 import { Grid, IconButton, Tooltip } from '@material-ui/core';
 import { MaterialInputControl } from './index';
 import DeleteIcon from '@material-ui/icons/Delete';
-import type { DynamicControlProps, RankedTester } from '@jsonforms/core';
+import type { DynamicControlProps, RankedTester } from '@json-forms/core';
 import {
   and,
   deriveTypes,
@@ -38,7 +38,7 @@ import {
   or,
   rankWith,
   scopeEndsWith,
-} from '@jsonforms/core';
+} from '@json-forms/core';
 
 const typeToControlMap: { [key: string]: any } = {
   number: MuiInputNumber,

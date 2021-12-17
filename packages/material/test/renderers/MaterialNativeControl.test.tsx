@@ -28,7 +28,7 @@ import Enzyme, { mount, ReactWrapper } from 'enzyme';
 import { MaterialNativeControl } from '../../src/controls/MaterialNativeControl';
 import TextField from '@material-ui/core/TextField';
 import Adapter from 'enzyme-adapter-react-16';
-import { ControlElement, ControlProps } from '@jsonforms/core';
+import { ControlElement, ControlProps } from '@json-forms/core';
 
 Enzyme.configure({ adapter: new Adapter() });
 

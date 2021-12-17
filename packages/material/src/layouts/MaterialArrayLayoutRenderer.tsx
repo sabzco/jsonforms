@@ -29,10 +29,10 @@ import {
   isObjectArrayWithNesting,
   RankedTester,
   rankWith
-} from '@jsonforms/core';
+} from '@json-forms/core';
 import { Hidden } from '@material-ui/core';
 import { MaterialArrayLayout } from './MaterialArrayLayout';
-import { withJsonFormsArrayLayoutProps } from '@jsonforms/react';
+import { withJsonFormsArrayLayoutProps } from '@json-forms/react';
 
 export const MaterialArrayLayoutRenderer = ({
   visible,

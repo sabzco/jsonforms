@@ -27,7 +27,7 @@ import {
   showAsRequired,
   ControlProps,
   isDescriptionHidden,
-} from '@jsonforms/core';
+} from '@json-forms/core';
 
 import { Hidden, InputLabel } from '@material-ui/core';
 import { FormControl, FormHelperText } from '@material-ui/core';

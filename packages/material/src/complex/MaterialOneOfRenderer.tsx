@@ -35,7 +35,7 @@ import {
   RankedTester,
   rankWith,
   resolveSubSchemas
-} from '@jsonforms/core';
+} from '@json-forms/core';
 import {
   Button,
   Dialog,
@@ -50,7 +50,7 @@ import {
 import {
   JsonFormsDispatch,
   withJsonFormsOneOfProps
-} from '@jsonforms/react';
+} from '@json-forms/react';
 import CombinatorProperties from './CombinatorProperties';
 
 export interface OwnOneOfProps extends OwnPropsOfControl {

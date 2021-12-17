@@ -41,7 +41,7 @@ import {
   removeId,
   UISchemaElement,
   ValidationMode
-} from '@jsonforms/core';
+} from '@json-forms/core';
 import {
   JsonFormsStateProvider,
   useJsonForms

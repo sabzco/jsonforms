@@ -6,10 +6,10 @@ import {
   RankedTester,
   withIncreasedRank,
   Actions
-} from '@jsonforms/core';
+} from '@json-forms/core';
 import { ExtendedUnwrapped } from '../src/extended';
 import { materialAutocompleteOneOfEnumControlTester } from '../src/extended/MaterialAutocompleteOneOfEnumControl';
-import { withJsonFormsOneOfEnumProps } from '@jsonforms/react';
+import { withJsonFormsOneOfEnumProps } from '@json-forms/react';
 import React from 'react';
 import Typography from '@material-ui/core/Typography';
 const MyAutocompleteControl = (props: ControlProps & OwnPropsOfEnum) => {

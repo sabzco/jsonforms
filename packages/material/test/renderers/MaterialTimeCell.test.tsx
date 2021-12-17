@@ -27,7 +27,7 @@ import * as React from 'react';
 import {
   ControlElement,
   NOT_APPLICABLE
-} from '@jsonforms/core';
+} from '@json-forms/core';
 import TimeCell, {
   materialTimeCellTester
 } from '../../src/cells/MaterialTimeCell';
@@ -35,7 +35,7 @@ import { materialRenderers } from '../../src';
 
 import Enzyme, { mount, ReactWrapper } from 'enzyme';
 import Adapter from 'enzyme-adapter-react-16';
-import { JsonFormsStateProvider } from '@jsonforms/react';
+import { JsonFormsStateProvider } from '@json-forms/react';
 import { initCore, TestEmitter } from './util';
 
 Enzyme.configure({ adapter: new Adapter() });
