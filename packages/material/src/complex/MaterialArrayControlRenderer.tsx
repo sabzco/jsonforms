@@ -35,15 +35,16 @@ export const MaterialArrayControlRenderer = (props: ArrayLayoutProps) => {
   const [rowData, setRowData] = useState(undefined);
   const { removeItems, visible } = props;
 
-  const openDeleteDialog = useCallback((p: string, rowIndex: number) => {
+  const openDeleteDialog = useCallback((thePath: string[], rowIndex: number) => {
     setOpen(true);
-    setPath(p);
+    setPath(thePath);
     setRowData(rowIndex);
   }, [setOpen, setPath, setRowData]);
   const deleteCancel = useCallback(() => setOpen(false), [setOpen]);
   const deleteConfirm = useCallback(() => {
-    const p = path.substring(0, path.lastIndexOf(('.')));
-    removeItems(p, [rowData])();
+    const parentPath = [...path];
+    parentPath.pop();
+    removeItems(parentPath, [rowData])();
     setOpen(false);
   }, [setOpen, path, rowData]);
   const deleteClose = useCallback(() => setOpen(false), [setOpen]);
