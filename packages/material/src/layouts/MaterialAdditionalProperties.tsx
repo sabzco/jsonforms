@@ -144,8 +144,9 @@ const DefineNewPropertyModal = (
   },
 ) => {
   const cast = typeCastMap[dataType] ?? ((x: any) => x ?? null);
+  const defaultPropertyValue = cast();
   const [propertyName, setPropertyName] = useState('');
-  const [propertyValue, setPropertyValue] = useState(cast());
+  const [propertyValue, setPropertyValue] = useState(defaultPropertyValue);
   /**
    * A double-quotation (to quote `string` values) or nothing (don't quote other types)
    */
@@ -199,7 +200,11 @@ const DefineNewPropertyModal = (
         type: 'submit',
         // onClick: () => onSubmit(propertyName, propertyValue),
       }]}
-      onSubmit={() => {onSubmit(propertyName, propertyValue); }}
+      onSubmit={() => {
+        setPropertyName('');
+        setPropertyValue(defaultPropertyValue);
+        return onSubmit(propertyName, propertyValue);
+      }}
       formId={formId}
     />
   );
