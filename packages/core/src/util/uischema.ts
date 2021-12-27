@@ -25,11 +25,12 @@
 
 import isEmpty from 'lodash/isEmpty';
 import { isLayout, UISchemaElement } from '../models';
+import { toSchemaPathSegments } from './path';
 
 export type IterateCallback = (uischema: UISchemaElement) => void;
 
 const setReadonlyPropertyValue = (value: boolean): IterateCallback => (
-  child: UISchemaElement
+  child: UISchemaElement,
 ): void => {
   if (!child.options) {
     child.options = {};
@@ -44,7 +45,7 @@ export const unsetReadonly = (uischema: UISchemaElement): void => {
 };
 export const iterateSchema = (
   uischema: UISchemaElement,
-  toApply: IterateCallback
+  toApply: IterateCallback,
 ): void => {
   if (isEmpty(uischema)) {
     return;
@@ -54,4 +55,17 @@ export const iterateSchema = (
     return;
   }
   toApply(uischema);
+};
+
+export const isScopeOfPatternProperties = (scope: string | string[]) => {
+  const schemaPathSegments = typeof scope === 'string' ? toSchemaPathSegments(scope) : scope;
+  return schemaPathSegments.at(-2) === 'patternProperties';
+};
+
+export const isScopeOfAdditionalProperties = (scope: string | string[]) => {
+  const schemaPathSegments = typeof scope === 'string' ? toSchemaPathSegments(scope) : scope;
+  return (
+    schemaPathSegments.at(-1) === 'additionalProperties' &&
+    ['properties', 'patternProperties', undefined].includes(schemaPathSegments.at(-3))
+  );
 };
