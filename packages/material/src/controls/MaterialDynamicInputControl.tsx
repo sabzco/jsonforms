@@ -32,12 +32,12 @@ import type { DynamicControlProps, RankedTester } from '@jsonforms/core';
 import {
   and,
   deriveTypes,
+  isControl,
   isIntegerControl,
   isNumberControl,
   isStringControl,
   or,
   rankWith,
-  scopeEndsWith,
 } from '@jsonforms/core';
 
 const typeToControlMap: { [key: string]: any } = {
@@ -46,7 +46,7 @@ const typeToControlMap: { [key: string]: any } = {
   string: MuiInputText,
 };
 
-export const MaterialAdditionalInputControl = React.memo((props: DynamicControlProps) => (
+export const MaterialDynamicInputControl = React.memo((props: DynamicControlProps) => (
   <Grid container direction='row' wrap='nowrap'>
     <Grid item xs>
       <MaterialInputControl {...props} input={typeToControlMap[deriveTypes(props.schema)[0]]}/>
@@ -64,12 +64,15 @@ export const MaterialAdditionalInputControl = React.memo((props: DynamicControlP
   </Grid>
 ));
 
-export const materialAdditionalInputControlTester: RankedTester = rankWith(
+export const materialDynamicInputControlTester: RankedTester = rankWith(
   4,
   and(
-    scopeEndsWith('additionalProperties'),
+    uischema => isControl(uischema) && (
+      uischema.scope.at(-2) === 'patternProperties' && !!(uischema.scope.length % 2) ||
+      uischema.scope.at(-1) === 'additionalProperties' && !(uischema.scope.length % 2)
+    ),
     or(isNumberControl, isIntegerControl, isStringControl),
-  )
+  ),
 );
 
-export default withDynamicControlProps(MaterialAdditionalInputControl);
+export default withDynamicControlProps(MaterialDynamicInputControl);

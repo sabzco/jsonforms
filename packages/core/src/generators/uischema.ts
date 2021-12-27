@@ -28,13 +28,14 @@ import startCase from 'lodash/startCase';
 import keys from 'lodash/keys';
 import {
   ControlElement,
+  DynamicControlElement,
+  DynamicLayout,
   isGroup,
   isLayout,
   JsonSchema,
   LabelElement,
   Layout,
-  DynamicLayout,
-  UISchemaElement
+  UISchemaElement,
 } from '../models';
 import { deriveTypes, resolveSchema, toSchemaPathSegments } from '../util';
 
@@ -51,10 +52,10 @@ const createLayout = (layoutType: string): Layout => ({
 /**
  * Creates a new ILayout.
  * @param layoutType The type of the layout
- * @param ref
+ * @param ref Used as scope
  * @returns the new ILayout
  */
-const createScopableLayout = (layoutType: string, ref: string): DynamicLayout => {
+const createDynamicLayout = (layoutType: string, ref: string[]): DynamicLayout => {
   const layout = createLayout(layoutType) as DynamicLayout;
   layout.scope = ref;
   return layout;
@@ -65,20 +66,17 @@ const createScopableLayout = (layoutType: string, ref: string): DynamicLayout =>
  */
 export const createControlElement = (ref: string[]): ControlElement => ({
   type: 'Control',
-  scope: ref
+  scope: ref,
 });
 
 /**
  * Creates a Dynamic-IControlObject with the given label referencing the given ref
  */
-export const createDynamicControlElement = (
-  ref: string,
-  dataPath: string,
-): ControlElement => {
-  const controlElement = createControlElement(ref);
-  controlElement.dataPath = dataPath;
-  return controlElement;
-};
+export const createDynamicControlElement = (ref: string[], dataFieldKey: string): DynamicControlElement => ({
+  type: 'Control',
+  scope: ref,
+  dataFieldKey,
+});
 
 /**
  * Wraps the given {@code uiSchema} in a Layout if there is none already.
@@ -185,7 +183,7 @@ const generateUISchema = (
     if (!isEmpty(jsonSchema.properties)) {
       // traverse properties
       const nextRefPrefix = currentRef.concat('properties');
-      Object.keys(jsonSchema.properties).map(propName => {
+      Object.keys(jsonSchema.properties).forEach(propName => {
         let value = jsonSchema.properties[propName];
         const ref = nextRefPrefix.concat(propName);
         if (value.$ref !== undefined) {
@@ -202,27 +200,27 @@ const generateUISchema = (
       });
     }
 
-    if (jsonSchema.additionalProperties) {
-      let value = jsonSchema.additionalProperties as JsonSchema;
-      const ref = `${currentRef}/additionalProperties`;
-      if (value.$ref) {
-        value = resolveSchema(rootSchema, value.$ref);
-      }
-
-      generateUISchema(
-        value,
-        layout.elements,
-        ref,
-        schemaName,
-        layoutType,
-        rootSchema
-      );
+    if (
+      Object.keys(jsonSchema.additionalProperties ?? {}).length ||
+      Object.keys(jsonSchema.patternProperties ?? {}).length
+    ) {
+      const dynamicLayout = createDynamicLayout('DynamicGroup', currentRef);
+      addLabel(dynamicLayout, schemaName);
+      layout.elements.push(dynamicLayout);
     }
+
     return layout;
   }
 
-  if (currentRef.endsWith('additionalProperties')) {
-    const layout = createScopableLayout('DynamicGroup', currentRef);
+  if (currentRef.at(-2) === 'patternProperties' && currentRef.length % 2) {
+    const layout = createDynamicLayout('DynamicGroup', currentRef);
+    addLabel(layout, schemaName);
+    schemaElements.push(layout);
+    return layout;
+  }
+
+  if (currentRef.at(-1) === 'additionalProperties' && !(currentRef.length % 2)) {
+    const layout = createDynamicLayout('DynamicGroup', currentRef);
     addLabel(layout, schemaName);
     schemaElements.push(layout);
     return layout;
@@ -254,7 +252,7 @@ const generateUISchema = (
  * @param {JsonSchema} jsonSchema the JSON schema to generated a UI schema for
  * @param {string} [layoutType='VerticalLayout'] the desired layout type for the root layout
  *        of the generated UI schema
- * @param {string} [prefix='#'] 
+ * @param {string} [prefix='#']
  * @param {JsonSchema} [rootSchema=jsonSchema]
  */
 export const generateDefaultUISchema = (
