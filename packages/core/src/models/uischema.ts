@@ -136,14 +136,13 @@ export interface UISchemaElement {
   rule?: Rule;
 
   /**
-   * An optional dataPath (for dynamic-controls)
-   */
-  dataPath?: string;
-
-  /**
    * Any additional options.
    */
   options?: { [key: string]: any };
+}
+
+export interface DynamicUISchemaElement extends UISchemaElement, Scopable {
+  dataFieldKey: string;
 }
 
 /**
@@ -161,7 +160,9 @@ export interface Layout extends UISchemaElement {
  * Represents a scopable-layout element which can order its 
  * children in a specific way.
  */
-export interface DynamicLayout extends Layout, Scopable {}
+export interface DynamicLayout extends Layout, Scopable {
+  elements: DynamicUISchemaElement[];
+}
 
 /**
  * A layout which orders its child elements vertically (i.e. from top to bottom).
@@ -238,6 +239,10 @@ export interface ControlElement extends UISchemaElement, Scopable {
    * An optional label that will be associated with the control
    */
   label?: string | boolean | LabelDescription;
+}
+
+export interface DynamicControlElement extends ControlElement, DynamicUISchemaElement, Scopable {
+  type: 'Control';
 }
 
 /**

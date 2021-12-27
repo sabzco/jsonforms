@@ -25,10 +25,14 @@
 
 import isEmpty from 'lodash/isEmpty';
 import range from 'lodash/range';
-import { Scopable } from '../models';
+import { DynamicUISchemaElement, Scopable, UISchemaElement } from '../models';
 
 export const compose = (path1: string[], path2: string[] | string) => {
-  return path1?.concat(path2 ?? []);
+  return path1
+    ? path2 ? path1.concat(path2) : path1
+    : path2 instanceof Array
+      ? path2
+      : path2 ? [path2] : [];
 };
 
 export { compose as composePaths };
@@ -40,20 +44,20 @@ export { compose as composePaths };
  * The returned value can be used to de-reference a root object by folding over it
  * and de-referencing the single segments to obtain a new object.
  *
- *
  * @param {string} schemaPath the schema path to be converted
  * @returns {string[]} an array containing only non-schema-specific segments
  */
-export const toDataPathSegments = (schemaPath: string): string[] => {
+export const toDataPathSegments = (schemaPath: string, dynamicDataFields?: string[] | string): string[] => {
+  const dataFieldKey = dynamicDataFields instanceof Array ? dynamicDataFields : [dynamicDataFields];
+  let i = 0;
   const s = schemaPath
-    .replace(/anyOf\/[\d]\//g, '')
-    .replace(/allOf\/[\d]\//g, '')
-    .replace(/oneOf\/[\d]\//g, '');
-  const segments = s.split('/');
-
-  const startFromRoot = segments[0] === '#' || segments[0] === '';
-  const startIndex = startFromRoot ? 2 : 1;
-  return range(startIndex, segments.length, 2).map(idx => segments[idx]);
+    .replace(/^#?\//, '')
+    .replace(
+      /properties\/|(anyOf|allOf|oneOf)\/[\d]\/|patternProperties\/[^\/]*|additionalProperties($|\/)/g,
+      match => /^(patternProperties|additionalProperties)/.test(match) ? `${dataFieldKey[i++]}` : '',
+    );
+  // console.debug({schemaPath, dynamicDataFields, s});
+  return s.split('/');
 };
 // TODO: `toDataPathSegments` and `toDataPath` are the same!
 /**
@@ -66,14 +70,15 @@ export const toDataPathSegments = (schemaPath: string): string[] => {
  */
 export const toDataPath = (schemaPath: string): string[] => toDataPathSegments(schemaPath);
 
-export const composeWithUi = (scopableUi: Scopable, path: string[]): string[] => {
-  const segments = toDataPathSegments(scopableUi.scope);
-
-  if (isEmpty(segments) && path === undefined) {
-    return [];
-  }
-
-  return isEmpty(segments) ? path : compose(path, segments);
+export const composeWithUi = (
+  scopableUi: Scopable | UISchemaElement & Scopable | DynamicUISchemaElement & Scopable,
+  path: string[]
+): string[] => {
+  const segments = toDataPathSegments(
+    scopableUi.scope,
+    'dataFieldKey' in scopableUi ? scopableUi.dataFieldKey : undefined
+  );
+  return compose(path, segments);
 };
 
 /**

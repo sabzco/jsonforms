@@ -31,12 +31,7 @@ import isArray from 'lodash/isArray';
 import reduce from 'lodash/reduce';
 import toPairs from 'lodash/toPairs';
 import includes from 'lodash/includes';
-import {
-  Categorization,
-  ControlElement,
-  JsonSchema,
-  UISchemaElement
-} from '../models';
+import { Categorization, ControlElement, JsonSchema, UISchemaElement } from '../models';
 import { deriveTypes, hasType, resolveSchema } from '../util';
 
 /**
@@ -59,7 +54,7 @@ export type RankedTester = (
 ) => number;
 
 export const isControl = (uischema: any): uischema is ControlElement =>
-  !isEmpty(uischema) && uischema.scope !== undefined;
+  !isEmpty(uischema) && uischema.type === 'Control' && uischema.scope !== undefined;
 
 /**
  * Only applicable for Controls.
