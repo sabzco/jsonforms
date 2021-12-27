@@ -86,10 +86,10 @@ import MaterialOneOfRadioGroupControl, {
   MaterialOneOfRadioGroupControl as MaterialOneOfRadioGroupControlUnwrapped
 } from './MaterialOneOfRadioGroupControl';
 
-import MaterialAdditionalInputControl, {
-  MaterialAdditionalInputControl as MaterialAdditionalInputControlUnwrapped,
-  materialAdditionalInputControlTester,
-} from './MaterialAdditionalInputControl';
+import MaterialDynamicInputControl, {
+  MaterialDynamicInputControl as MaterialAdditionalInputControlUnwrapped,
+  materialDynamicInputControlTester,
+} from './MaterialDynamicInputControl';
 
 export const Unwrapped = {
   MaterialBooleanControl: MaterialBooleanControlUnwrapped,
@@ -141,8 +141,8 @@ export {
   materialOneOfEnumControlTester,
   MaterialOneOfRadioGroupControl,
   materialOneOfRadioGroupControlTester,
-  MaterialAdditionalInputControl,
-  materialAdditionalInputControlTester,
+  MaterialDynamicInputControl,
+  materialDynamicInputControlTester,
 };
 
 export * from './MaterialInputControl';

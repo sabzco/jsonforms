@@ -369,6 +369,13 @@ export interface StatePropsOfControl extends StatePropsOfScopedRenderer {
 }
 
 /**
+ * State-based props of a Dynamic Control
+ */
+export interface StatePropsOfDynamicControl extends StatePropsOfControl {
+  dataFieldKey: string;
+}
+
+/**
  * Dispatch-based props of a Control.
  */
 export interface DispatchPropsOfControl {
@@ -417,9 +424,9 @@ export interface ControlProps
     DispatchPropsOfControl {}
 
 /**
- * Props of a DynamicControl.
+ * Props of a Dynamic Control.
  */
-export interface DynamicControlProps extends StatePropsOfControl, DispatchPropsOfDynamicControl {}
+export interface DynamicControlProps extends StatePropsOfDynamicControl, DispatchPropsOfDynamicControl {}
 
 /**
  * State props of a layout;
@@ -433,10 +440,26 @@ export interface StatePropsOfLayout extends StatePropsOfRenderer {
 
 export interface LayoutProps extends StatePropsOfLayout {}
 
+export interface PatternProperty {
+  type: string;
+  dataFieldKeys: string[];
+}
+
+export interface PatternProperties {
+  [key: string]: PatternProperty;
+}
+
+export interface DynamicProperty extends PatternProperty {
+  pattern: string; // the `key` in `PatternProperties` interface
+}
+
+export interface DynamicProperties extends PatternProperties {}
+
 /**
  * Props of a DynamicLayout.
  */
 export interface DynamicLayoutProps extends LayoutProps {
+  dynamicProperties: DynamicProperties;
   uischema: DynamicGroupLayout;
 }
 
@@ -467,7 +490,7 @@ export const mapStateToControlProps = (
 ): StatePropsOfControl => {
   const { uischema } = ownProps;
   const rootData = getData(state);
-  const path = composeWithUi(uischema, composePaths(ownProps.path, uischema.dataPath));
+  const path = composeWithUi(uischema, ownProps.path);
   const visible: boolean =
     ownProps.visible === undefined || hasShowRule(uischema)
       ? isVisible(uischema, rootData, ownProps.path, getAjv(state))
@@ -484,7 +507,7 @@ export const mapStateToControlProps = (
     rootSchema
   );
   const errors = getErrorAt(path, resolvedSchema)(state);
-  
+
   const description =
     resolvedSchema !== undefined ? resolvedSchema.description : '';
   const data = Resolve.data(rootData, path);

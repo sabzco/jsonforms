@@ -1,12 +1,11 @@
+import type { PropTypes, SxProps } from '@mui/material';
 import {
   Button,
   Dialog,
   DialogActions,
   DialogContent,
-  DialogContentText,
-  DialogTitle, PropTypes,
+  DialogTitle,
   TextField,
-  useTheme,
 } from '@mui/material';
 import React from 'react';
 
@@ -27,187 +26,146 @@ const ModalWindow = (
     isModalOpen: boolean,
     hideModal: Function,
     title?: string,
-    content?: string,
-    buttons?: ButtonOptions[],
-    textFields?: TextFieldOptions[],
+    content?: React.ReactNode,
+    buttons?: Partial<ButtonOptions>[],
+    textFields?: Partial<TextFieldOptions>[],
     onClickOutside?: Function,
     autoHideOnLostFocus?: boolean,
     onSubmit?: React.FormEventHandler<HTMLFormElement>,
     formId?: string,
     dontRefreshOnSubmit?: boolean,
   },
-) => {
-  const theme = useTheme();
-
-  return (
-    <Dialog
-      onClose={(...args) => {
-        onClickOutside(...args);
-        if (autoHideOnLostFocus) { hideModal(); }
-      }}
-      open={isModalOpen}
-    >
-      <form
-        onSubmit={
-          dontRefreshOnSubmit
-            ? (event, ...rest) => {
-              event.preventDefault();
-              return onSubmit(event, ...rest);
-            }
-            : onSubmit
+) => (
+  <Dialog
+    onClose={(...args) => {
+      onClickOutside(...args);
+      if (autoHideOnLostFocus) { hideModal(); }
+    }}
+    open={isModalOpen}
+  >
+    <form
+      id={formId}
+      onSubmit={(event, ...rest) => {
+        if (dontRefreshOnSubmit) {
+          event.preventDefault();
         }
-        id={formId}
-      >
-        <DialogTitle>{title}</DialogTitle>
+        return onSubmit(event, ...rest);
+      }}
+    >
+      <DialogTitle>{title}</DialogTitle>
 
-        <DialogContent>
-          <DialogContentText>{content}</DialogContentText>
+      <DialogContent>
+        {content}
+        {textFields.map((textField, i) => {
+            const textFieldSpec = new TextFieldOptions(textField);
+            const {sx} = textFieldSpec;
+            return ( // @ts-ignore
+              <TextField
+                key={i}
+                {...textFieldSpec}
+                // https://mui.com/system/the-sx-prop/#passing-sx-prop
+                sx={[{mx: 1, mb: 1}, ...(Array.isArray(sx) ? sx : [sx])]}
+              />
+            );
+          },
+        )}
+      </DialogContent>
 
-          {textFields.map((textField, i) => {
-              const textFieldSpec = new TextFieldOptions(textField);
-              return ( // @ts-ignore
-                <TextField
-                  key={i}
-                  {...textFieldSpec}
-                  style={{margin: theme.spacing(1), ...textFieldSpec.style}}
-                />
-              );
-            },
-          )}
-        </DialogContent>
-
-        <DialogActions>
-          {buttons.map((button, i) => {
-              const buttonSpec = new ButtonOptions(button, formId);
-              return ( // @ts-ignore
-                <Button
-                  key={i}
-                  {...buttonSpec}
-                  onClick={(...args) => {
-                    const returnValue = buttonSpec.onClick(...args);
-                    if (buttonSpec.autoCloseDialog) { hideModal(); }
-                    return returnValue;
-                  }}
-                >
-                  {buttonSpec.text}
-                </Button>
-              );
-            },
-          )}
-        </DialogActions>
-      </form>
-    </Dialog>
-  );
-};
+      <DialogActions>
+        {buttons.map((button, i) => {
+            const buttonSpec = new ButtonOptions(button, formId);
+            const {sx} = buttonSpec;
+            return ( // @ts-ignore
+              <Button
+                key={i}
+                {...buttonSpec}
+                sx={[{mx: 1, mb: 1}, ...(Array.isArray(sx) ? sx : [sx])]}
+                onClick={(...args) => {
+                  const returnValue = buttonSpec.onClick(...args);
+                  if (buttonSpec.autoCloseDialog) { hideModal(); }
+                  return returnValue;
+                }}
+              >
+                {buttonSpec.text}
+              </Button>
+            );
+          },
+        )}
+      </DialogActions>
+    </form>
+  </Dialog>
+);
 
 export default ModalWindow;
 
-export class TextFieldOptions {
-  autoFocus?: boolean;
-  margin?: string;
-  id?: string;
-  label?: string;
-  type?: string;
-  fullWidth?: boolean;
-  variant?: 'standard' | 'outlined' | 'filled';
-  style?: object;
-  defaultValue?: string;
-  value?: string;
-  onChange?: React.ChangeEventHandler<HTMLInputElement | HTMLTextAreaElement>;
-
-  constructor(
-    {
-      autoFocus,
-      margin,
-      id,
-      label,
-      type,
-      fullWidth,
-      variant,
-      style,
-      defaultValue,
-      value,
-      onChange = () => {}, // tslint:disable-line:no-empty
-    }: TextFieldOptions) {
-    this.autoFocus = autoFocus;
-    this.margin = margin;
-    this.id = id;
-    this.label = label;
-    this.type = type;
-    this.fullWidth = fullWidth;
-    this.variant = variant;
-    this.defaultValue = defaultValue;
-    this.value = value;
-    this.style = style;
-    this.onChange = onChange;
+const optionsInitializer = <T extends Options>(optinsInstance: T, options: Partial<T>) => {
+  for (const key in options) { // tslint:disable-line:forin
+    optinsInstance[key] = options[key];
   }
+};
+
+export class TextFieldOptions implements Options {
+  autoFocus = false;
+  id: string = undefined;
+  label: string = undefined;
+  type: string = undefined;
+  fullWidth = false;
+  variant: 'standard' | 'outlined' | 'filled' = undefined;
+  error = false;
+  helperText: React.ReactNode = '';
+  sx: SxProps = [];
+  style = {};
+  defaultValue: string = undefined;
+  value: string = undefined;
+  inputProps = {};
+  constructor(options: Partial<TextFieldOptions>) {
+    optionsInitializer(this, options);
+  }
+  onChange: React.ChangeEventHandler<HTMLInputElement | HTMLTextAreaElement> = () => {}; // tslint:disable-line:no-empty
 }
 
-export class ButtonOptions {
-  text: string;
-  type?: string;
-  autoFocus?: boolean;
-  color?: PropTypes.Color;
-  variant?: 'text' | 'outlined' | 'contained';
-  onClick?: React.MouseEventHandler<HTMLAnchorElement>;
-  form?: string;
-  disabled?: boolean;
-  disableElevation?: boolean;
-  disableFocusRipple?: boolean;
-  fullWidth?: boolean;
-  href?: string;
-  size?: 'small' | 'medium' | 'large';
-  startIcon?: React.ReactNode;
-  endIcon?: React.ReactNode;
-  autoCloseDialog?: boolean;
+// noinspection JSUnusedGlobalSymbols
+export class ButtonOptions implements Options {
+  text = '';
+  type: string = undefined;
+  autoFocus = false;
+  color: PropTypes.Color = 'primary';
+  variant: 'text' | 'outlined' | 'contained' = undefined;
+  form: string = undefined;
+  disabled = false;
+  disableElevation = false;
+  disableFocusRipple = false;
+  fullWidth = false;
+  href: string = undefined;
+  size: 'small' | 'medium' | 'large' = 'medium';
+  startIcon: React.ReactNode = undefined;
+  endIcon: React.ReactNode = undefined;
+  sx: SxProps = [];
+  style: {};
+  autoCloseDialog = true;
 
-  constructor(
-    {
-      text,
-      type,
-      autoFocus,
-      color = 'primary',
-      variant,
-      onClick = () => {}, // tslint:disable-line:no-empty
-      form,
-      disabled,
-      disableElevation,
-      disableFocusRipple,
-      fullWidth,
-      href,
-      size,
-      startIcon,
-      endIcon,
-      autoCloseDialog = true,
-    }: ButtonOptions, formId: string) {
-    this.type = type;
-    this.color = color;
-    this.variant = variant;
-    this.autoFocus = autoFocus;
-    this.onClick = onClick;
-    this.form = form ?? formId;
-    this.disabled = disabled;
-    this.disableElevation = disableElevation;
-    this.disableFocusRipple = disableFocusRipple;
-    this.fullWidth = fullWidth;
-    this.href = href;
-    this.size = size;
-    this.startIcon = startIcon;
-    this.endIcon = endIcon;
+  constructor(options: Partial<ButtonOptions>, formId: string) {
+    optionsInitializer(this, options);
 
+    if (this.form === undefined) { this.form = formId; }
+
+    // Not-owned props of MUI Button won't be enumerable:
     Object.defineProperties(this, {
       text: {
-        value: text,
+        value: this.text, // the value already initialized in `optionsInitializer()`
         enumerable: false,
         writable: true,
         configurable: true,
       },
       autoCloseDialog: {
-        value: autoCloseDialog,
+        value: this.autoCloseDialog,
         enumerable: false,
         writable: true,
         configurable: true,
       },
     });
   }
+  onClick: React.MouseEventHandler<HTMLAnchorElement> = () => {}; // tslint:disable-line:no-empty
 }
+
+export interface Options {}

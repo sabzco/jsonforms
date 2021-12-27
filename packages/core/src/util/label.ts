@@ -25,17 +25,17 @@
 
 import startCase from 'lodash/startCase';
 
-import { ControlElement, JsonSchema, LabelDescription } from '../models';
+import { ControlElement, DynamicControlElement, JsonSchema, LabelDescription } from '../models';
 
 const deriveLabel = (
-  controlElement: ControlElement,
+  controlElement: ControlElement | DynamicControlElement,
   schemaElement?: JsonSchema
 ): string => {
   if (schemaElement && typeof schemaElement.title === 'string') {
     return schemaElement.title;
   }
-  if (typeof controlElement.dataPath === 'string') {
-    return startCase(controlElement.dataPath);
+  if ('dataFieldKey' in controlElement && typeof controlElement.dataFieldKey === 'string') {
+    return startCase(controlElement.dataFieldKey);
   }
   if (typeof controlElement.scope === 'string') {
     const ref = controlElement.scope;
