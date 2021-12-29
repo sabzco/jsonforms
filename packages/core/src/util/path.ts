@@ -40,12 +40,16 @@ export { compose as composePaths };
  * The returned value can be used to de-reference a root object by folding over it
  * and de-referencing the single segments to obtain a new object.
  *
- * @param {string} schemaPath Encoded schema-path (using AJV-instancePath encoding method) to be
- *   converted
+ * @param {string|string[]} scope Encoded schema-path (using AJV-instancePath encoding method) or
+ *   an array of raw (not-encoded) segments
  * @returns {string[]} An array containing only non-schema-specific segments in a raw (not-encoded)
  * format
  */
-export const toDataPathSegments = (schemaPath: string): string[] => {
+export const toDataPathSegments = (scope: string | string[]): string[] => {
+  const schemaPath = Array.isArray(scope)
+    ? toStringSchemaPath(scope)
+    : scope;
+
   const s = schemaPath.replace(/(?:anyOf|allOf|oneOf)\/[\d]+\//g, '');
   const segments = s.split('/');
 
@@ -58,6 +62,7 @@ export const toDataPathSegments = (schemaPath: string): string[] => {
  * Remove all schema-specific keywords (e.g. 'properties') from a given path.
  * @example
  * toDataPath('#/properties/foo/properties/bar') === ['foo', 'bar']
+ * toDataPath(['#', 'properties', 'foo', 'properties', 'bar']) === ['foo', 'bar']
  *
  * @param {string} schemaPath the schema path to be converted
  * @returns {string[]} the path without schema-specific keywords
@@ -97,3 +102,9 @@ export const ajvInstancePathEncoder = (pathSegment: string) =>
 
 export const ajvInstancePathDecoder = (pathSegment: string) =>
   pathSegment.replace(/~0|~1/g, match => match === '~0' ? '~' : '/');
+
+export const toStringSchemaPath = (schemaPathSegments: string[]): string =>
+  schemaPathSegments.map(segment => ajvInstancePathEncoder(segment)).join('/');
+
+export const toSchemaPathSegments = (schemaPath: string): string[] =>
+  schemaPath.split('/').map(segment => ajvInstancePathDecoder(segment));
