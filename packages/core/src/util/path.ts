@@ -45,10 +45,7 @@ export { compose as composePaths };
  * @returns {string[]} an array containing only non-schema-specific segments
  */
 export const toDataPathSegments = (schemaPath: string): string[] => {
-  const s = schemaPath
-    .replace(/anyOf\/[\d]\//g, '')
-    .replace(/allOf\/[\d]\//g, '')
-    .replace(/oneOf\/[\d]\//g, '');
+  const s = schemaPath.replace(/(?:anyOf|allOf|oneOf)\/[\d]+\//g, '');
   const segments = s.split('/');
 
   const startFromRoot = segments[0] === '#' || segments[0] === '';
@@ -59,7 +56,7 @@ export const toDataPathSegments = (schemaPath: string): string[] => {
 /**
  * Remove all schema-specific keywords (e.g. 'properties') from a given path.
  * @example
- * toDataPath('#/properties/foo/properties/bar') === ['foo', 'bar'])
+ * toDataPath('#/properties/foo/properties/bar') === ['foo', 'bar']
  *
  * @param {string} schemaPath the schema path to be converted
  * @returns {string[]} the path without schema-specific keywords
