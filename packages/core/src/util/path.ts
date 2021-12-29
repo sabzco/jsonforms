@@ -40,9 +40,10 @@ export { compose as composePaths };
  * The returned value can be used to de-reference a root object by folding over it
  * and de-referencing the single segments to obtain a new object.
  *
- *
- * @param {string} schemaPath the schema path to be converted
- * @returns {string[]} an array containing only non-schema-specific segments
+ * @param {string} schemaPath Encoded schema-path (using AJV-instancePath encoding method) to be
+ *   converted
+ * @returns {string[]} An array containing only non-schema-specific segments in a raw (not-encoded)
+ * format
  */
 export const toDataPathSegments = (schemaPath: string): string[] => {
   const s = schemaPath.replace(/(?:anyOf|allOf|oneOf)\/[\d]+\//g, '');
@@ -50,7 +51,7 @@ export const toDataPathSegments = (schemaPath: string): string[] => {
 
   const startFromRoot = segments[0] === '#' || segments[0] === '';
   const startIndex = startFromRoot ? 2 : 1;
-  return range(startIndex, segments.length, 2).map(idx => segments[idx]);
+  return range(startIndex, segments.length, 2).map(idx => ajvInstancePathDecoder(segments[idx]));
 };
 // TODO: `toDataPathSegments` and `toDataPath` are the same!
 /**
