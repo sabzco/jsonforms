@@ -72,11 +72,13 @@ const uischema = {
     {
       type: 'Control',
       label: false,
-      scope: '#/properties/done'
+      scope: '#/properties/done' // Arrays are acceptable too: ['#', 'properties', 'done']
+                                 // (specially desined for complex paths that include special
+                                 // characters)
     },
     {
       type: 'Control',
-      scope: '#/properties/name'
+      scope: '#/properties/name' // OR: ['#', 'properties', 'name']
     },
     {
       type: 'HorizontalLayout',

@@ -60,27 +60,18 @@ import { getCombinedErrorMessage, getI18nKey, getI18nKeyPrefix, Translator } fro
 
 const isRequired = (
   schema: JsonSchema,
-  schemaPath: string,
+  schemaPathSegments: string[],
   rootSchema: JsonSchema
 ): boolean => {
-  const pathSegments = schemaPath.split('/');
-  const lastSegment = pathSegments[pathSegments.length - 1];
-  const nextHigherSchemaSegments = pathSegments.slice(
-    0,
-    pathSegments.length - 2
-  );
-  const nextHigherSchemaPath = nextHigherSchemaSegments.join('/');
+  const lastSegment = schemaPathSegments.at(-1);
+  const nextHigherSchemaSegments = schemaPathSegments.slice(0, -2);
   const nextHigherSchema = Resolve.schema(
     schema,
-    nextHigherSchemaPath,
+    nextHigherSchemaSegments,
     rootSchema
   );
 
-  return (
-    nextHigherSchema !== undefined &&
-    nextHigherSchema.required !== undefined &&
-    nextHigherSchema.required.indexOf(lastSegment) !== -1
-  );
+  return !!nextHigherSchema?.required?.includes(lastSegment);
 };
 
 /**
@@ -444,7 +435,7 @@ export const mapStateToControlProps = (
     rootSchema
   );
   const errors = getErrorAt(path, resolvedSchema)(state);
-  
+
   const description =
     resolvedSchema !== undefined ? resolvedSchema.description : '';
   const data = Resolve.data(rootData, path);

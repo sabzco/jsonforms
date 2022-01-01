@@ -34,10 +34,9 @@ const deriveLabel = (
   if (schemaElement && typeof schemaElement.title === 'string') {
     return schemaElement.title;
   }
-  if (typeof controlElement.scope === 'string') {
+  if (Array.isArray(controlElement.scope)) {
     const ref = controlElement.scope;
-    const label = ref.substr(ref.lastIndexOf('/') + 1);
-
+    const label = ref.at(-1);
     return startCase(label);
   }
 

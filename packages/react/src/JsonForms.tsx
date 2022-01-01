@@ -26,10 +26,7 @@ import maxBy from 'lodash/maxBy';
 import React, { useMemo } from 'react';
 import Ajv from 'ajv';
 import { UnknownRenderer } from './UnknownRenderer';
-import {
-  createId,
-  Generate,
-  isControl,
+import type {
   JsonFormsCellRendererRegistryEntry,
   JsonFormsCore,
   JsonFormsI18nState,
@@ -38,9 +35,15 @@ import {
   JsonFormsUISchemaRegistryEntry,
   JsonSchema,
   OwnPropsOfJsonFormsRenderer,
-  removeId,
   UISchemaElement,
   ValidationMode
+} from '@jsonforms/core';
+import {
+  ajvInstancePathEncoder,
+  createId,
+  Generate,
+  isControl,
+  removeId,
 } from '@jsonforms/core';
 import {
   JsonFormsStateProvider,
@@ -63,7 +66,7 @@ export class JsonFormsDispatchRenderer extends React.Component<
     super(props);
     this.state = {
       id: isControl(props.uischema)
-        ? createId(props.uischema.scope)
+        ? createId(props.uischema.scope.map((segment: string) => ajvInstancePathEncoder(segment)).join('/'))
         : undefined,
     };
   }

@@ -35,7 +35,7 @@ export const Generate: {
     prefix?: string,
     rootSchema?: JsonSchema
   ): UISchemaElement;
-  controlElement(ref: string): ControlElement;
+  controlElement(ref: string[]): ControlElement;
 } = {
   jsonSchema: generateJsonSchema,
   uiSchema: generateDefaultUISchema,

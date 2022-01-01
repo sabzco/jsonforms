@@ -26,6 +26,7 @@
 import isEmpty from 'lodash/isEmpty';
 import get from 'lodash/get';
 import { JsonSchema } from '../models';
+import { toSchemaPathSegments } from './path';
 
 /**
  * Map for storing refs and the respective schemas they are pointing to.
@@ -101,24 +102,28 @@ const invalidSegment = (pathSegment: string) =>
 /**
  * Resolve the given schema path in order to obtain a subschema.
  * @param {JsonSchema} schema the root schema from which to start
- * @param {string} schemaPath the schema path to be resolved
+ * @param {string[]} scope the segments of the schema-path to be resolved
  * @param {JsonSchema} rootSchema the actual root schema
  * @returns {JsonSchema} the resolved sub-schema
  */
 export const resolveSchema = (
   schema: JsonSchema,
-  schemaPath: string,
+  scope: string | string[],
   rootSchema?: JsonSchema
 ): JsonSchema => {
   if (isEmpty(schema)) {
     return undefined;
   }
-  const validPathSegments = schemaPath.split('/');
+
+  const schemaPathSegments = Array.isArray(scope)
+    ? scope
+    : toSchemaPathSegments(scope);
+
   let resultSchema = schema;
-  for (let i = 0; i < validPathSegments.length; i++) {
-    let pathSegment = validPathSegments[i];
+  for (let i = 0; i < schemaPathSegments.length; i++) {
+    const pathSegment = schemaPathSegments[i];
     resultSchema =
-      resultSchema === undefined || resultSchema.$ref === undefined
+      resultSchema?.$ref === undefined
         ? resultSchema
         : resolveSchema(schema, resultSchema.$ref);
     if (invalidSegment(pathSegment)) {
@@ -131,10 +136,10 @@ export const resolveSchema = (
       const schemas = [].concat(
         resultSchema?.oneOf ?? [],
         resultSchema?.allOf ?? [],
-        resultSchema?.anyOf ?? []
+        resultSchema?.anyOf ?? [],
       );
-      for (let item of schemas) {
-        curSchema = resolveSchema(item, validPathSegments.slice(i).join('/'));
+      for (const item of schemas) {
+        curSchema = resolveSchema(item, schemaPathSegments.slice(i));
         if (curSchema) {
           break;
         }

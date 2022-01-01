@@ -98,7 +98,7 @@ export const deriveTypes = (jsonSchema: JsonSchema): string[] => {
 export const Resolve: {
  schema(
    schema: JsonSchema,
-   schemaPath: string,
+   scope: string | string[],
    rootSchema?: JsonSchema
  ): JsonSchema;
  data(data: any, path: string[]): any;

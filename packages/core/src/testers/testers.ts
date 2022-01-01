@@ -26,7 +26,6 @@
 import isEmpty from 'lodash/isEmpty';
 import get from 'lodash/get';
 import endsWith from 'lodash/endsWith';
-import last from 'lodash/last';
 import isArray from 'lodash/isArray';
 import reduce from 'lodash/reduce';
 import toPairs from 'lodash/toPairs';
@@ -37,7 +36,7 @@ import {
   JsonSchema,
   UISchemaElement
 } from '../models';
-import { deriveTypes, hasType, resolveSchema } from '../util';
+import { deriveTypes, hasType, resolveSchema, toStringSchemaPath } from '../util';
 
 /**
  * Constant that indicates that a tester is not capable of handling
@@ -187,7 +186,7 @@ export const scopeEndsWith = (expected: string): Tester => (
     return false;
   }
 
-  return endsWith(uischema.scope, expected);
+  return endsWith(toStringSchemaPath(uischema.scope), expected);
 };
 
 /**
@@ -203,9 +202,9 @@ export const scopeEndIs = (expected: string): Tester => (
   if (isEmpty(expected) || !isControl(uischema)) {
     return false;
   }
-  const schemaPath = uischema.scope;
+  const {scope} = uischema;
 
-  return !isEmpty(schemaPath) && last(schemaPath.split('/')) === expected;
+  return scope?.length && scope.at(-1) === expected;
 };
 
 /**

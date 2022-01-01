@@ -35,7 +35,7 @@ import {
   Layout,
   UISchemaElement
 } from '../models';
-import { deriveTypes, resolveSchema } from '../util';
+import { deriveTypes, resolveSchema, toSchemaPathSegments } from '../util';
 
 /**
  * Creates a new ILayout.
@@ -50,7 +50,7 @@ const createLayout = (layoutType: string): Layout => ({
 /**
  * Creates a IControlObject with the given label referencing the given ref
  */
-export const createControlElement = (ref: string): ControlElement => ({
+export const createControlElement = (ref: string[]): ControlElement => ({
   type: 'Control',
   scope: ref
 });
@@ -115,7 +115,7 @@ const isCombinator = (jsonSchema: JsonSchema): boolean => {
 const generateUISchema = (
   jsonSchema: JsonSchema,
   schemaElements: UISchemaElement[],
-  currentRef: string,
+  currentRef: string[],
   schemaName: string,
   layoutType: string,
   rootSchema?: JsonSchema
@@ -149,7 +149,7 @@ const generateUISchema = (
     return controlObject;
   }
 
-  if (currentRef === '#' && types[0] === 'object') {
+  if (currentRef.length === 1 && currentRef[0] === '#' && types[0] === 'object') {
     const layout: Layout = createLayout(layoutType);
     schemaElements.push(layout);
 
@@ -159,10 +159,10 @@ const generateUISchema = (
 
     if (!isEmpty(jsonSchema.properties)) {
       // traverse properties
-      const nextRef: string = currentRef + '/properties';
+      const nextRefPrefix = currentRef.concat('properties');
       Object.keys(jsonSchema.properties).map(propName => {
         let value = jsonSchema.properties[propName];
-        const ref = `${nextRef}/${propName}`;
+        const ref = nextRefPrefix.concat(propName);
         if (value.$ref !== undefined) {
           value = resolveSchema(rootSchema, value.$ref);
         }
@@ -204,16 +204,18 @@ const generateUISchema = (
 /**
  * Generate a default UI schema.
  * @param {JsonSchema} jsonSchema the JSON schema to generated a UI schema for
- * @param {string} layoutType the desired layout type for the root layout
+ * @param {string} [layoutType='VerticalLayout'] the desired layout type for the root layout
  *        of the generated UI schema
+ * @param {string} [prefix='#'] 
+ * @param {JsonSchema} [rootSchema=jsonSchema]
  */
 export const generateDefaultUISchema = (
   jsonSchema: JsonSchema,
   layoutType = 'VerticalLayout',
   prefix = '#',
-  rootSchema = jsonSchema
+  rootSchema = jsonSchema,
 ): UISchemaElement =>
   wrapInLayoutIfNecessary(
-    generateUISchema(jsonSchema, [], prefix, '', layoutType, rootSchema),
+    generateUISchema(jsonSchema, [], toSchemaPathSegments(prefix), '', layoutType, rootSchema),
     layoutType
   );
