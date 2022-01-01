@@ -33,7 +33,7 @@ export interface Scopable {
   /**
    * The scope that determines to which part this element should be bound to.
    */
-  scope: string;
+  scope: string | string[];
 }
 
 /**

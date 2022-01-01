@@ -64,20 +64,23 @@ export const jsonFormsReducerConfig = {
 
 /**
  * Finds a registered UI schema to use, if any.
+ * @param uischemas
  * @param schema the JSON schema describing the data to be rendered
- * @param schemaPath the according schema path
+ * @param scope the according schema-path segments as an array of raw (not-encoded) 
+ *   strings
  * @param path the instance path
  * @param fallbackLayoutType the type of the layout to use
  * @param control may be checked for embedded inline uischema options
+ * @param rootSchema
  */
 export const findUISchema = (
   uischemas: JsonFormsUISchemaRegistryEntry[],
   schema: JsonSchema,
-  schemaPath: string,
+  scope: string | string[],
   path: string[],
   fallbackLayoutType = 'VerticalLayout',
   control?: ControlElement,
-  rootSchema?: JsonSchema
+  rootSchema?: JsonSchema,
 ): UISchemaElement => {
   // handle options
   if (control && control.options && control.options.detail) {
@@ -97,9 +100,9 @@ export const findUISchema = (
     }
   }
   // default
-  const uiSchema = findMatchingUISchema(uischemas)(schema, schemaPath, path);
+  const uiSchema = findMatchingUISchema(uischemas)(schema, scope, path);
   if (uiSchema === undefined) {
-    return Generate.uiSchema(schema, fallbackLayoutType, '#', rootSchema);
+    return Generate.uiSchema(schema, fallbackLayoutType, undefined /* default value */, rootSchema);
   }
   return uiSchema;
 };

@@ -192,7 +192,7 @@ const ctxToNonEmptyCellProps = (
   };
 };
 
-const controlWithoutLabel = (scope: string): ControlElement => ({
+const controlWithoutLabel = (scope: string | string[]): ControlElement => ({
   type: 'Control',
   scope: scope,
   label: false
@@ -220,7 +220,7 @@ const NonEmptyCellComponent = React.memo(({path, propName, schema, rootSchema, e
             `#/properties/${propName}`,
             rootSchema
           )}
-          uischema={controlWithoutLabel(`#/properties/${propName}`)}
+          uischema={controlWithoutLabel(['#', 'properties', propName])}
           path={path}
           enabled={enabled}
           renderers={renderers}
@@ -229,7 +229,7 @@ const NonEmptyCellComponent = React.memo(({path, propName, schema, rootSchema, e
       ) : (
         <DispatchCell
           schema={schema}
-          uischema={controlWithoutLabel('#')}
+          uischema={controlWithoutLabel(['#'])}
           path={path}
           enabled={enabled}
           renderers={renderers}

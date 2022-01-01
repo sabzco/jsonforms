@@ -37,7 +37,11 @@ const deriveLabel = (
   if (typeof controlElement.scope === 'string') {
     const ref = controlElement.scope;
     const label = ref.substr(ref.lastIndexOf('/') + 1);
-
+    return startCase(label);
+  }
+  if (Array.isArray(controlElement.scope)) {
+    const ref = controlElement.scope;
+    const label = ref.at(-1);
     return startCase(label);
   }
 

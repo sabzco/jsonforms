@@ -52,7 +52,7 @@ import { CombinatorKeyword, resolveSubSchemas } from './combinators';
 import { moveDown, moveUp } from './array';
 import { AnyAction, Dispatch } from './type';
 import { Resolve } from './util';
-import { composePaths, composeWithUi } from './path';
+import { composePaths, composeWithUi, toSchemaPathSegments } from './path';
 import { CoreActions, update } from '../actions';
 import { ErrorObject } from 'ajv';
 import { JsonFormsState } from '../store';
@@ -60,27 +60,19 @@ import { getCombinedErrorMessage, getI18nKey, getI18nKeyPrefix, Translator } fro
 
 const isRequired = (
   schema: JsonSchema,
-  schemaPath: string,
+  scope: string | string[],
   rootSchema: JsonSchema
 ): boolean => {
-  const pathSegments = schemaPath.split('/');
-  const lastSegment = pathSegments[pathSegments.length - 1];
-  const nextHigherSchemaSegments = pathSegments.slice(
-    0,
-    pathSegments.length - 2
-  );
-  const nextHigherSchemaPath = nextHigherSchemaSegments.join('/');
+  const schemaPathSegments = typeof scope === 'string' ? toSchemaPathSegments(scope) : scope;
+  const lastSegment = schemaPathSegments.at(-1);
+  const nextHigherSchemaSegments = schemaPathSegments.slice(0, -2);
   const nextHigherSchema = Resolve.schema(
     schema,
-    nextHigherSchemaPath,
+    nextHigherSchemaSegments,
     rootSchema
   );
 
-  return (
-    nextHigherSchema !== undefined &&
-    nextHigherSchema.required !== undefined &&
-    nextHigherSchema.required.indexOf(lastSegment) !== -1
-  );
+  return !!nextHigherSchema?.required?.includes(lastSegment);
 };
 
 /**
@@ -444,7 +436,7 @@ export const mapStateToControlProps = (
     rootSchema
   );
   const errors = getErrorAt(path, resolvedSchema)(state);
-  
+
   const description =
     resolvedSchema !== undefined ? resolvedSchema.description : '';
   const data = Resolve.data(rootData, path);
