@@ -64,9 +64,12 @@ export class JsonFormsDispatchRenderer extends React.Component<
 > {
   constructor(props: JsonFormsProps) {
     super(props);
+    const {uischema} = props;
     this.state = {
-      id: isControl(props.uischema)
-        ? createId(props.uischema.scope.map((segment: string) => ajvInstancePathEncoder(segment)).join('/'))
+      id: isControl(uischema)
+        ? createId(typeof uischema.scope === 'string'
+          ? uischema.scope
+          : uischema.scope.map((segment: string) => ajvInstancePathEncoder(segment)).join('/'))
         : undefined,
     };
   }
@@ -76,7 +79,7 @@ export class JsonFormsDispatchRenderer extends React.Component<
       removeId(this.state.id);
     }
   }
-  
+
   render() {
     const { schema, uischema, path, enabled, renderers, cells } = this.props as JsonFormsProps;
 

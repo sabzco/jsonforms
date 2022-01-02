@@ -185,8 +185,8 @@ export const scopeEndsWith = (expected: string): Tester => (
   if (isEmpty(expected) || !isControl(uischema)) {
     return false;
   }
-
-  return endsWith(toStringSchemaPath(uischema.scope), expected);
+  const {scope} = uischema;
+  return endsWith(typeof scope === 'string' ? scope : toStringSchemaPath(scope), expected);
 };
 
 /**

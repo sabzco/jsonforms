@@ -52,7 +52,7 @@ import { CombinatorKeyword, resolveSubSchemas } from './combinators';
 import { moveDown, moveUp } from './array';
 import { AnyAction, Dispatch } from './type';
 import { Resolve } from './util';
-import { composePaths, composeWithUi } from './path';
+import { composePaths, composeWithUi, toSchemaPathSegments } from './path';
 import { addNewProperty, CoreActions, removeThisProperty, update } from '../actions';
 import { ErrorObject } from 'ajv';
 import { JsonFormsState } from '../store';
@@ -60,9 +60,10 @@ import { getCombinedErrorMessage, getI18nKey, getI18nKeyPrefix, Translator } fro
 
 const isRequired = (
   schema: JsonSchema,
-  schemaPathSegments: string[],
+  scope: string | string[],
   rootSchema: JsonSchema
 ): boolean => {
+  const schemaPathSegments = typeof scope === 'string' ? toSchemaPathSegments(scope) : scope;
   const lastSegment = schemaPathSegments.at(-1);
   const nextHigherSchemaSegments = schemaPathSegments.slice(0, -2);
   const nextHigherSchema = Resolve.schema(
@@ -618,7 +619,8 @@ export const mapStateToEnumControlProps = (
 };
 
 /**
- * Default mapStateToCellProps for enum control based on oneOf. Options is used for populating dropdown list
+ * Default mapStateToCellProps for enum control based on oneOf. Options is used for populating
+ * dropdown list
  * @param state
  * @param ownProps
  * @returns {StatePropsOfControl & OwnPropsOfEnum}

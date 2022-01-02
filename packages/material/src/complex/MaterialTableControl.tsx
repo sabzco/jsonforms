@@ -192,7 +192,7 @@ const ctxToNonEmptyCellProps = (
   };
 };
 
-const controlWithoutLabel = (scope: string[]): ControlElement => ({
+const controlWithoutLabel = (scope: string | string[]): ControlElement => ({
   type: 'Control',
   scope: scope,
   label: false

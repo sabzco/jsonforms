@@ -24,30 +24,12 @@
 */
 
 import {
-  Actions,
-  ArrayControlProps,
-  ArrayLayoutProps,
-  CellProps,
-  CombinatorRendererProps,
   configReducer,
-  ControlProps,
   coreReducer,
   createDynamicControlElement,
   defaultMapStateToEnumCellProps,
   deriveTypes,
-  DispatchCellProps,
-  DispatchPropsOfControl,
-  DispatchPropsOfDynamicLayout,
-  DispatchPropsOfMultiEnumControl,
-  DynamicControlElement,
-  DynamicLayoutProps,
-  DynamicProperties,
-  EnumCellProps,
   i18nReducer,
-  JsonFormsCore,
-  JsonFormsSubStates,
-  JsonSchema,
-  LayoutProps,
   mapDispatchToArrayControlProps,
   mapDispatchToControlProps,
   mapDispatchToDynamicControlProps,
@@ -69,6 +51,27 @@ import {
   mapStateToOneOfEnumCellProps,
   mapStateToOneOfEnumControlProps,
   mapStateToOneOfProps,
+  toSchemaPathSegments,
+} from '@jsonforms/core';
+import {
+  Actions,
+  ArrayControlProps,
+  ArrayLayoutProps,
+  CellProps,
+  CombinatorRendererProps,
+  ControlProps,
+  DispatchCellProps,
+  DispatchPropsOfControl,
+  DispatchPropsOfDynamicLayout,
+  DispatchPropsOfMultiEnumControl,
+  DynamicControlElement,
+  DynamicLayoutProps,
+  DynamicProperties,
+  EnumCellProps,
+  JsonFormsCore,
+  JsonFormsSubStates,
+  JsonSchema,
+  LayoutProps,
   OwnPropsOfCell,
   OwnPropsOfControl,
   OwnPropsOfEnum,
@@ -543,6 +546,7 @@ const withDynamicLayoutProps =
 const withDynamicElements = (Component: ComponentType<DynamicLayoutProps>) => (props: DynamicLayoutProps) => {
   const [uischema, setUischema] = useState(props.uischema);
   const {schema: {properties, patternProperties, additionalProperties}, uischema: {scope}} = props;
+  const schemaPathSegments = typeof scope === 'string' ? toSchemaPathSegments(scope) : scope;
 
   const dataKeys = Object.keys(props.data ?? {});
   const propertiesKeys = Object.keys(properties ?? {});
@@ -579,7 +583,7 @@ const withDynamicElements = (Component: ComponentType<DynamicLayoutProps>) => (p
         for (const pattern of patterns) {
           if (new RegExp(pattern).test(dataFieldKey)) {
             elements.push(createDynamicControlElement(
-              [...scope, 'patternProperties', pattern],
+              [...schemaPathSegments, 'patternProperties', pattern],
               dataFieldKey,
             ));
             dynamicProperties[pattern].dataFieldKeys.push(dataFieldKey);
@@ -588,7 +592,7 @@ const withDynamicElements = (Component: ComponentType<DynamicLayoutProps>) => (p
         }
         if (additionalProperties) {
           elements.push(createDynamicControlElement(
-            [...scope, 'additionalProperties'],
+            [...schemaPathSegments, 'additionalProperties'],
             dataFieldKey,
           ));
           dynamicProperties['*'].dataFieldKeys.push(dataFieldKey);

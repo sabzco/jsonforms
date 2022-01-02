@@ -23,13 +23,15 @@
   THE SOFTWARE.
 */
 
+import type {
+  JsonFormsState,
+  JsonFormsSubStates,
+} from '@jsonforms/core';
 import {
   cellReducer,
   configReducer,
   coreReducer,
   i18nReducer,
-  JsonFormsState,
-  JsonFormsSubStates,
   rendererReducer,
   uischemaRegistryReducer,
 } from '@jsonforms/core';
