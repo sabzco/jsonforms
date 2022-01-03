@@ -69,3 +69,8 @@ export const isScopeOfAdditionalProperties = (scope: string | string[]) => {
     ['properties', 'patternProperties', undefined].includes(schemaPathSegments.at(-3))
   );
 };
+
+export const isScopeOfDynamicProperties = (scope: string | string[]) => {
+  const schemaPathSegments = typeof scope === 'string' ? toSchemaPathSegments(scope) : scope;
+  return isScopeOfAdditionalProperties(schemaPathSegments) || isScopeOfPatternProperties(schemaPathSegments);
+};

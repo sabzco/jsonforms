@@ -35,8 +35,7 @@ import {
   isControl,
   isIntegerControl,
   isNumberControl,
-  isScopeOfAdditionalProperties,
-  isScopeOfPatternProperties,
+  isScopeOfDynamicProperties,
   isStringControl,
   or,
   rankWith,
@@ -69,9 +68,7 @@ export const MaterialDynamicInputControl = React.memo((props: DynamicControlProp
 export const materialDynamicInputControlTester: RankedTester = rankWith(
   4,
   and(
-    uischema => isControl(uischema) && (
-      isScopeOfPatternProperties(uischema.scope) || isScopeOfAdditionalProperties(uischema.scope)
-    ),
+    uischema => isControl(uischema) && isScopeOfDynamicProperties(uischema.scope),
     or(isNumberControl, isIntegerControl, isStringControl),
   ),
 );

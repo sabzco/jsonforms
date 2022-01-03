@@ -1,4 +1,4 @@
-import type { PropTypes, SxProps } from '@mui/material';
+import type { InputBaseProps, InputLabelProps, PropTypes, SxProps } from '@mui/material';
 import {
   Button,
   Dialog,
@@ -8,6 +8,7 @@ import {
   TextField,
 } from '@mui/material';
 import React from 'react';
+import type { BaseTextFieldProps } from '@mui/material/TextField/TextField';
 
 const ModalWindow = (
   {
@@ -57,6 +58,9 @@ const ModalWindow = (
       <DialogContent>
         {content}
         {textFields.map((textField, i) => {
+            if (!textField) {
+              return;
+            }
             const textFieldSpec = new TextFieldOptions(textField);
             const {sx} = textFieldSpec;
             return ( // @ts-ignore
@@ -73,6 +77,9 @@ const ModalWindow = (
 
       <DialogActions>
         {buttons.map((button, i) => {
+            if (!button) {
+              return;
+            }
             const buttonSpec = new ButtonOptions(button, formId);
             const {sx} = buttonSpec;
             return ( // @ts-ignore
@@ -104,11 +111,12 @@ const optionsInitializer = <T extends Options>(optinsInstance: T, options: Parti
   }
 };
 
-export class TextFieldOptions implements Options {
+export class TextFieldOptions implements Options, BaseTextFieldProps {
   autoFocus = false;
   id: string = undefined;
   label: string = undefined;
   type: string = undefined;
+  disabled = false;
   fullWidth = false;
   variant: 'standard' | 'outlined' | 'filled' = undefined;
   error = false;
@@ -117,10 +125,14 @@ export class TextFieldOptions implements Options {
   style = {};
   defaultValue: string = undefined;
   value: string = undefined;
-  inputProps = {};
+  inputRef: React.Ref<any> = undefined;
+  inputProps: InputBaseProps['inputProps'] = {};
+  InputLabelProps: Partial<InputLabelProps> = {};
+
   constructor(options: Partial<TextFieldOptions>) {
     optionsInitializer(this, options);
   }
+
   onChange: React.ChangeEventHandler<HTMLInputElement | HTMLTextAreaElement> = () => {}; // tslint:disable-line:no-empty
 }
 
@@ -165,6 +177,7 @@ export class ButtonOptions implements Options {
       },
     });
   }
+
   onClick: React.MouseEventHandler<HTMLAnchorElement> = () => {}; // tslint:disable-line:no-empty
 }
 

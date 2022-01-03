@@ -22,7 +22,7 @@
   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
   THE SOFTWARE.
 */
-import React, { useCallback, useReducer, useState } from 'react';
+import React, { useCallback, useLayoutEffect, useReducer, useRef, useState } from 'react';
 import {
   Box,
   Button,
@@ -116,6 +116,7 @@ const DefineNewPropertyModal = (
 ) => {
   const [newPropertyState, dispatch] = useReducer(reducer, initialNewPropertyState);
 
+  const valueFieldRef = useRef();
   const {selectedDynamicProperty} = newPropertyState;
   const userIsNotSelectedAPatternType = selectedDynamicProperty.pattern === undefined;
   const {pattern, type: propertyType} = selectedDynamicProperty;
@@ -124,12 +125,28 @@ const DefineNewPropertyModal = (
   const setSelectedDynamicProperty = (selectedDynamicProperty: DynamicProperty) => {
     const {pattern, type: dataType} = selectedDynamicProperty; // tslint:disable-line:no-shadowed-variable
     const {key, value} = newPropertyState;
+    const {
+      value: newValue,
+      valueError: newValueError,
+      stringifiedValue,
+    } = getValueWithError(value, dataType);
+
     dispatch({
       keyError: getKeyError(key, pattern, alreadyDefinedKeys),
-      ...getValueWithError(value ?? '', dataType),
+      value: newValue,
+      valueError: newValueError,
+      stringifiedValue,
       selectedDynamicProperty: selectedDynamicProperty,
     });
   };
+
+  useLayoutEffect(() => {
+    if (valueFieldRef.current) { // @ts-ignore
+      // Don't do this in `setSelectedDynamicProperty()`. This should happen after
+      // `selectedDynamicProperty.type` change and its side effects:
+      valueFieldRef.current.value = newPropertyState.stringifiedValue;
+    }
+  }, [selectedDynamicProperty]);
 
   const setPropertyKey = (key: string) => dispatch({
     key,
@@ -171,10 +188,13 @@ const DefineNewPropertyModal = (
             : ' ',
       }, {
         label: 'Value',
-        defaultValue: propertyValue,
         variant: 'standard',
+        defaultValue: newPropertyState.stringifiedValue,
+        disabled: propertyType === 'object',
+        InputLabelProps: newPropertyState.stringifiedValue ? {shrink: true} : undefined,
         type: propertyType === 'integer' ? 'number' : propertyType,
         inputProps: {step: 'any'},
+        inputRef: (node: any) => { valueFieldRef.current = node; },
         onChange: (event: React.ChangeEvent<HTMLInputElement>) => setPropertyValue(event.target.value),
         error: !!valueError,
         helperText: valueError
@@ -294,11 +314,16 @@ const getKeyError = (key: string, pattern: string, alreadyDefinedKeys: string[])
 const getValueWithError = (value: any, dataType: string) => {
   const softCast = softCastMap[dataType] ?? ((x: any) => x ?? null);
   const hardCast = hardCastMap[dataType] ?? ((x: any) => x ?? null);
-  const jsonizedValue = softCast(value);
+
+  const jsonizedValue = softCast(value); // to be used as `propertyValue`
+  const hardCastedValue = hardCast(jsonizedValue); // just to check and validate `propertyValue`
+  // to be used in "value" TextField (in a special case):
+  const stringifiedValue = typeof jsonizedValue === 'string' ? jsonizedValue : JSON.stringify(jsonizedValue);
 
   return {
     value: jsonizedValue,
-    valueError: jsonizedValue === hardCast(jsonizedValue) ? '' : 'Not matched to the type',
+    valueError: jsonizedValue === hardCastedValue ? '' : 'Not matched to the type',
+    stringifiedValue,
   };
 };
 
@@ -307,6 +332,10 @@ const initialNewPropertyState: NewPropertyState = {
   value: null,
   keyError: '',
   valueError: '',
+  /**
+   * The value to be used in "value" TextField (in a special case)
+   */
+  stringifiedValue: '',
   selectedDynamicProperty: {
     pattern: undefined, // will match everything
     type: '',
@@ -314,24 +343,26 @@ const initialNewPropertyState: NewPropertyState = {
   },
 };
 
-const softCastMap: { [key: string]: (x: string) => any } = { // @ts-ignore
-  number: (x: string) => isNaN(x) ? x : Number(x), // @ts-ignore
-  integer: (x: string) => isNaN(x) ? x : Number(x),
-  string: (x: string) => x,
-  boolean: (x: string | boolean) =>
+const softCastMap: { [key: string]: (x: any) => any } = { // @ts-ignore
+  number: (x: any) => isNaN(x) ? x : Number(x), // @ts-ignore
+  integer: (x: any) => isNaN(x) ? x : Number(x),
+  string: (x: any) => typeof x === 'string' ? x : JSON.stringify(x),
+  boolean: (x: any) =>
     typeof x === 'string'
       ? ['true', 'false'].includes(x.toLowerCase())
         ? x.length === 4 // === "true".length !== "false".length 
         // @ts-ignore
         : isNaN(x) ? x : Number(x)
-      : x,
+      : Boolean(x),
+  object: (/*anything*/) => ({}),
 };
 
-const hardCastMap: { [key: string]: (x: string) => any } = {
+const hardCastMap: { [key: string]: (x: any) => any } = {
   number: Number, // @ts-ignore
-  integer: (x: string) => Number.parseInt(Number(x), 10),
-  string: (x: string) => x,
+  integer: (x: any) => Number.parseInt(Number(x), 10),
+  string: (x: any) => x,
   boolean: Boolean,
+  object: (x: any) => x,
 };
 
 interface NewPropertyState {
@@ -339,5 +370,6 @@ interface NewPropertyState {
   value: any;
   keyError: string;
   valueError: string;
+  stringifiedValue: string;
   selectedDynamicProperty: DynamicProperty;
 }
