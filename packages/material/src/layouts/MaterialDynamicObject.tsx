@@ -37,7 +37,6 @@ import {
   Tooltip,
   Typography,
 } from '@mui/material';
-import { useTheme } from '@mui/material/styles';
 import { Add as AddIcon } from '@mui/icons-material';
 import { MaterialLayoutRenderer } from '../util';
 import ModalWindow from '../util/ModalWindow';
@@ -57,7 +56,6 @@ export const materialDynamicObjectTester: RankedTester = rankWith(
 
 export const MaterialDynamicObjectRenderer = React.memo(
   (props: DynamicLayoutProps & DispatchPropsOfDynamicLayout) => {
-    const theme = useTheme();
     const {visible, enabled, uischema, ...otherProps} = props;
     const groupLayout = uischema;
     const [isModalOpen, setModalOpen] = useState(false);
@@ -78,17 +76,13 @@ export const MaterialDynamicObjectRenderer = React.memo(
             item
             xs={12}
           >
-            <Grid item xs style={{marginRight: theme.spacing(1)}}>
+            <Grid item xs sx={{mr: 1}}>
               <Divider/>
             </Grid>
             <Grid item>
               <Tooltip title={`Add to ${groupLayout.label ?? 'Root-Object'}`} placement='bottom'>
                 <Button
-                  style={{
-                    textTransform: 'none',
-                    padding: theme.spacing(1),
-                    color: theme.palette.text.secondary,
-                  }}
+                  sx={{p: 1, color: 'text.secondary', textTransform: 'none'}}
                   aria-label={`Add to ${groupLayout.label ?? 'Root-Object'}`}
                   onClick={() => setModalOpen(true)}
                 >
@@ -97,7 +91,7 @@ export const MaterialDynamicObjectRenderer = React.memo(
                 </Button>
               </Tooltip>
             </Grid>
-            <Grid item xs style={{marginLeft: theme.spacing(1)}}>
+            <Grid item xs sx={{ml: 1}}>
               <Divider/>
             </Grid>
           </Grid>
