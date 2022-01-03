@@ -118,7 +118,7 @@ const DefineNewPropertyModal = (
 
   const {selectedDynamicProperty} = newPropertyState;
   const userIsNotSelectedAPatternType = selectedDynamicProperty.pattern === undefined;
-  const {pattern, type: dataType} = selectedDynamicProperty;
+  const {pattern, type: propertyType} = selectedDynamicProperty;
 
   // tslint:disable-next-line:no-shadowed-variable
   const setSelectedDynamicProperty = (selectedDynamicProperty: DynamicProperty) => {
@@ -137,7 +137,7 @@ const DefineNewPropertyModal = (
   });
 
   const setPropertyValue = (value: any) => dispatch(
-    getValueWithError(value, dataType),
+    getValueWithError(value, propertyType),
   );
 
   const {key: propertyName, value: propertyValue, keyError, valueError} = newPropertyState;
@@ -173,14 +173,15 @@ const DefineNewPropertyModal = (
         label: 'Value',
         defaultValue: propertyValue,
         variant: 'standard',
-        type: dataType === 'integer' ? 'number' : dataType,
+        type: propertyType === 'integer' ? 'number' : propertyType,
         inputProps: {step: 'any'},
         onChange: (event: React.ChangeEvent<HTMLInputElement>) => setPropertyValue(event.target.value),
         error: !!valueError,
         helperText: valueError
           ? valueError
-          : dataType
-            ? <Typography component='span' sx={{fontFamily: 'monospace'}}>{dataType}</Typography>
+          : propertyType
+            ?
+            <Typography component='span' sx={{fontFamily: 'monospace'}}>{propertyType}</Typography>
             : ' ',
       }]}
       buttons={[{
@@ -218,10 +219,6 @@ const ModalHeader = (
     valueError: string,
     setSelectedDynamicProperty(dynamicProperty: DynamicProperty): void;
   }) => {
-  /**
-   * A double-quotation (to quote `string` values) or nothing (don't quote other types)
-   */
-  const q = selectedDynamicProperty.type === 'string' ? '"' : '';
   const userIsNotSelectedAPatternType = selectedDynamicProperty.pattern === undefined;
   const label = userIsNotSelectedAPatternType ? 'Choose a Pattern/Type combination ...' : 'Pattern/Type';
 
@@ -278,7 +275,7 @@ const ModalHeader = (
             color={valueError ? 'error' : undefined}
             sx={{fontFamily: 'Monospace'}}
           >
-            {`${q}${propertyValue}${q}`}
+            {JSON.stringify(propertyValue)}
           </Typography>
           {'}'}
         </Typography>
@@ -295,11 +292,13 @@ const getKeyError = (key: string, pattern: string, alreadyDefinedKeys: string[])
     : new RegExp(pattern === '*' ? '' : pattern).test(key) ? '' : 'Not matched to the pattern';
 
 const getValueWithError = (value: any, dataType: string) => {
-  const cast = typeCastMap[dataType] ?? ((x: any) => x ?? null);
-  const castedValue = cast(value);
+  const softCast = softCastMap[dataType] ?? ((x: any) => x ?? null);
+  const hardCast = hardCastMap[dataType] ?? ((x: any) => x ?? null);
+  const jsonizedValue = softCast(value);
+
   return {
-    value,
-    valueError: castedValue == value ? '' : 'Not matched to the type', // tslint:disable-line:triple-equals
+    value: jsonizedValue,
+    valueError: jsonizedValue === hardCast(jsonizedValue) ? '' : 'Not matched to the type',
   };
 };
 
@@ -315,10 +314,23 @@ const initialNewPropertyState: NewPropertyState = {
   },
 };
 
-const typeCastMap: { [key: string]: Function } = {
+const softCastMap: { [key: string]: (x: string) => any } = { // @ts-ignore
+  number: (x: string) => isNaN(x) ? x : Number(x), // @ts-ignore
+  integer: (x: string) => isNaN(x) ? x : Number(x),
+  string: (x: string) => x,
+  boolean: (x: string | boolean) =>
+    typeof x === 'string'
+      ? ['true', 'false'].includes(x.toLowerCase())
+        ? x.length === 4 // === "true".length !== "false".length 
+        // @ts-ignore
+        : isNaN(x) ? x : Number(x)
+      : x,
+};
+
+const hardCastMap: { [key: string]: (x: string) => any } = {
   number: Number, // @ts-ignore
-  integer: (x: any) => Number.parseInt(Number(x), 10),
-  string: String,
+  integer: (x: string) => Number.parseInt(Number(x), 10),
+  string: (x: string) => x,
   boolean: Boolean,
 };
 
