@@ -29,11 +29,11 @@ import {
   DialogContentText,
   Divider,
   FormControl,
-  Grid,
   Hidden,
   InputLabel,
   MenuItem,
   Select,
+  Stack,
   Tooltip,
   Typography,
 } from '@mui/material';
@@ -67,34 +67,19 @@ export const MaterialDynamicObjectRenderer = React.memo(
 
     return (
       <Hidden xsUp={!visible}>
-        <Grid container>
-          <Grid
-            container
-            direction='row'
-            alignItems='center'
-            wrap='nowrap'
-            item
-            xs={12}
-          >
-            <Grid item xs sx={{mr: 1}}>
-              <Divider/>
-            </Grid>
-            <Grid item>
-              <Tooltip title={`Add to ${groupLayout.label ?? 'Root-Object'}`} placement='bottom'>
-                <Button
-                  sx={{p: 1, color: 'text.secondary', textTransform: 'none'}}
-                  aria-label={`Add to ${groupLayout.label ?? 'Root-Object'}`}
-                  onClick={() => setModalOpen(true)}
-                >
-                  <Typography>Define a Property</Typography>&nbsp;
-                  <AddIcon/>
-                </Button>
-              </Tooltip>
-            </Grid>
-            <Grid item xs sx={{ml: 1}}>
-              <Divider/>
-            </Grid>
-          </Grid>
+        <Stack>
+          <Divider>
+            <Tooltip title={`Add to ${groupLayout.label ?? 'Root-Object'}`} placement='bottom'>
+              <Button
+                sx={{p: 1, color: 'text.secondary', textTransform: 'none'}}
+                aria-label={`Add to ${groupLayout.label ?? 'Root-Object'}`}
+                onClick={() => setModalOpen(true)}
+              >
+                <Typography>Define a Property</Typography>&nbsp;
+                <AddIcon/>
+              </Button>
+            </Tooltip>
+          </Divider>
 
           <MaterialLayoutRenderer
             {...otherProps}
@@ -102,7 +87,7 @@ export const MaterialDynamicObjectRenderer = React.memo(
             enabled={enabled}
             elements={groupLayout.elements}
           />
-        </Grid>
+        </Stack>
 
         <DefineNewPropertyModal
           isModalOpen={isModalOpen}
