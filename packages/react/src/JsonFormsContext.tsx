@@ -377,13 +377,6 @@ const withContextToLayoutProps =
   (Component: ComponentType<LayoutProps>): ComponentType<OwnPropsOfJsonFormsRenderer> =>
     ({ ctx, props }: JsonFormsStateContext & LayoutProps) => {
       const layoutProps = ctxToLayoutProps(ctx, props);
-      return (<Component {...props} {...layoutProps} />);
-    };
-
-const withContextToDynamicLayoutProps =
-  (Component: ComponentType<LayoutProps>): ComponentType<OwnPropsOfJsonFormsRenderer> =>
-    ({ ctx, props }: JsonFormsStateContext & LayoutProps) => {
-      const layoutProps = ctxToLayoutProps(ctx, props);
       const dispatchProps = ctxDispatchToDynamicLayoutProps(ctx.dispatch);
       return (<Component {...props} {...layoutProps} {...dispatchProps} />);
     };
@@ -517,12 +510,6 @@ export const withJsonFormsLayoutProps =
   (Component: ComponentType<LayoutProps>, memoize = true): ComponentType<OwnPropsOfLayout> =>
     withJsonFormsContext(withContextToLayoutProps(memoize ? React.memo(Component) : Component));
 
-const withDynamicLayoutProps =
-  (Component: ComponentType<LayoutProps>, memoize = true): ComponentType<OwnPropsOfLayout> =>
-    withJsonFormsContext(
-      withContextToDynamicLayoutProps(memoize ? React.memo(Component) : Component)
-    );
-
 const withDynamicElements = (Component: ComponentType<DynamicLayoutProps>) => (props: DynamicLayoutProps) => {
   const {schema: {properties, patternProperties, additionalProperties}, uischema: {scope}} = props;
   const schemaPathSegments = typeof scope === 'string' ? toSchemaPathSegments(scope) : scope;
@@ -596,7 +583,7 @@ const withDynamicElements = (Component: ComponentType<DynamicLayoutProps>) => (p
 };
 
 export const withDynamicProperties = (Component: ComponentType<DynamicLayoutProps>) =>
-  withDynamicLayoutProps(withDynamicElements(Component));
+  withJsonFormsLayoutProps(withDynamicElements(Component));
 
 export const withJsonFormsOneOfProps =
   (Component: ComponentType<CombinatorRendererProps>, memoize = true): ComponentType<OwnPropsOfControl> =>
