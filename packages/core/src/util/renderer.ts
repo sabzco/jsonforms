@@ -50,7 +50,7 @@ import { hasShowRule, isInherentlyEnabled, isVisible } from './runtime';
 import { createLabelDescriptionFrom } from './label';
 import { CombinatorKeyword, resolveSubSchemas } from './combinators';
 import { moveDown, moveUp } from './array';
-import { AnyAction, Dispatch } from './type';
+import type { Dispatch } from './type';
 import { Resolve } from './util';
 import { composePaths, composeWithUi, toSchemaPathSegments } from './path';
 import { addNewProperty, CoreActions, removeThisProperty, update } from '../actions';
@@ -378,19 +378,13 @@ export interface DispatchPropsOfControl {
    * @param {any} value the new value that should be written to the given path
    */
   handleChange(path: string[], value: any): void;
-}
-
-/**
- * Dispatch-based props of a Control.
- */
-export interface DispatchPropsOfDynamicControl extends DispatchPropsOfControl {
   /**
    * Update handler that emits removing a key
    *
    * @param {string} path the path to the data to be updated
    * to the given key in the given path
    */
-  removeThisProperty(path: string[]): void;
+  removeThisProperty?(path: string[]): void;
 }
 
 /**
@@ -414,11 +408,6 @@ export interface DispatchPropsOfDynamicLayout {
 export interface ControlProps
   extends StatePropsOfControl,
     DispatchPropsOfControl {}
-
-/**
- * Props of a Dynamic Control.
- */
-export interface DynamicControlProps extends StatePropsOfDynamicControl, DispatchPropsOfDynamicControl {}
 
 /**
  * State props of a layout;
@@ -548,24 +537,11 @@ export const mapStateToControlProps = (
  * @returns {DispatchPropsOfControl} dispatch props for a control
  */
 export const mapDispatchToControlProps = (
-  dispatch: Dispatch<AnyAction>
+  dispatch: Dispatch
 ): DispatchPropsOfControl => ({
   handleChange(path, value) {
     dispatch(update(path, () => value));
-  }
-});
-
-/**
- *
- * Map dispatch to dynamic-control props.
- *
- * @param dispatch the store's dispatch method
- * @returns {DispatchPropsOfControl} dispatch props for a control
- */
-export const mapDispatchToDynamicControlProps = (
-  dispatch: Dispatch
-): DispatchPropsOfDynamicControl => ({
-  ...mapDispatchToControlProps(dispatch),
+  },
   removeThisProperty(path) {
     dispatch(removeThisProperty(path));
   },

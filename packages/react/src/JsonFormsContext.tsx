@@ -61,7 +61,6 @@ import {
   i18nReducer,
   mapDispatchToArrayControlProps,
   mapDispatchToControlProps,
-  mapDispatchToDynamicControlProps,
   mapDispatchToDynamicLayoutProps,
   mapDispatchToMultiEnumProps,
   mapStateToAllOfProps,
@@ -262,10 +261,6 @@ export const ctxToAllOfProps = (
 export const ctxDispatchToControlProps = (dispatch: Dispatch<ReducerAction<any>>): DispatchPropsOfControl =>
   useMemo(() => mapDispatchToControlProps(dispatch as any), [dispatch]);
 
-export const ctxDispatchToDynamicControlProps =
-  (dispatch: Dispatch<ReducerAction<any>>): DispatchPropsOfControl =>
-  useMemo(() => mapDispatchToDynamicControlProps(dispatch as any), [dispatch]);
-
 export const ctxDispatchToDynamicLayoutProps =
   (dispatch: Dispatch<ReducerAction<any>>): DispatchPropsOfDynamicLayout =>
     useMemo(() => mapDispatchToDynamicLayoutProps(dispatch as any), [dispatch]);
@@ -375,14 +370,6 @@ const withContextToControlProps =
     ({ ctx, props }: JsonFormsStateContext & ControlProps) => {
       const controlProps = ctxToControlProps(ctx, props);
       const dispatchProps = ctxDispatchToControlProps(ctx.dispatch);
-      return (<Component {...props} {...controlProps} {...dispatchProps} />);
-    };
-
-const withContextToDynamicControlProps =
-  (Component: ComponentType<ControlProps>): ComponentType<OwnPropsOfControl> =>
-    ({ ctx, props }: JsonFormsStateContext & ControlProps) => {
-      const controlProps = ctxToControlProps(ctx, props);
-      const dispatchProps = ctxDispatchToDynamicControlProps(ctx.dispatch);
       return (<Component {...props} {...controlProps} {...dispatchProps} />);
     };
 
@@ -525,12 +512,6 @@ const withContextToMultiEnumProps =
 export const withJsonFormsControlProps =
   (Component: ComponentType<ControlProps>, memoize = true): ComponentType<OwnPropsOfControl> =>
   withJsonFormsContext(withContextToControlProps(memoize ? React.memo(Component) : Component));
-
-export const withDynamicControlProps =
-  (Component: ComponentType<ControlProps>, memoize = true): ComponentType<OwnPropsOfControl> =>
-    withJsonFormsContext(
-      withContextToDynamicControlProps(memoize ? React.memo(Component) : Component)
-    );
 
 export const withJsonFormsLayoutProps =
   (Component: ComponentType<LayoutProps>, memoize = true): ComponentType<OwnPropsOfLayout> =>

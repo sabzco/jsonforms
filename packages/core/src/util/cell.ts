@@ -260,10 +260,11 @@ export const mapDispatchToCellProps: (
  */
 export const defaultMapDispatchToControlProps =
   // TODO: ownProps types
-  (dispatch: Dispatch<AnyAction>, ownProps: any): DispatchPropsOfControl => {
-    const { handleChange } = mapDispatchToCellProps(dispatch);
+  (dispatch: Dispatch, ownProps: any): DispatchPropsOfControl => {
+    const { handleChange, removeThisProperty } = mapDispatchToCellProps(dispatch);
 
     return {
-      handleChange: ownProps.handleChange || handleChange
+      handleChange: ownProps.handleChange || handleChange,
+      removeThisProperty: ownProps.removeThisProperty || removeThisProperty,
     };
   };
