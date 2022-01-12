@@ -91,9 +91,8 @@ import React, {
   useMemo,
   useReducer,
   useRef,
-  useState,
 } from 'react';
-import useDeepEffect, { useDeepMemo } from './util/deep-effect';
+import { useDeepMemo } from './util/deep-effect';
 
 const initialCoreState: JsonFormsCore = {
   data: {},
@@ -544,12 +543,12 @@ const withDynamicLayoutProps =
     );
 
 const withDynamicElements = (Component: ComponentType<DynamicLayoutProps>) => (props: DynamicLayoutProps) => {
-  const [uischema, setUischema] = useState(props.uischema);
   const {schema: {properties, patternProperties, additionalProperties}, uischema: {scope}} = props;
   const schemaPathSegments = typeof scope === 'string' ? toSchemaPathSegments(scope) : scope;
 
   const dataKeys = Object.keys(props.data ?? {});
   const propertiesKeys = Object.keys(properties ?? {});
+  const {elements: temp, ...uischemaWithoutElements} = props.uischema;
 
   const {elements, dynamicProperties} = useDeepMemo(() => {
     const patterns: string[] = [];
@@ -576,37 +575,43 @@ const withDynamicElements = (Component: ComponentType<DynamicLayoutProps>) => (p
     // tslint:disable-next-line:no-shadowed-variable
     const elements: DynamicControlElement[] = [];
 
-    dataLoop:
-      for (const dataFieldKey of dataKeys) {
-        if (propertiesKeys.includes(dataFieldKey)) { continue; }
+    dataLoop: for (const dataFieldKey of dataKeys) {
+      if (propertiesKeys.includes(dataFieldKey)) { continue; }
 
-        for (const pattern of patterns) {
-          if (new RegExp(pattern).test(dataFieldKey)) {
-            elements.push(createDynamicControlElement(
-              [...schemaPathSegments, 'patternProperties', pattern],
-              dataFieldKey,
-            ));
-            dynamicProperties[pattern].dataFieldKeys.push(dataFieldKey);
-            continue dataLoop;
-          }
-        }
-        if (additionalProperties) {
+      for (const pattern of patterns) {
+        if (new RegExp(pattern).test(dataFieldKey)) {
           elements.push(createDynamicControlElement(
-            [...schemaPathSegments, 'additionalProperties'],
+            [...schemaPathSegments, 'patternProperties', pattern],
             dataFieldKey,
           ));
-          dynamicProperties['*'].dataFieldKeys.push(dataFieldKey);
+          dynamicProperties[pattern].dataFieldKeys.push(dataFieldKey);
+          continue dataLoop;
         }
       }
+      if (additionalProperties) {
+        elements.push(createDynamicControlElement(
+          [...schemaPathSegments, 'additionalProperties'],
+          dataFieldKey,
+        ));
+        dynamicProperties['*'].dataFieldKeys.push(dataFieldKey);
+      }
+    }
 
     return {elements, dynamicProperties};
-  }, [dataKeys, properties, patternProperties, additionalProperties]);
+  }, [dataKeys, properties, patternProperties, additionalProperties, uischemaWithoutElements]);
 
-  useDeepEffect(() => {
-    setUischema({...props.uischema, elements});
-  }, [elements]);
+  const uischema = useDeepMemo(
+    () => ({...uischemaWithoutElements, elements}),
+    [elements, uischemaWithoutElements]
+  );
 
-  return <Component {...props} uischema={uischema} dynamicProperties={dynamicProperties}/>;
+  return (
+    <Component
+      {...props}
+      uischema={uischema}
+      dynamicProperties={dynamicProperties}
+    />
+  );
 };
 
 export const withDynamicProperties = (Component: ComponentType<DynamicLayoutProps>) =>
