@@ -85,7 +85,7 @@ import {
   materialArrayLayoutTester,
   MaterialCategorizationLayout,
   materialCategorizationTester,
-  materialDynamicObjectTester,
+  materialDynamicGroupTester,
   MaterialDynamicProperties,
   MaterialGroupLayout,
   materialGroupTester,
@@ -192,7 +192,7 @@ export const materialRenderers: JsonFormsRendererRegistryEntry[] = [
     renderer: MaterialDynamicInputControl,
   },
   {
-    tester: materialDynamicObjectTester,
+    tester: materialDynamicGroupTester,
     renderer: MaterialDynamicProperties,
   },
 ];

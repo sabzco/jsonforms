@@ -49,7 +49,7 @@ import type {
 import { RankedTester, rankWith, uiTypeIs } from '@jsonforms/core';
 import { withDynamicProperties } from '@jsonforms/react';
 
-export const materialDynamicObjectTester: RankedTester = rankWith(
+export const materialDynamicGroupTester: RankedTester = rankWith(
   1,
   uiTypeIs('DynamicGroup'),
 );

@@ -22,43 +22,75 @@
   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
   THE SOFTWARE.
 */
-import isEmpty from 'lodash/isEmpty';
-import React from 'react';
-import { Card, CardContent, CardHeader, Hidden } from '@mui/material';
+import React, { useState } from 'react';
+import { Box, Card, CardContent, CardHeader, Hidden, IconButton, Tooltip } from '@mui/material';
 import {
+  DispatchPropsOfControl,
+  DynamicGroupLayout,
   GroupLayout,
+  isScopeOfDynamicProperties,
   LayoutProps,
   RankedTester,
   rankWith,
   uiTypeIs,
   withIncreasedRank,
 } from '@jsonforms/core';
-import {
-  MaterialLayoutRenderer,
-  MaterialLayoutRendererProps
-} from '../util/layout';
+import { MaterialLayoutRenderer, MaterialLayoutRendererProps } from '../util';
 import { withJsonFormsLayoutProps } from '@jsonforms/react';
+import { Delete as DeleteIcon } from '@mui/icons-material';
+import ModalWindow from '../util/ModalWindow';
 
 export const groupTester: RankedTester = rankWith(1, uiTypeIs('Group'));
 const style: { [x: string]: any } = { marginBottom: '10px' };
 
-const GroupComponent = React.memo(({ visible, enabled, uischema, ...props }: MaterialLayoutRendererProps) => {
-  const groupLayout = uischema as GroupLayout;
+const GroupComponent = React.memo(({visible, enabled, uischema, ...props}:
+                                     MaterialLayoutRendererProps & DispatchPropsOfControl) => {
+  const groupLayout = uischema as (GroupLayout | DynamicGroupLayout);
+  const [isDeleteModalOpen, setDeleteModalOpen] = useState(false);
+  console.log(uischema, props);
   return (
     <Hidden xsUp={!visible}>
       <Card style={style}>
-        {!isEmpty(groupLayout.label) && (
-          <CardHeader title={groupLayout.label} />
-        )}
+        <CardHeader
+          title={(
+            <Box sx={{display: 'flex', alignItems: 'baseline', justifyContent: 'space-between'}}>
+              <>{groupLayout.label ?? ''}</>
+              {'scope' in groupLayout && isScopeOfDynamicProperties(groupLayout.scope) && (
+                <Tooltip title='Remove this object'>
+                  <IconButton aria-label='Delete' onClick={() => setDeleteModalOpen(true)} size='large'>
+                    <DeleteIcon/>
+                  </IconButton>
+                </Tooltip>
+              )}
+            </Box>
+          )}
+        />
         <CardContent>
-          <MaterialLayoutRenderer {...props} visible={visible} enabled={enabled} elements={groupLayout.elements} />
+          <MaterialLayoutRenderer {...props} visible={visible} enabled={enabled} elements={groupLayout.elements}/>
         </CardContent>
       </Card>
+
+      <ModalWindow
+        content={`Remove ${groupLayout.label ?? 'this'} object? This action can't be undone!`}
+        isModalOpen={isDeleteModalOpen}
+        hideModal={() => setDeleteModalOpen(false)}
+        buttons={[{
+          text: 'Cancel',
+        }, {
+          text: 'Remove',
+          variant: 'contained',
+          type: 'submit',
+        }]}
+        onSubmit={() => props.removeThisProperty(props.path)}
+      />
     </Hidden>
   );
 });
 
-export const MaterializedGroupLayoutRenderer = ({ uischema, schema, path, visible, enabled, renderers, cells, direction }: LayoutProps) => {
+export const MaterializedGroupLayoutRenderer = (
+  {uischema, schema, path, visible, enabled, renderers, cells, direction, removeThisProperty }:
+    LayoutProps & DispatchPropsOfControl
+) => {
   const groupLayout = uischema as GroupLayout;
 
   return (
@@ -72,6 +104,8 @@ export const MaterializedGroupLayoutRenderer = ({ uischema, schema, path, visibl
       uischema={uischema}
       renderers={renderers}
       cells={cells}
+      handleChange={() => undefined} // This doesn't apply to objects
+      removeThisProperty={removeThisProperty}
     />
   );
 };

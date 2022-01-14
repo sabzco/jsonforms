@@ -377,8 +377,9 @@ const withContextToLayoutProps =
   (Component: ComponentType<LayoutProps>): ComponentType<OwnPropsOfJsonFormsRenderer> =>
     ({ ctx, props }: JsonFormsStateContext & LayoutProps) => {
       const layoutProps = ctxToLayoutProps(ctx, props);
-      const dispatchProps = ctxDispatchToDynamicLayoutProps(ctx.dispatch);
-      return (<Component {...props} {...layoutProps} {...dispatchProps} />);
+      const controlDispatchProps = ctxDispatchToControlProps(ctx.dispatch);
+      const dynamicLayoutDispatchProps = ctxDispatchToDynamicLayoutProps(ctx.dispatch);
+      return (<Component {...props} {...layoutProps} {...controlDispatchProps} {...dynamicLayoutDispatchProps} />);
     };
 
 const withContextToOneOfProps =

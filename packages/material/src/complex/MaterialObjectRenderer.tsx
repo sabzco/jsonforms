@@ -24,6 +24,7 @@
 */
 import isEmpty from 'lodash/isEmpty';
 import {
+  DynamicUISchemaElement,
   findUISchema,
   GroupLayout,
   isObjectControl,
@@ -64,6 +65,9 @@ export const MaterialObjectRenderer = ({
     detailUiSchema.type = 'VerticalLayout';
   } else {
     (detailUiSchema as GroupLayout).label = label;
+  }
+  if (uischema.scope) {
+    (detailUiSchema as DynamicUISchemaElement).scope = uischema.scope;
   }
   return (
     <Hidden xsUp={!visible}>

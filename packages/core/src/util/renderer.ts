@@ -400,6 +400,13 @@ export interface DispatchPropsOfDynamicLayout {
    * to the given key in the given path
    */
   addNewProperty(path: string[], key: string, value: any): void;
+  /**
+   * Update handler that emits removing a key
+   *
+   * @param {string} path the path to the data to be updated
+   * to the given key in the given path
+   */
+  removeThisProperty?(path: string[]): void;
 }
 
 /**

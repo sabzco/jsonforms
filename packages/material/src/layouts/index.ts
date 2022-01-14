@@ -38,11 +38,11 @@ import MaterialArrayLayout, {
   materialArrayLayoutTester
 } from './MaterialArrayLayoutRenderer';
 import MaterialDynamicProperties, {
-  materialDynamicObjectTester,
-} from './MaterialDynamicObject';
+  materialDynamicGroupTester,
+} from './MaterialDynamicGroup';
 
 export {
-  materialDynamicObjectTester,
+  materialDynamicGroupTester,
   MaterialDynamicProperties,
   materialArrayLayoutTester,
   MaterialArrayLayout,
