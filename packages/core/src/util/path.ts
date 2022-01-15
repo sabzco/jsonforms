@@ -55,13 +55,13 @@ export const toDataPathSegments = (scope: string | string[], dynamicDataFields?:
   const dataFieldKeys = dynamicDataFields instanceof Array ? dynamicDataFields : [dynamicDataFields];
   let i = 0;
   const s = schemaPath
-    .replace(/^#?\//, '')
+    .replace(/^#?\/?/, '') // https://regex101.com/r/cmx2ki/1
     .replace(
       /properties\/|(anyOf|allOf|oneOf)\/[\d]+\/|patternProperties\/[^\/]*|additionalProperties($|\/)/g,
       match => /^(patternProperties|additionalProperties)/.test(match) ? `${dataFieldKeys[i++]}` : '',
     );
-  // console.debug({schemaPath, dynamicDataFields, s});
-  return s.split('/');
+  // console.debug({schemaPath, dynamicDataFields, s}, s.split('/'));
+  return s ? s.split('/') : [];
 };
 // TODO: `toDataPathSegments` and `toDataPath` are the same!
 /**
