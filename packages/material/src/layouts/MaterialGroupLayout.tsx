@@ -47,7 +47,7 @@ const GroupComponent = React.memo(({visible, enabled, uischema, ...props}:
                                      MaterialLayoutRendererProps & DispatchPropsOfControl) => {
   const groupLayout = uischema as (GroupLayout | DynamicGroupLayout);
   const [isDeleteModalOpen, setDeleteModalOpen] = useState(false);
-  console.log(uischema, props);
+
   return (
     <Hidden xsUp={!visible}>
       <Card style={style}>

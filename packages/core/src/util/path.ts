@@ -44,6 +44,7 @@ export { compose as composePaths };
  *
  * @param {string|string[]} scope Encoded schema-path (using AJV-instancePath encoding method) or
  *   an array of raw (not-encoded) segments
+ * @param {string[] | string} dynamicDataFields
  * @returns {string[]} An array containing only non-schema-specific segments in a raw (not-encoded)
  * format
  */
@@ -63,7 +64,7 @@ export const toDataPathSegments = (scope: string | string[], dynamicDataFields?:
   // console.debug({schemaPath, dynamicDataFields, s}, s.split('/'));
   return s ? s.split('/') : [];
 };
-// TODO: `toDataPathSegments` and `toDataPath` are the same!
+
 /**
  * Remove all schema-specific keywords (e.g. 'properties') from a given path.
  * @example

@@ -57,8 +57,6 @@ import {
   materialDateControlTester,
   MaterialDateTimeControl,
   materialDateTimeControlTester,
-  MaterialDynamicInputControl,
-  materialDynamicInputControlTester,
   MaterialEnumControl,
   materialEnumControlTester,
   MaterialIntegerControl,
@@ -186,10 +184,6 @@ export const materialRenderers: JsonFormsRendererRegistryEntry[] = [
   {
     tester: materialEnumArrayRendererTester,
     renderer: MaterialEnumArrayRenderer
-  },
-  {
-    tester: materialDynamicInputControlTester,
-    renderer: MaterialDynamicInputControl,
   },
   {
     tester: materialDynamicGroupTester,

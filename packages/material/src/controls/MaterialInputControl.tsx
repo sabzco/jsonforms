@@ -24,15 +24,23 @@
 */
 import React from 'react';
 import {
-  showAsRequired,
   ControlProps,
   isDescriptionHidden,
+  isScopeOfDynamicProperties,
+  showAsRequired,
 } from '@jsonforms/core';
-
-import { Hidden, InputLabel } from '@mui/material';
-import { FormControl, FormHelperText } from '@mui/material';
+import {
+  FormControl,
+  FormHelperText,
+  Grid,
+  Hidden,
+  IconButton,
+  InputLabel,
+  Tooltip,
+} from '@mui/material';
 import merge from 'lodash/merge';
 import { useFocus } from '../util';
+import { Delete as DeleteIcon } from '@mui/icons-material';
 
 export interface WithInput {
   input: any;
@@ -49,7 +57,7 @@ export const MaterialInputControl = (props: ControlProps & WithInput) => {
     visible,
     required,
     config,
-    input
+    input,
   } = props;
   const isValid = errors.length === 0;
   const appliedUiSchemaOptions = merge({}, config, uischema.options);
@@ -58,47 +66,70 @@ export const MaterialInputControl = (props: ControlProps & WithInput) => {
     visible,
     description,
     focused,
-    appliedUiSchemaOptions.showUnfocusedDescription
+    appliedUiSchemaOptions.showUnfocusedDescription,
   );
 
   const firstFormHelperText = showDescription
     ? description
     : !isValid
-    ? errors
-    : null;
+      ? errors
+      : null;
   const secondFormHelperText = showDescription && !isValid ? errors : null;
   const InnerComponent = input;
 
+  const formControl = (
+    <FormControl
+      fullWidth={!appliedUiSchemaOptions.trim}
+      onFocus={onFocus}
+      onBlur={onBlur}
+      id={id}
+      variant={'standard'}
+    >
+      <InputLabel
+        htmlFor={id + '-input'}
+        error={!isValid}
+        required={showAsRequired(required,
+          appliedUiSchemaOptions.hideRequiredAsterisk)}
+      >
+        {label}
+      </InputLabel>
+      <InnerComponent
+        {...props}
+        id={id + '-input'}
+        isValid={isValid}
+        visible={visible}
+      />
+      <FormHelperText error={!isValid && !showDescription}>
+        {firstFormHelperText}
+      </FormHelperText>
+      <FormHelperText error={!isValid}>
+        {secondFormHelperText}
+      </FormHelperText>
+    </FormControl>
+  );
+
   return (
     <Hidden xsUp={!visible}>
-      <FormControl
-        fullWidth={!appliedUiSchemaOptions.trim}
-        onFocus={onFocus}
-        onBlur={onBlur}
-        id={id}
-        variant={'standard'}
-      >
-        <InputLabel
-          htmlFor={id + '-input'}
-          error={!isValid}
-          required={showAsRequired(required,
-            appliedUiSchemaOptions.hideRequiredAsterisk)}
-        >
-          {label}
-        </InputLabel>
-        <InnerComponent
-          {...props}
-          id={id + '-input'}
-          isValid={isValid}
-          visible={visible}
-        />
-        <FormHelperText error={!isValid && !showDescription}>
-          {firstFormHelperText}
-        </FormHelperText>
-        <FormHelperText error={!isValid}>
-          {secondFormHelperText}
-        </FormHelperText>
-      </FormControl>
+      {isScopeOfDynamicProperties(uischema.scope)
+        ? (
+          <Grid container direction='row' wrap='nowrap'>
+            <Grid item xs>
+              {formControl}
+            </Grid>
+            <Grid item>
+              <Tooltip title='Remove property' placement='bottom'>
+                <IconButton
+                  aria-label='Remove property'
+                  onClick={() => props.removeThisProperty(props.path)}
+                >
+                  <DeleteIcon/>
+                </IconButton>
+              </Tooltip>
+            </Grid>
+          </Grid>
+        )
+        : formControl
+      }
     </Hidden>
   );
 };

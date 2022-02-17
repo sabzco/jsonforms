@@ -260,6 +260,8 @@ const generateUISchema = (
  *        of the generated UI schema
  * @param {string} [prefix='#']
  * @param {JsonSchema} [rootSchema=jsonSchema]
+ * @param {string[]} path
+ * @param {string} schemaName
  */
 export const generateDefaultUISchema = (
   jsonSchema: JsonSchema,
