@@ -41,9 +41,11 @@ import {
 import merge from 'lodash/merge';
 import { useFocus } from '../util';
 import { Delete as DeleteIcon } from '@mui/icons-material';
+import type { InputLabelProps } from '@mui/material/InputLabel/InputLabel';
 
 export interface WithInput {
   input: any;
+  muiInputLabelProps?: Partial<InputLabelProps>;
 }
 
 export const MaterialInputControl = (props: ControlProps & WithInput) => {
@@ -58,6 +60,7 @@ export const MaterialInputControl = (props: ControlProps & WithInput) => {
     required,
     config,
     input,
+    muiInputLabelProps,
   } = props;
   const isValid = errors.length === 0;
   const appliedUiSchemaOptions = merge({}, config, uischema.options);
@@ -86,10 +89,10 @@ export const MaterialInputControl = (props: ControlProps & WithInput) => {
       variant={'standard'}
     >
       <InputLabel
+        {...muiInputLabelProps}
         htmlFor={id + '-input'}
         error={!isValid}
-        required={showAsRequired(required,
-          appliedUiSchemaOptions.hideRequiredAsterisk)}
+        required={showAsRequired(required, appliedUiSchemaOptions.hideRequiredAsterisk)}
       >
         {label}
       </InputLabel>
