@@ -23,36 +23,28 @@
   THE SOFTWARE.
 */
 
-import startCase from 'lodash/startCase';
-
-import { ControlElement, DynamicControlElement, JsonSchema, LabelDescription } from '../models';
+import { ControlElement, JsonSchema, LabelDescription } from '../models';
 
 const deriveLabel = (
-  controlElement: ControlElement | DynamicControlElement,
+  controlElement: ControlElement,
   schemaElement?: JsonSchema
 ): string => {
   if (schemaElement && typeof schemaElement.title === 'string') {
     return schemaElement.title;
   }
   if ('dataFieldKey' in controlElement && typeof controlElement.dataFieldKey === 'string') {
-    return startCase(controlElement.dataFieldKey);
+    return controlElement.dataFieldKey;
   }
   if (typeof controlElement.scope === 'string') {
     const ref = controlElement.scope;
-    const label = ref.substr(ref.lastIndexOf('/') + 1);
-    return startCase(label);
+    return ref.substr(ref.lastIndexOf('/') + 1);
   }
   if (Array.isArray(controlElement.scope)) {
     const ref = controlElement.scope;
-    const label = ref.at(-1);
-    return startCase(label);
+    return ref.at(-1);
   }
 
   return '';
-};
-
-export const createCleanLabel = (label: string): string => {
-  return startCase(label.replace('_', ' '));
 };
 
 /**
