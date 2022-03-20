@@ -125,7 +125,7 @@ export const schemaSubPathMatches = (
  * @param {string} expectedType the expected type of the resolved sub-schema
  */
 export const schemaTypeIs = (expectedType: string): Tester =>
-  schemaMatches(schema => !isEmpty(schema) && hasType(schema, expectedType));
+  schemaMatches(schema => !isEmpty(schema) && deriveTypes(schema)[0] === expectedType);
 
 /**
  * Only applicable for Controls.
