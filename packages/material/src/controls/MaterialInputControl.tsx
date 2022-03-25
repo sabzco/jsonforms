@@ -26,7 +26,7 @@ import React from 'react';
 import {
   ControlProps,
   isDescriptionHidden,
-  isScopeOfDynamicProperties,
+  isScopeOfDynamicProperty,
   showAsRequired,
 } from '@jsonforms/core';
 import {
@@ -36,6 +36,7 @@ import {
   Hidden,
   IconButton,
   InputLabel,
+  InputProps,
   Tooltip,
 } from '@mui/material';
 import merge from 'lodash/merge';
@@ -45,6 +46,7 @@ import type { InputLabelProps } from '@mui/material/InputLabel/InputLabel';
 
 export interface WithInput {
   input: any;
+  muiInputProps?: InputProps['inputProps'];
   muiInputLabelProps?: Partial<InputLabelProps>;
 }
 
@@ -79,6 +81,7 @@ export const MaterialInputControl = (props: ControlProps & WithInput) => {
       : null;
   const secondFormHelperText = showDescription && !isValid ? errors : null;
   const InnerComponent = input;
+  const isDynamicProperty = isScopeOfDynamicProperty(uischema.scope);
 
   const formControl = (
     <FormControl
@@ -94,7 +97,7 @@ export const MaterialInputControl = (props: ControlProps & WithInput) => {
         error={!isValid}
         required={showAsRequired(required, appliedUiSchemaOptions.hideRequiredAsterisk)}
       >
-        {label}
+        {isDynamicProperty ? uischema.dataFieldKey : label}
       </InputLabel>
       <InnerComponent
         {...props}
@@ -113,7 +116,7 @@ export const MaterialInputControl = (props: ControlProps & WithInput) => {
 
   return (
     <Hidden xsUp={!visible}>
-      {isScopeOfDynamicProperties(uischema.scope)
+      {isDynamicProperty
         ? (
           <Grid container direction='row' wrap='nowrap'>
             <Grid item xs>

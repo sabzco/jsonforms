@@ -23,24 +23,28 @@
   THE SOFTWARE.
 */
 
-import { ControlElement, JsonSchema, LabelDescription } from '../models';
+import type { JsonSchema, LabelDescription, UISchemaElement } from '../models';
+import { isControlElement } from '../models';
 
 const deriveLabel = (
-  controlElement: ControlElement,
+  uischemaElement: UISchemaElement,
   schemaElement?: JsonSchema
 ): string => {
   if (schemaElement && typeof schemaElement.title === 'string') {
     return schemaElement.title;
   }
-  if ('dataFieldKey' in controlElement && typeof controlElement.dataFieldKey === 'string') {
-    return controlElement.dataFieldKey;
+  if ('dataFieldKey' in uischemaElement && typeof uischemaElement.dataFieldKey === 'string') {
+    return uischemaElement.dataFieldKey;
   }
-  if (typeof controlElement.scope === 'string') {
-    const ref = controlElement.scope;
+  if (!isControlElement(uischemaElement)) {
+    return '';
+  }
+  if (typeof uischemaElement.scope === 'string') {
+    const ref = uischemaElement.scope;
     return ref.substr(ref.lastIndexOf('/') + 1);
   }
-  if (Array.isArray(controlElement.scope)) {
-    const ref = controlElement.scope;
+  if (Array.isArray(uischemaElement.scope)) {
+    const ref = uischemaElement.scope;
     return ref.at(-1);
   }
 
@@ -54,7 +58,7 @@ const deriveLabel = (
  * @returns {LabelDescription}
  */
 export const createLabelDescriptionFrom = (
-  withLabel: ControlElement,
+  withLabel: UISchemaElement,
   schema?: JsonSchema
 ): LabelDescription => {
   const labelProperty = withLabel.label;

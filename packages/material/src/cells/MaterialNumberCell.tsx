@@ -31,9 +31,10 @@ import {
   WithClassname
 } from '@jsonforms/core';
 import { withJsonFormsCellProps } from '@jsonforms/react';
-import { MuiInputNumber } from '../mui-controls/MuiInputNumber';
+import { MuiInputNumber } from '../mui-controls';
+import { WithInput } from '../controls';
 
-export const MaterialNumberCell = (props: CellProps & WithClassname) => (
+export const MaterialNumberCell = (props: CellProps & WithClassname & WithInput) => (
   <MuiInputNumber {...props} />
 );
 /**

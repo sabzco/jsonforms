@@ -24,13 +24,13 @@
 */
 import isEmpty from 'lodash/isEmpty';
 import {
-  DynamicUISchemaElement,
+  ControlElement,
   findUISchema,
   GroupLayout,
   isObjectControl,
   RankedTester,
   rankWith,
-  StatePropsOfControlWithDetail
+  StatePropsOfControlWithDetail,
 } from '@jsonforms/core';
 import { JsonFormsDispatch, withJsonFormsDetailProps } from '@jsonforms/react';
 import { Hidden } from '@mui/material';
@@ -67,7 +67,7 @@ export const MaterialObjectRenderer = ({
     (detailUiSchema as GroupLayout).label = label;
   }
   if (uischema.scope) {
-    (detailUiSchema as DynamicUISchemaElement).scope = uischema.scope;
+    (detailUiSchema as ControlElement).scope = uischema.scope;
   }
   return (
     <Hidden xsUp={!visible}>

@@ -207,6 +207,11 @@ export const scopeEndIs = (expected: string): Tester => (
   return scope?.length && scope.at(-1) === expected;
 };
 
+export const not = (tester: Tester): Tester => (
+  uischema: UISchemaElement,
+  schema: JsonSchema
+) => !tester(uischema, schema);
+
 /**
  * A tester that allow composing other testers by && them.
  *
@@ -267,6 +272,8 @@ export const isBooleanControl = and(
 
 // TODO: rather check for properties property
 export const isObjectControl = and(uiTypeIs('Control'), schemaTypeIs('object'));
+
+export const isDynamicControl = or(schemaTypeIs('object'), not(uiTypeIs('Control')));
 
 export const isAllOfControl = and(
   uiTypeIs('Control'),
@@ -539,8 +546,3 @@ export const hasCategory = (categorization: Categorization): boolean => {
 
 export const categorizationHasCategory = (uischema: UISchemaElement) =>
   hasCategory(uischema as Categorization);
-
-export const not = (tester: Tester): Tester => (
-  uischema: UISchemaElement,
-  schema: JsonSchema
-) => !tester(uischema, schema);

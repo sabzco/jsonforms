@@ -22,13 +22,14 @@
   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
   THE SOFTWARE.
 */
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 import isEmpty from 'lodash/isEmpty';
 
 import {
   CombinatorRendererProps,
   createCombinatorRenderInfos,
   createDefaultValue,
+  EMPTY_PATH,
   isOneOfControl,
   JsonSchema,
   OwnPropsOfControl,
@@ -51,7 +52,6 @@ import {
   JsonFormsDispatch,
   withJsonFormsOneOfProps
 } from '@jsonforms/react';
-import CombinatorProperties from './CombinatorProperties';
 
 export interface OwnOneOfProps extends OwnPropsOfControl {
   indexOfFittingSchema?: number;
@@ -67,14 +67,14 @@ export const MaterialOneOfRenderer =
       setOpen(false);
     }, [setOpen]);
     const _schema = resolveSubSchemas(schema, rootSchema, 'oneOf');
-    const oneOfRenderInfos = createCombinatorRenderInfos(
+    const oneOfRenderInfos = useMemo(() => createCombinatorRenderInfos(
       (_schema as JsonSchema).oneOf,
       rootSchema,
       'oneOf',
       uischema,
       path,
-      uischemas
-      );
+      uischemas,
+    ), [rootSchema, uischema, path, uischemas]);
 
     const openNewTab = (newIndex: number) => {
       handleChange(
@@ -82,29 +82,24 @@ export const MaterialOneOfRenderer =
         createDefaultValue(schema.oneOf[newIndex])
       );
       setSelectedIndex(newIndex);
-    }
+    };
 
     const confirm = useCallback(() => {
-      openNewTab(newSelectedIndex)
+      openNewTab(newSelectedIndex);
       setOpen(false);
     }, [handleChange, createDefaultValue, newSelectedIndex]);
+
     const handleTabChange = useCallback((_event: any, newOneOfIndex: number) => {
       setNewSelectedIndex(newOneOfIndex);
-      if(isEmpty(data)) {
-        openNewTab(newOneOfIndex)
+      if (isEmpty(data)) {
+        openNewTab(newOneOfIndex);
       } else {
         setOpen(true);
       }
-
     }, [setOpen, setSelectedIndex, data]);
 
     return (
       <Hidden xsUp={!visible}>
-        <CombinatorProperties
-          schema={_schema}
-          combinatorKeyword={'oneOf'}
-          path={path}
-        />
         <Tabs value={selectedIndex} onChange={handleTabChange}>
           {oneOfRenderInfos.map(oneOfRenderInfo => <Tab key={oneOfRenderInfo.label} label={oneOfRenderInfo.label} />)}
         </Tabs>
@@ -113,9 +108,9 @@ export const MaterialOneOfRenderer =
             selectedIndex === oneOfIndex && (
               <JsonFormsDispatch
                 key={oneOfIndex}
-                schema={oneOfRenderInfo.schema}
+                schema={rootSchema}
                 uischema={oneOfRenderInfo.uischema}
-                path={path}
+                path={EMPTY_PATH}
                 renderers={renderers}
                 cells={cells}
               />

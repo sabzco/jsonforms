@@ -3,7 +3,7 @@ import type { EffectCallback } from 'react';
 import { useEffect, useMemo, useRef } from 'react';
 
 // https://stackoverflow.com/a/54096391/5318303
-const useDeepMemorize = (object: any) => {
+export const useDeepMemorize = (object: any) => {
   const ref = useRef();
 
   if (!isEqual(object, ref.current)) {
@@ -13,7 +13,7 @@ const useDeepMemorize = (object: any) => {
   return ref.current;
 };
 
-const useDeepMemorizes = (objects: any[]) => objects.map(useDeepMemorize);
+export const useDeepMemorizes = (objects: any[]) => objects.map(useDeepMemorize);
 
 export const useDeepEffect = (callback: EffectCallback, dependencies: any[]) =>
   useEffect(callback, useDeepMemorizes(dependencies));

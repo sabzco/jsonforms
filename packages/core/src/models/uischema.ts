@@ -121,6 +121,8 @@ export interface AndCondition extends ComposableCondition {
   type: 'AND';
 }
 
+type LabelType = string | boolean | LabelDescription;
+
 /**
  * Common base interface for any UI schema element.
  */
@@ -129,6 +131,8 @@ export interface UISchemaElement {
    * The type of this UI schema element.
    */
   type: string;
+
+  dataFieldKey?: string;
 
   /**
    * An optional rule.
@@ -139,29 +143,26 @@ export interface UISchemaElement {
    * Any additional options.
    */
   options?: { [key: string]: any };
+
+  /**
+   * An optional label that will be associated with the control
+   */
+  label?: LabelType;
 }
 
-export interface DynamicUISchemaElement extends UISchemaElement, Scopable {
-  dataFieldKey: string;
-}
+export type LayoutType = 'Group' | 'VerticalLayout' | 'HorizontalLayout' | 'Category' | 'Control';
 
 /**
  * Represents a layout element which can order its children
  * in a specific way.
  */
-export interface Layout extends UISchemaElement {
+export interface Layout extends UISchemaElement, Partial<Scopable> {
+  label?: LabelType;
+  type: LayoutType;
   /**
    * The child elements of this layout.
    */
   elements: UISchemaElement[];
-}
-
-/**
- * Represents a scopable-layout element which can order its 
- * children in a specific way.
- */
-export interface DynamicLayout extends Layout, Scopable {
-  elements: DynamicUISchemaElement[];
 }
 
 /**
@@ -179,29 +180,11 @@ export interface HorizontalLayout extends Layout {
 }
 
 /**
- * A group layout without specified type
- */
-export interface AbstractGroupLayout {
-  /**
-   * The label of this group layout.
-   */
-  label?: string;
-}
-
-/**
  * A group resembles a vertical layout, but additionally might have a label.
  * This layout is useful when grouping different elements by a certain criteria.
  */
-export interface GroupLayout extends AbstractGroupLayout, Layout {
+export interface GroupLayout extends Layout {
   type: 'Group';
-}
-
-/**
- * A group resembles a vertical layout, but additionally might have a label.
- * This layout is useful when grouping different elements by a certain criteria.
- */
-export interface DynamicGroupLayout extends AbstractGroupLayout, DynamicLayout {
-  type: 'DynamicGroup';
 }
 
 /**
@@ -235,15 +218,10 @@ export interface LabelElement extends UISchemaElement {
  */
 export interface ControlElement extends UISchemaElement, Scopable {
   type: 'Control';
-  /**
-   * An optional label that will be associated with the control
-   */
-  label?: string | boolean | LabelDescription;
 }
 
-export interface DynamicControlElement extends ControlElement, DynamicUISchemaElement, Scopable {
-  type: 'Control';
-}
+export const EMPTY_CONTROL_ELEMENTS: ControlElement[] = [];
+Object.freeze(EMPTY_CONTROL_ELEMENTS);
 
 /**
  * The category layout.
@@ -275,7 +253,10 @@ export interface Categorization extends UISchemaElement {
 }
 
 export const isGroup = (layout: Layout): layout is GroupLayout =>
-  layout.type === 'Group' || layout.type === 'DynamicGroup';
+  layout.type === 'Group';
 
 export const isLayout = (uischema: UISchemaElement): uischema is Layout =>
   (uischema as Layout).elements !== undefined;
+
+export const isControlElement = (uischema: UISchemaElement): uischema is ControlElement =>
+  uischema.type === 'Control' && 'scope' in uischema;

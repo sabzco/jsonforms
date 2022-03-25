@@ -22,12 +22,12 @@
   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
   THE SOFTWARE.
 */
-import React from 'react';
+import React, { useMemo } from 'react';
 import { Hidden } from '@mui/material';
 
 import {
   createCombinatorRenderInfos,
-  findMatchingUISchema,
+  EMPTY_PATH,
   isAllOfControl,
   JsonSchema,
   RankedTester,
@@ -48,41 +48,24 @@ export const MaterialAllOfRenderer = ({
   uischema
 }: StatePropsOfCombinator) => {
   const _schema = resolveSubSchemas(schema, rootSchema, 'allOf');
-  const delegateUISchema = findMatchingUISchema(uischemas)(
-    _schema,
-    uischema.scope,
-    path
-  );
-  if (delegateUISchema) {
-    return (
-      <Hidden xsUp={!visible}>
-        <JsonFormsDispatch
-          schema={_schema}
-          uischema={delegateUISchema}
-          path={path}
-          renderers={renderers}
-          cells={cells}
-        />
-      </Hidden>
-    );
-  }
-  const allOfRenderInfos = createCombinatorRenderInfos(
+
+  const allOfRenderInfos = useMemo(() => createCombinatorRenderInfos(
     (_schema as JsonSchema).allOf,
     rootSchema,
     'allOf',
     uischema,
     path,
-    uischemas
-  );
+    uischemas,
+  ), [rootSchema, uischema, path, uischemas]);
 
   return (
     <Hidden xsUp={!visible}>
       {allOfRenderInfos.map((allOfRenderInfo, allOfIndex) => (
         <JsonFormsDispatch
           key={allOfIndex}
-          schema={allOfRenderInfo.schema}
+          schema={rootSchema}
           uischema={allOfRenderInfo.uischema}
-          path={path}
+          path={EMPTY_PATH}
           renderers={renderers}
           cells={cells}
         />

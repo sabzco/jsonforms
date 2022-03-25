@@ -26,12 +26,13 @@ import React from 'react';
 import { CellProps, WithClassname } from '@jsonforms/core';
 import { Input } from '@mui/material';
 import merge from 'lodash/merge';
-import {useDebouncedChange} from '../util';
+import { useDebouncedChange } from '../util';
+import { WithInput } from '../controls';
 
 const toNumber = (value: string) =>
     value === '' ? undefined : parseFloat(value);
-const eventToValue = (ev:any) => toNumber(ev.target.value);
-export const MuiInputNumber = React.memo((props: CellProps & WithClassname) => {
+const eventToValue = (ev: any) => toNumber(ev.target.value);
+export const MuiInputNumber = React.memo((props: CellProps & WithClassname & WithInput) => {
   const {
     data,
     className,
@@ -40,10 +41,10 @@ export const MuiInputNumber = React.memo((props: CellProps & WithClassname) => {
     uischema,
     path,
     handleChange,
-    config
+    config,
+    muiInputProps,
   } = props;
-  const inputProps = { step: '0.1' };
-  
+
   const appliedUiSchemaOptions = merge({}, config, uischema.options);
   const [inputValue, onChange] = useDebouncedChange(handleChange, '', data, path, eventToValue);
 
@@ -56,7 +57,7 @@ export const MuiInputNumber = React.memo((props: CellProps & WithClassname) => {
       id={id}
       disabled={!enabled}
       autoFocus={appliedUiSchemaOptions.focus}
-      inputProps={inputProps}
+      inputProps={{ step: '0.1', ...muiInputProps }}
       fullWidth={true}
     />
   );

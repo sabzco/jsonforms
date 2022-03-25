@@ -26,10 +26,13 @@ import React, { useCallback, useLayoutEffect, useReducer, useRef, useState } fro
 import {
   Box,
   Button,
-  DialogContentText,
+  Card,
+  CardContent,
+  CardHeader,
   Divider,
   FormControl,
-  Hidden,
+  FormHelperText,
+  IconButton,
   InputLabel,
   MenuItem,
   Select,
@@ -37,7 +40,7 @@ import {
   Tooltip,
   Typography,
 } from '@mui/material';
-import { Add as AddIcon } from '@mui/icons-material';
+import { Add as AddIcon, Delete as DeleteIcon } from '@mui/icons-material';
 import { MaterialLayoutRenderer } from '../util';
 import ModalWindow from '../util/ModalWindow';
 import type {
@@ -46,63 +49,191 @@ import type {
   DynamicProperties,
   DynamicProperty,
 } from '@jsonforms/core';
-import { RankedTester, rankWith, uiTypeIs } from '@jsonforms/core';
+import {
+  EMPTY_PATH,
+  isDynamicControl,
+  isScopeOfDynamicProperty,
+  RankedTester,
+  rankWith,
+} from '@jsonforms/core';
 import { withDynamicProperties } from '@jsonforms/react';
 
 export const materialDynamicGroupTester: RankedTester = rankWith(
-  1,
-  uiTypeIs('DynamicGroup'),
+  2.5, // more than `isObjectControl` and lower than `isOneOfControl`, `isAllOfControl`, ...
+  isDynamicControl,
 );
 
 export const MaterialDynamicObjectRenderer = React.memo(
   (props: DynamicLayoutProps & DispatchPropsOfDynamicLayout) => {
-    const {visible, enabled, uischema, ...otherProps} = props;
-    const groupLayout = uischema;
+    const {visible, enabled, schema, uischema, label, ...otherProps} = props;
     const [isModalOpen, setModalOpen] = useState(false);
+    const [isDeleteModalOpen, setDeleteModalOpen] = useState(false);
 
     const onSubmitCallback = useCallback((key: string, value: any) => {
       if (!key) { return; }
       props.addNewProperty(props.path, key, value);
     }, [props.addNewProperty, props.path]);
 
-    return (
-      <Hidden xsUp={!visible}>
-        <Stack>
-          <Divider>
-            <Tooltip title={`Add to ${groupLayout.label ?? 'Root-Object'}`} placement='bottom'>
-              <Button
-                sx={{p: 1, color: 'text.secondary', textTransform: 'none'}}
-                aria-label={`Add to ${groupLayout.label ?? 'Root-Object'}`}
-                onClick={() => setModalOpen(true)}
-              >
-                <Typography>Define a Property</Typography>&nbsp;
-                <AddIcon/>
-              </Button>
-            </Tooltip>
-          </Divider>
+    const elements = props.elements;
+    const dynamicElements = props.dynamicElements;
 
-          <MaterialLayoutRenderer
-            {...otherProps}
-            visible={visible}
-            enabled={enabled}
-            elements={groupLayout.elements}
-          />
-        </Stack>
+    const isDynamicProperty = uischema.scope && isScopeOfDynamicProperty(uischema.scope);
 
-        <DefineNewPropertyModal
-          isModalOpen={isModalOpen}
-          hideModal={() => setModalOpen(false)}
-          dynamicProperties={props.dynamicProperties}
-          alreadyDefinedKeys={Object.keys(props.data ?? {})}
-          onSubmit={onSubmitCallback}
-          formId={props.path + 'modal-form'}
-        />
-      </Hidden>
+    const header = (
+      <Box sx={{display: 'flex', alignItems: 'baseline', justifyContent: 'space-between'}}>
+        <>{label ?? ''}</>
+        {isDynamicProperty && (
+          <Tooltip title='Remove this object'>
+            <IconButton
+              aria-label='Delete'
+              onClick={() => setDeleteModalOpen(true)}
+              size='large'
+            >
+              <DeleteIcon/>
+            </IconButton>
+          </Tooltip>
+        )}
+      </Box>
     );
+
+    const body = (
+      <Stack>
+        <MaterialLayoutRenderer
+          {...otherProps}
+          direction={props.direction}
+          visible={visible}
+          enabled={enabled}
+          path={EMPTY_PATH}
+          elements={elements}
+        />
+
+        {!!Object.keys(props.dynamicProperties).length && (
+          <>
+            <Divider>
+              <Tooltip
+                title={`Add to ${label ?? 'Root-Object'}`}
+                placement='bottom'
+              >
+                <Button
+                  sx={{textTransform: 'none'}}
+                  aria-label={`Add to ${label ?? 'Root-Object'}`}
+                  onClick={() => setModalOpen(true)}
+                  startIcon={<AddIcon/>}
+                >
+                  Define a Property
+                </Button>
+              </Tooltip>
+            </Divider>
+
+            <MaterialLayoutRenderer
+              {...otherProps}
+              direction={props.direction}
+              visible={visible}
+              enabled={enabled}
+              path={EMPTY_PATH}
+              elements={dynamicElements}
+            />
+
+            <DefineNewPropertyModal
+              isModalOpen={isModalOpen}
+              hideModal={() => setModalOpen(false)}
+              dynamicProperties={props.dynamicProperties}
+              alreadyDefinedKeys={Object.keys(props.data ?? {})}
+              onSubmit={onSubmitCallback}
+              formId={props.path + 'modal-form'}
+            />
+          </>
+        )}
+      </Stack>
+    );
+
+    const defineNewPropertyModal = (
+      <ModalWindow
+        dir='ltr'
+        content={`Remove ${label ?? 'this'} object? This action can't be undone!`}
+        isModalOpen={isDeleteModalOpen}
+        hideModal={() => setDeleteModalOpen(false)}
+        buttons={[{
+          text: 'Cancel',
+        }, {
+          text: 'Remove',
+          variant: 'contained',
+          type: 'submit',
+        }]}
+        onSubmit={() => props.removeThisProperty(props.path)}
+      />
+    );
+
+    const rootSx = {display: visible ? 'block' : 'none'};
+
+    return (
+      uischema.options?.border || (
+        uischema.options?.border !== false && (
+          uischema.type === 'Group' ||
+          (uischema.type === 'Control' && schema.type === 'object')
+        )
+      )
+    )
+      ? ( // render in a Card:
+        <Card sx={{...rootSx, mb: 1}}>
+          {(label || isDynamicProperty) && <CardHeader title={header}/>}
+          <CardContent>{body}</CardContent>
+          {isDynamicProperty && defineNewPropertyModal}
+        </Card>
+      )
+      : ( // simple render:
+        <Stack sx={rootSx}>
+          {(label || isDynamicProperty) && <Typography variant='h5'>{header}</Typography>}
+          {body}
+          {isDynamicProperty && defineNewPropertyModal}
+        </Stack>
+      );
   },
 );
 
 export default withDynamicProperties(MaterialDynamicObjectRenderer);
+
+const initialNewPropertyState: NewPropertyState = {
+  key: '',
+  value: null,
+  keyError: '',
+  valueError: '',
+  /**
+   * The value to be used in "value" TextField (in a special case)
+   */
+  stringifiedValue: '',
+  selectedDynamicProperty: {
+    pattern: undefined, // will match everything
+    type: '',
+    dataFieldKeys: [],
+  },
+};
+const initializer = ({alreadyDefinedKeys, dynamicProperties}: {
+  alreadyDefinedKeys: string[],
+  dynamicProperties: DynamicProperties,
+}): NewPropertyState => {
+  const keys = Object.keys(dynamicProperties); // always is > 0
+
+  if (keys.length > 1) {
+    return initialNewPropertyState;
+  }
+  // (keys.length === 1):
+  const selectedDynamicProperty: DynamicProperty = {pattern: keys[0], ...dynamicProperties[keys[0]]};
+  return {
+    key: '',
+    keyError: getKeyError('', selectedDynamicProperty.pattern, alreadyDefinedKeys),
+    ...getValueWithError('', selectedDynamicProperty.type),
+    selectedDynamicProperty,
+  };
+};
+
+const reducer = (
+  state: NewPropertyState,
+  payload: Partial<NewPropertyState> | ((state: NewPropertyState) => Partial<NewPropertyState>),
+) => ({
+  ...state,
+  ...(typeof payload === 'function' ? payload(state) : payload),
+});
 
 const DefineNewPropertyModal = (
   {isModalOpen, hideModal, dynamicProperties, alreadyDefinedKeys, onSubmit, formId}: {
@@ -114,31 +245,29 @@ const DefineNewPropertyModal = (
     formId: string,
   },
 ) => {
-  const [newPropertyState, dispatch] = useReducer(reducer, initialNewPropertyState);
+  const [newPropertyState, dispatch] = useReducer(
+    reducer,
+    {alreadyDefinedKeys, dynamicProperties},
+    initializer,
+  );
 
   const valueFieldRef = useRef();
   const {selectedDynamicProperty} = newPropertyState;
   const userIsNotSelectedAPatternType = selectedDynamicProperty.pattern === undefined;
-  const {pattern, type: propertyType} = selectedDynamicProperty;
+  const {type: propertyType} = selectedDynamicProperty;
 
   // tslint:disable-next-line:no-shadowed-variable
-  const setSelectedDynamicProperty = (selectedDynamicProperty: DynamicProperty) => {
-    const {pattern, type: dataType} = selectedDynamicProperty; // tslint:disable-line:no-shadowed-variable
-    const {key, value} = newPropertyState;
-    const {
-      value: newValue,
-      valueError: newValueError,
-      stringifiedValue,
-    } = getValueWithError(value, dataType);
-
-    dispatch({
-      keyError: getKeyError(key, pattern, alreadyDefinedKeys),
-      value: newValue,
-      valueError: newValueError,
-      stringifiedValue,
-      selectedDynamicProperty: selectedDynamicProperty,
+  const setSelectedDynamicProperty = useCallback((selectedDynamicProperty: DynamicProperty) => {
+    dispatch((state: NewPropertyState) => {
+      const {pattern, type: dataType} = selectedDynamicProperty; // tslint:disable-line:no-shadowed-variable
+      const {key, value} = state;
+      return ({
+        keyError: getKeyError(key, pattern, alreadyDefinedKeys),
+        ...getValueWithError(value, dataType),
+        selectedDynamicProperty,
+      });
     });
-  };
+  }, [alreadyDefinedKeys]);
 
   useLayoutEffect(() => {
     if (valueFieldRef.current) { // @ts-ignore
@@ -148,25 +277,23 @@ const DefineNewPropertyModal = (
     }
   }, [selectedDynamicProperty]);
 
-  const setPropertyKey = (key: string) => dispatch({
+  const setPropertyKey = useCallback((key: string) => dispatch((state: NewPropertyState) => ({
     key,
-    keyError: getKeyError(key, selectedDynamicProperty.pattern, alreadyDefinedKeys),
-  });
+    keyError: getKeyError(key, state.selectedDynamicProperty.pattern, alreadyDefinedKeys),
+  })), []);
 
-  const setPropertyValue = (value: any) => dispatch(
-    getValueWithError(value, propertyType),
-  );
+  const setPropertyValue = useCallback((value: any) => dispatch((state: NewPropertyState) =>
+    getValueWithError(value, state.selectedDynamicProperty.type),
+  ), []);
 
   const {key: propertyName, value: propertyValue, keyError, valueError} = newPropertyState;
   return (
     <ModalWindow
+      dir='ltr'
       content={(
         <ModalHeader
           dynamicProperties={dynamicProperties}
-          propertyName={propertyName}
-          propertyValue={propertyValue}
           keyError={keyError}
-          valueError={valueError}
           selectedDynamicProperty={selectedDynamicProperty}
           setSelectedDynamicProperty={setSelectedDynamicProperty}
         />
@@ -181,11 +308,7 @@ const DefineNewPropertyModal = (
         autoFocus: true,
         onChange: (event: React.ChangeEvent<HTMLInputElement>) => setPropertyKey(event.target.value),
         error: !!keyError,
-        helperText: keyError
-          ? keyError
-          : pattern
-            ? <Typography component='span' sx={{fontFamily: 'monospace'}}>{pattern}</Typography>
-            : ' ',
+        helperText: keyError || (selectedDynamicProperty.label ?? selectedDynamicProperty.title) || ' ',
       }, {
         label: 'Value',
         variant: 'standard',
@@ -197,12 +320,11 @@ const DefineNewPropertyModal = (
         inputRef: (node: any) => { valueFieldRef.current = node; },
         onChange: (event: React.ChangeEvent<HTMLInputElement>) => setPropertyValue(event.target.value),
         error: !!valueError,
-        helperText: valueError
-          ? valueError
-          : propertyType
+        helperText: valueError || (propertyType
             ?
             <Typography component='span' sx={{fontFamily: 'monospace'}}>{propertyType}</Typography>
-            : ' ',
+            : ' '
+        ),
       }]}
       buttons={[{
         text: 'Cancel',
@@ -213,7 +335,7 @@ const DefineNewPropertyModal = (
         disabled: !!keyError || !propertyName || userIsNotSelectedAPatternType,
       }]}
       onSubmit={() => {
-        dispatch(initialNewPropertyState);
+        dispatch(initializer({alreadyDefinedKeys, dynamicProperties}));
         return onSubmit(propertyName, propertyValue);
       }}
       formId={formId}
@@ -224,19 +346,13 @@ const DefineNewPropertyModal = (
 const ModalHeader = (
   {
     dynamicProperties,
-    propertyName,
-    propertyValue,
     keyError,
-    valueError,
     selectedDynamicProperty,
     setSelectedDynamicProperty,
   }: {
     dynamicProperties: DynamicProperties,
-    propertyName: string,
-    propertyValue: any,
-    selectedDynamicProperty: DynamicProperty,
     keyError: string,
-    valueError: string,
+    selectedDynamicProperty: DynamicProperty,
     setSelectedDynamicProperty(dynamicProperty: DynamicProperty): void;
   }) => {
   const userIsNotSelectedAPatternType = selectedDynamicProperty.pattern === undefined;
@@ -261,50 +377,38 @@ const ModalHeader = (
           }}
           error={userIsNotSelectedAPatternType}
         >
-          {Object.entries(dynamicProperties).map(([pattern, {type}]: [string, DynamicProperty]) => (
-            <MenuItem
-              key={pattern}
-              value={pattern}
-            >
-              <Box sx={{flexGrow: 1, display: 'flex', fontFamily: 'monospace'}}>
-                <Box component='span' sx={{flexGrow: 1}}>{pattern}</Box>
-                <Box component='span' sx={{mr: 2}}>({type})</Box>
-              </Box>
-            </MenuItem>
-          ))}
+          {Object.entries(dynamicProperties).map(([pattern, schema]: [string, DynamicProperty]) => {
+            const labelOrTitle = schema.label ?? schema.title;
+            return (
+              <MenuItem
+                key={pattern}
+                value={pattern}
+              >
+                <Box sx={{flexGrow: 1, display: 'flex'}}>
+                  <Box
+                    component='span'
+                    sx={{flexGrow: 1, fontFamily: labelOrTitle ? undefined : 'monospace'}}
+                  >
+                    {labelOrTitle ?? pattern}
+                  </Box>
+                  <Box component='span' sx={{mr: 2, fontFamily: 'monospace'}}>({schema.type})</Box>
+                </Box>
+              </MenuItem>
+            );
+          })}
         </Select>
+        <FormHelperText error={!!keyError}>
+          <Typography
+            component='span'
+            sx={{fontFamily: 'monospace'}}
+          >
+            {selectedDynamicProperty.pattern}
+          </Typography>
+        </FormHelperText>
       </FormControl>
-
-      <DialogContentText sx={{my: 2}}>
-        <Typography component='span' dir='ltr'>Preview:&nbsp;</Typography>
-        <Typography component='code' dir='ltr' sx={{fontFamily: 'Monospace'}}>
-          {'{'}
-          {/* Use 2 spans (`code`s) to keep overall direction LTR: */}
-          <Typography
-            component='code'
-            dir='ltr'
-            color={keyError ? 'error' : undefined}
-            sx={{fontFamily: 'Monospace'}}
-          >
-            {`"${propertyName}"`}
-          </Typography>
-          {': '}
-          <Typography
-            component='code'
-            dir='ltr'
-            color={valueError ? 'error' : undefined}
-            sx={{fontFamily: 'Monospace'}}
-          >
-            {JSON.stringify(propertyValue)}
-          </Typography>
-          {'}'}
-        </Typography>
-      </DialogContentText>
     </>
   );
 };
-
-const reducer = (state: NewPropertyState, payload: Partial<NewPropertyState>) => ({...state, ...payload});
 
 const getKeyError = (key: string, pattern: string, alreadyDefinedKeys: string[]) =>
   alreadyDefinedKeys.includes(key)
@@ -325,22 +429,6 @@ const getValueWithError = (value: any, dataType: string) => {
     valueError: jsonizedValue === hardCastedValue ? '' : 'Not matched to the type',
     stringifiedValue,
   };
-};
-
-const initialNewPropertyState: NewPropertyState = {
-  key: '',
-  value: null,
-  keyError: '',
-  valueError: '',
-  /**
-   * The value to be used in "value" TextField (in a special case)
-   */
-  stringifiedValue: '',
-  selectedDynamicProperty: {
-    pattern: undefined, // will match everything
-    type: '',
-    dataFieldKeys: [],
-  },
 };
 
 const softCastMap: { [key: string]: (x: any) => any } = { // @ts-ignore

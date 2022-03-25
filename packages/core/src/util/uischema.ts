@@ -57,12 +57,12 @@ export const iterateSchema = (
   toApply(uischema);
 };
 
-export const isScopeOfPatternProperties = (scope: string | string[]) => {
+export const isScopeOfPatternProperty = (scope: string | string[]) => {
   const schemaPathSegments = typeof scope === 'string' ? toSchemaPathSegments(scope) : scope;
   return schemaPathSegments.at(-2) === 'patternProperties';
 };
 
-export const isScopeOfAdditionalProperties = (scope: string | string[]) => {
+export const isScopeOfAdditionalProperty = (scope: string | string[]) => {
   const schemaPathSegments = typeof scope === 'string' ? toSchemaPathSegments(scope) : scope;
   return (
     schemaPathSegments.at(-1) === 'additionalProperties' &&
@@ -70,7 +70,7 @@ export const isScopeOfAdditionalProperties = (scope: string | string[]) => {
   );
 };
 
-export const isScopeOfDynamicProperties = (scope: string | string[]) => {
+export const isScopeOfDynamicProperty = (scope: string | string[]) => {
   const schemaPathSegments = typeof scope === 'string' ? toSchemaPathSegments(scope) : scope;
-  return isScopeOfAdditionalProperties(schemaPathSegments) || isScopeOfPatternProperties(schemaPathSegments);
+  return isScopeOfAdditionalProperty(schemaPathSegments) || isScopeOfPatternProperty(schemaPathSegments);
 };

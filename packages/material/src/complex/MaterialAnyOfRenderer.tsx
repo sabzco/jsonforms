@@ -22,20 +22,20 @@
   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
   THE SOFTWARE.
 */
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 
 import {
   createCombinatorRenderInfos,
+  EMPTY_PATH,
   isAnyOfControl,
   JsonSchema,
   RankedTester,
   rankWith,
   resolveSubSchemas,
-  StatePropsOfCombinator
+  StatePropsOfCombinator,
 } from '@jsonforms/core';
 import { JsonFormsDispatch, withJsonFormsAnyOfProps } from '@jsonforms/react';
 import { Hidden, Tab, Tabs } from '@mui/material';
-import CombinatorProperties from './CombinatorProperties';
 
 export const MaterialAnyOfRenderer = ({
   schema,
@@ -53,24 +53,18 @@ export const MaterialAnyOfRenderer = ({
     (_ev: any, value: number) => setSelectedAnyOf(value),
     [setSelectedAnyOf]
   );
-  const anyOf = 'anyOf';
-  const _schema = resolveSubSchemas(schema, rootSchema, anyOf);
-  const anyOfRenderInfos = createCombinatorRenderInfos(
+  const _schema = resolveSubSchemas(schema, rootSchema, 'anyOf');
+  const anyOfRenderInfos = useMemo(() => createCombinatorRenderInfos(
     (_schema as JsonSchema).anyOf,
     rootSchema,
-    anyOf,
+    'anyOf',
     uischema,
     path,
-    uischemas
-  );
+    uischemas,
+  ), [rootSchema, uischema, path, uischemas]);
 
   return (
     <Hidden xsUp={!visible}>
-      <CombinatorProperties
-        schema={_schema}
-        combinatorKeyword={'anyOf'}
-        path={path}
-      />
       <Tabs value={selectedAnyOf} onChange={handleChange}>
         {anyOfRenderInfos.map(anyOfRenderInfo => (
           <Tab key={anyOfRenderInfo.label} label={anyOfRenderInfo.label} />
@@ -81,9 +75,9 @@ export const MaterialAnyOfRenderer = ({
           selectedAnyOf === anyOfIndex && (
             <JsonFormsDispatch
               key={anyOfIndex}
-              schema={anyOfRenderInfo.schema}
+              schema={rootSchema}
               uischema={anyOfRenderInfo.uischema}
-              path={path}
+              path={EMPTY_PATH}
               renderers={renderers}
               cells={cells}
             />

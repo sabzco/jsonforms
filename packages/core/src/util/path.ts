@@ -23,7 +23,7 @@
   THE SOFTWARE.
 */
 
-import { DynamicUISchemaElement, Scopable, UISchemaElement } from '../models';
+import { Scopable, UISchemaElement } from '../models';
 
 export const compose = (path1: string[], path2: string[] | string) => {
   return path1
@@ -49,27 +49,46 @@ export { compose as composePaths };
  * format
  */
 export const toDataPathSegments = (scope: string | string[], dynamicDataFields?: string[] | string): string[] => {
-  const schemaPath = Array.isArray(scope)
-    ? toStringSchemaPath(scope)
-    : scope;
-
+  const schemaPathSegments = Array.isArray(scope) ? scope : toSchemaPathSegments(scope);
   const dataFieldKeys = dynamicDataFields instanceof Array ? dynamicDataFields : [dynamicDataFields];
-  let i = 0;
-  const s = schemaPath
-    .replace(/^#?\/?/, '') // https://regex101.com/r/cmx2ki/1
-    .replace(
-      /properties\/|(anyOf|allOf|oneOf)\/[\d]+\/|patternProperties\/[^\/]*|additionalProperties($|\/)/g,
-      match => /^(patternProperties|additionalProperties)/.test(match) ? `${dataFieldKeys[i++]}` : '',
-    );
-  // console.debug({schemaPath, dynamicDataFields, s}, s.split('/'));
-  return s ? s.split('/') : [];
+
+  let j = 0;
+  const dataPath: string[] = [];
+  for (let i = 1 /* skip leading '#' */; i < schemaPathSegments.length; i++) {
+    // noinspection FallThroughInSwitchStatementJS
+    switch (schemaPathSegments[i]) { // tslint:disable-line:switch-default
+      case 'properties':
+        i++; // skip property-name for the next cycle
+        dataPath.push(schemaPathSegments[i]); // push property-name to `dataPath` array
+        continue;
+      case 'patternProperties':
+        i++; // skip the pattern
+      case 'additionalProperties': // tslint:disable-line:no-switch-case-fall-through
+        dataPath.push(dataFieldKeys[j++]);
+        continue;
+      case 'oneOf':
+      case 'allOf':
+      case 'anyOf':
+        i++; // skip the number
+        continue;
+      default:
+        console.error(
+          'Unexpected schema-path segment.\n' +
+          'Expected one of {properties|patternProperties|additionalProperties|oneOf|allOf|anyOf}.\n' +
+          'Received:', schemaPathSegments[i], '\n', {i, schemaPathSegments}
+        );
+    }
+  }
+
+  // console.log(schemaPathSegments, dataPath, dynamicDataFields);
+  return dataPath;
 };
 
 /**
  * Remove all schema-specific keywords (e.g. 'properties') from a given path.
  * @example
- * toDataPath('#/properties/foo/properties/bar') === ['foo', 'bar']
- * toDataPath(['#', 'properties', 'foo', 'properties', 'bar']) === ['foo', 'bar']
+ * toDataPath('#/properties/foo/properties/bar') --> ['foo', 'bar']
+ * toDataPath(['#', 'properties', 'foo', 'properties', 'bar']) --> ['foo', 'bar']
  *
  * @param {string} schemaPath the schema path to be converted
  * @returns {string[]} the path without schema-specific keywords
@@ -77,7 +96,7 @@ export const toDataPathSegments = (scope: string | string[], dynamicDataFields?:
 export const toDataPath = (schemaPath: string): string[] => toDataPathSegments(schemaPath);
 
 export const composeWithUi = (
-  scopableUi: Scopable | UISchemaElement & Scopable | DynamicUISchemaElement & Scopable,
+  scopableUi: Scopable | UISchemaElement & Scopable,
   path: string[]
 ): string[] => {
   const segments = toDataPathSegments(
@@ -98,6 +117,12 @@ export const pathsAreEqual = (path1: string[], path2: string[]) =>
  */
 export const pathStartsWith = (path: string[], subPath: string[]) =>
   subPath.length <= path.length && subPath.every((section, i) => section === path[i]);
+
+export const EMPTY_PATH: string[] = [];
+Object.freeze(EMPTY_PATH);
+
+export const ROOT_SCOPE = ['#'];
+Object.freeze(ROOT_SCOPE);
 
 /**
  * Convert path `array` to a `string`, injectively (in a reversible way)

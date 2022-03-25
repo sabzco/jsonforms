@@ -28,32 +28,15 @@ import startCase from 'lodash/startCase';
 import keys from 'lodash/keys';
 import {
   ControlElement,
-  DynamicControlElement,
-  DynamicLayout,
   isGroup,
   isLayout,
   JsonSchema,
   LabelElement,
   Layout,
+  LayoutType,
   UISchemaElement,
 } from '../models';
-import {
-  deriveTypes,
-  isScopeOfAdditionalProperties,
-  isScopeOfPatternProperties,
-  resolveSchema,
-  toSchemaPathSegments,
-} from '../util';
-
-/**
- * Creates a new ILayout.
- * @param layoutType The type of the layout
- * @returns the new ILayout
- */
-const createLayout = (layoutType: string): Layout => ({
-  type: layoutType,
-  elements: []
-});
+import { deriveTypes, EMPTY_PATH, resolveSchema, ROOT_SCOPE } from '../util';
 
 /**
  * Creates a new ILayout.
@@ -61,11 +44,11 @@ const createLayout = (layoutType: string): Layout => ({
  * @param ref Used as scope
  * @returns the new ILayout
  */
-const createDynamicLayout = (layoutType: string, ref: string[]): DynamicLayout => {
-  const layout = createLayout(layoutType) as DynamicLayout;
-  layout.scope = ref;
-  return layout;
-};
+const createLayout = (layoutType: LayoutType, ref?: string[]): Layout => ({
+  type: layoutType,
+  scope: ref,
+  elements: [],
+});
 
 /**
  * Creates a IControlObject with the given label referencing the given ref
@@ -78,7 +61,7 @@ export const createControlElement = (ref: string[]): ControlElement => ({
 /**
  * Creates a Dynamic-IControlObject with the given label referencing the given ref
  */
-export const createDynamicControlElement = (ref: string[], dataFieldKey: string): DynamicControlElement => ({
+export const createDynamicControlElement = (ref: string[], dataFieldKey: string): ControlElement => ({
   type: 'Control',
   scope: ref,
   dataFieldKey,
@@ -92,7 +75,7 @@ export const createDynamicControlElement = (ref: string[], dataFieldKey: string)
  */
 const wrapInLayoutIfNecessary = (
   uischema: UISchemaElement,
-  layoutType: string
+  layoutType: LayoutType
 ): Layout => {
   if (!isEmpty(uischema) && !isLayout(uischema)) {
     const verticalLayout: Layout = createLayout(layoutType);
@@ -128,7 +111,8 @@ const addLabel = (layout: Layout, labelName: string) => {
 };
 
 /**
- * Returns whether the given {@code jsonSchema} is a combinator ({@code oneOf}, {@code anyOf}, {@code allOf}) at the root level
+ * Returns whether the given {@code jsonSchema} is a combinator ({@code oneOf}, {@code anyOf},
+ * {@code allOf}) at the root level
  * @param jsonSchema
  *      the schema to check
  */
@@ -146,7 +130,7 @@ const generateUISchema = (
   schemaElements: UISchemaElement[],
   currentRef: string[],
   schemaName: string,
-  layoutType: string,
+  layoutType: LayoutType,
   rootSchema?: JsonSchema
 ): UISchemaElement => {
   if (!isEmpty(jsonSchema) && jsonSchema.$ref !== undefined) {
@@ -178,8 +162,9 @@ const generateUISchema = (
     return controlObject;
   }
 
-  if (currentRef.length === 1 && currentRef[0] === '#' && types[0] === 'object') {
-    const layout: Layout = createLayout(layoutType);
+  if (currentRef[0] === '#' && types[0] === 'object') {
+    const newLayoutType = layoutType ?? 'Group';
+    const layout: Layout = createLayout(newLayoutType, currentRef);
     schemaElements.push(layout);
 
     if (jsonSchema.properties && keys(jsonSchema.properties).length > 1) {
@@ -190,45 +175,22 @@ const generateUISchema = (
       // traverse properties
       const nextRefPrefix = currentRef.concat('properties');
       Object.keys(jsonSchema.properties).forEach(propName => {
-        let value = jsonSchema.properties[propName];
-        const ref = nextRefPrefix.concat(propName);
-        if (value.$ref !== undefined) {
-          value = resolveSchema(rootSchema, value.$ref);
+        let childSchema = jsonSchema.properties[propName];
+        const nextRef = nextRefPrefix.concat(propName);
+        if (childSchema.$ref !== undefined) {
+          childSchema = resolveSchema(rootSchema, childSchema.$ref);
         }
         generateUISchema(
-          value,
+          childSchema,
           layout.elements,
-          ref,
+          nextRef,
           propName,
-          layoutType,
+          newLayoutType,
           rootSchema
         );
       });
     }
 
-    if (
-      Object.keys(jsonSchema.additionalProperties ?? {}).length ||
-      Object.keys(jsonSchema.patternProperties ?? {}).length
-    ) {
-      const dynamicLayout = createDynamicLayout('DynamicGroup', currentRef);
-      addLabel(dynamicLayout, schemaName);
-      layout.elements.push(dynamicLayout);
-    }
-
-    return layout;
-  }
-
-  if (isScopeOfPatternProperties(currentRef)) {
-    const layout = createDynamicLayout('DynamicGroup', currentRef);
-    addLabel(layout, schemaName);
-    schemaElements.push(layout);
-    return layout;
-  }
-
-  if (isScopeOfAdditionalProperties(currentRef)) {
-    const layout = createDynamicLayout('DynamicGroup', currentRef);
-    addLabel(layout, schemaName);
-    schemaElements.push(layout);
     return layout;
   }
 
@@ -258,20 +220,20 @@ const generateUISchema = (
  * @param {JsonSchema} jsonSchema the JSON schema to generated a UI schema for
  * @param {string} [layoutType='VerticalLayout'] the desired layout type for the root layout
  *        of the generated UI schema
- * @param {string} [prefix='#']
+ * @param {string[]} [prefix=['#']]
  * @param {JsonSchema} [rootSchema=jsonSchema]
- * @param {string[]} path
- * @param {string} schemaName
+ * @param {string[]} [path=[]]
+ * @param {string} [schemaName]
  */
 export const generateDefaultUISchema = (
   jsonSchema: JsonSchema,
-  layoutType = 'VerticalLayout',
-  prefix = '#',
+  layoutType: LayoutType = 'VerticalLayout',
+  prefix = ROOT_SCOPE,
   rootSchema = jsonSchema,
-  path: string[] = [],
+  path: string[] = EMPTY_PATH,
   schemaName = path?.at(-1)
 ): UISchemaElement =>
   wrapInLayoutIfNecessary(
-    generateUISchema(jsonSchema, [], toSchemaPathSegments(prefix), schemaName, layoutType, rootSchema),
+    generateUISchema(jsonSchema, [], prefix, schemaName, layoutType, rootSchema),
     layoutType,
   );

@@ -51,6 +51,7 @@ import { configReducer } from './config';
 import get from 'lodash/get';
 import { fetchTranslator } from '.';
 import { ErrorTranslator, Translator } from '../i18n';
+import { toSchemaPathSegments } from '../util';
 
 export const jsonFormsReducerConfig = {
   core: coreReducer,
@@ -102,7 +103,12 @@ export const findUISchema = (
   // default
   const uiSchema = findMatchingUISchema(uischemas)(schema, scope, path);
   if (uiSchema === undefined) {
-    return Generate.uiSchema(schema, fallbackLayoutType, undefined /* default value */, rootSchema);
+    return Generate.uiSchema(
+      schema,
+      fallbackLayoutType,
+      Array.isArray(scope) ? scope : toSchemaPathSegments(scope),
+      rootSchema
+    );
   }
   return uiSchema;
 };

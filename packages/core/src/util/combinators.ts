@@ -26,9 +26,9 @@
 import { ControlElement, JsonSchema, UISchemaElement } from '../models';
 import { resolveSchema } from './resolvers';
 import { findUISchema, JsonFormsUISchemaRegistryEntry } from '../reducers';
+import { toSchemaPathSegments } from './path';
 
 export interface CombinatorSubSchemaRenderInfo {
-  schema: JsonSchema;
   uischema: UISchemaElement;
   label: string;
 }
@@ -73,16 +73,20 @@ export const createCombinatorRenderInfos = (
   path: string[],
   uischemas: JsonFormsUISchemaRegistryEntry[]
 ): CombinatorSubSchemaRenderInfo[] =>
-  combinatorSubSchemas.map((subSchema, subSchemaIndex) => ({
-    schema: subSchema,
-    uischema: findUISchema(
+  combinatorSubSchemas.map((subSchema, subSchemaIndex) => {
+    const scope = Array.isArray(control.scope) ? control.scope : toSchemaPathSegments(control.scope);
+    const deepScope = scope.concat(keyword, String(subSchemaIndex)); // @ts-ignore
+    const {scope: ignoreScopeOfCombinatorsParents, ...uischema} = findUISchema(
       uischemas,
       subSchema,
-      control.scope,
+      deepScope,
       path,
       undefined,
       control,
-      rootSchema
-    ),
-    label: createLabel(subSchema, subSchemaIndex, keyword)
-  }));
+      rootSchema,
+    );
+    return {
+      uischema,
+      label: createLabel(subSchema, subSchemaIndex, keyword),
+    };
+  });

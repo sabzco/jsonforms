@@ -116,20 +116,19 @@ const TestAndRender = React.memo(
       renderer.tester(props.uischema, props.schema) === -1
     ) {
       return <UnknownRenderer type={'renderer'} />;
-    } else {
-      const Render = renderer.renderer;
-      return (
-        <Render
-          uischema={props.uischema}
-          schema={props.schema}
-          path={props.path}
-          enabled={props.enabled}
-          renderers={props.renderers}
-          cells={props.cells}
-          id={props.id}
-        />
-      );
     }
+    const Render = renderer.renderer;
+    return (
+      <Render
+        uischema={props.uischema}
+        schema={props.schema}
+        path={props.path}
+        enabled={props.enabled}
+        renderers={props.renderers}
+        cells={props.cells}
+        id={props.id}
+      />
+    );
   }
 );
 

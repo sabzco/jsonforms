@@ -28,12 +28,12 @@ import type {
   ArrayLayoutProps,
   CellProps,
   CombinatorRendererProps,
+  ControlElement,
   ControlProps,
   DispatchCellProps,
   DispatchPropsOfControl,
   DispatchPropsOfDynamicLayout,
   DispatchPropsOfMultiEnumControl,
-  DynamicControlElement,
   DynamicLayoutProps,
   DynamicProperties,
   EnumCellProps,
@@ -50,15 +50,20 @@ import type {
   OwnPropsOfMasterListItem,
   StatePropsOfControlWithDetail,
   StatePropsOfMasterItem,
+  UISchemaElement,
 } from '@jsonforms/core';
 import {
   Actions,
   configReducer,
   coreReducer,
+  createControlElement,
   createDynamicControlElement,
   defaultMapStateToEnumCellProps,
   deriveTypes,
+  EMPTY_CONTROL_ELEMENTS,
+  EMPTY_DYNAMIC_PROPERTIES,
   i18nReducer,
+  isControlElement,
   mapDispatchToArrayControlProps,
   mapDispatchToControlProps,
   mapDispatchToDynamicLayoutProps,
@@ -80,6 +85,7 @@ import {
   mapStateToOneOfEnumControlProps,
   mapStateToOneOfProps,
   toSchemaPathSegments,
+  toStringSchemaPath,
 } from '@jsonforms/core';
 import React, {
   ComponentType,
@@ -91,7 +97,8 @@ import React, {
   useReducer,
   useRef,
 } from 'react';
-import { useDeepMemo } from './util/deep-effect';
+import { useDeepMemo, useDeepMemorizes } from './util/deep-effect';
+import { get } from 'lodash';
 
 const initialCoreState: JsonFormsCore = {
   data: {},
@@ -129,8 +136,8 @@ const useEffectAfterFirstRender = (
   }, dependencies);
 };
 
-export const JsonFormsStateProvider = ({ children, initState, onChange }: any) => {
-  const { data, schema, uischema, ajv, validationMode } = initState.core;
+export const JsonFormsStateProvider = ({children, initState, onChange}: any) => {
+  const {data, schema, uischema, ajv, validationMode} = initState.core;
   // Initialize core immediately
   const [core, coreDispatch] = useReducer(
     coreReducer,
@@ -379,7 +386,32 @@ const withContextToLayoutProps =
       const layoutProps = ctxToLayoutProps(ctx, props);
       const controlDispatchProps = ctxDispatchToControlProps(ctx.dispatch);
       const dynamicLayoutDispatchProps = ctxDispatchToDynamicLayoutProps(ctx.dispatch);
-      return (<Component {...props} {...layoutProps} {...controlDispatchProps} {...dynamicLayoutDispatchProps} />);
+      return (
+        <Component
+          {...props}
+          {...layoutProps}
+          {...controlDispatchProps}
+          {...dynamicLayoutDispatchProps}
+        />
+      );
+    };
+
+const withContextToDynamicLayoutProps =
+  (Component: ComponentType<DynamicLayoutProps>): ComponentType<OwnPropsOfJsonFormsRenderer> =>
+    ({ ctx, props }: JsonFormsStateContext & DynamicLayoutProps) => {
+      const {uischema: ignored1, schema: ignored2, ...detailProps} = props.uischema.scope === undefined
+        ? ctxToLayoutProps(ctx, props)
+        : ctxToControlWithDetailProps(ctx, props);
+      const controlDispatchProps = ctxDispatchToControlProps(ctx.dispatch);
+      const dynamicLayoutDispatchProps = ctxDispatchToDynamicLayoutProps(ctx.dispatch);
+      return (
+        <Component
+          {...props}
+          {...detailProps}
+          {...controlDispatchProps}
+          {...dynamicLayoutDispatchProps}
+        />
+      );
     };
 
 const withContextToOneOfProps =
@@ -511,45 +543,70 @@ export const withJsonFormsLayoutProps =
   (Component: ComponentType<LayoutProps>, memoize = true): ComponentType<OwnPropsOfLayout> =>
     withJsonFormsContext(withContextToLayoutProps(memoize ? React.memo(Component) : Component));
 
+export const withDynamicLayoutProps =
+  (Component: ComponentType<DynamicLayoutProps>, memoize = true): ComponentType<OwnPropsOfLayout> =>
+    withJsonFormsContext(withContextToDynamicLayoutProps(memoize ? React.memo(Component) : Component));
+
 const withDynamicElements = (Component: ComponentType<DynamicLayoutProps>) => (props: DynamicLayoutProps) => {
-  const {schema: {properties, patternProperties, additionalProperties}, uischema: {scope}} = props;
+  const {uischema: {scope}} = props;
+
+  if (scope === undefined) {
+    return (
+      <Component
+        {...props}
+        direction={props.uischema.type === 'HorizontalLayout' ? 'row' : 'column'}
+        elements={props.uischema.elements as ControlElement[]}
+        dynamicProperties={EMPTY_DYNAMIC_PROPERTIES}
+        dynamicElements={EMPTY_CONTROL_ELEMENTS}
+      />
+    );
+  }
+
   const schemaPathSegments = typeof scope === 'string' ? toSchemaPathSegments(scope) : scope;
+  const schemaPath = schemaPathSegments[0] === '#'
+    ? schemaPathSegments.slice(1) // remove leading '#'
+    : schemaPathSegments;
+  const scopedSchema = schemaPath.length ? get(props.schema, schemaPath) : props.schema;
+  const {properties, patternProperties, additionalProperties} = scopedSchema;
 
   const dataKeys = Object.keys(props.data ?? {});
   const propertiesKeys = Object.keys(properties ?? {});
-  const {elements: temp, ...uischemaWithoutElements} = props.uischema;
+  const {elements: uischemaElements, ...uischemaWithoutElements} = props.uischema;
 
-  const {elements, dynamicProperties} = useDeepMemo(() => {
+  const {dynamicElements, dynamicProperties} = useMemo(() => {
     const patterns: string[] = [];
     // tslint:disable-next-line:no-shadowed-variable
     const dynamicProperties: DynamicProperties =
       Object.fromEntries(Object.entries(patternProperties ?? {}).map(
-        ([pattern, subSchema]) => {
+        ([pattern, subSchema]: [string, JsonSchema]) => {
           patterns.push(pattern);
-          return ([
+          return [
             pattern, {
-              type: deriveTypes(subSchema as JsonSchema)[0],
+              type: deriveTypes(subSchema)[0],
+              description: subSchema.description, // @ts-ignore
+              label: subSchema.label,
+              title: subSchema.title,
               dataFieldKeys: [],
             },
-          ]);
+          ];
         },
       ));
 
-    const additionalPropertiesType = deriveTypes(additionalProperties as JsonSchema)[0];
-    if (additionalPropertiesType) {
+    const additionalPropertiesType = deriveTypes(additionalProperties)[0];
+    if (additionalProperties) {
       // '*' is an invalid RegExp-pattern and we use it for `additionalProperties`:
       dynamicProperties['*'] = {type: additionalPropertiesType, dataFieldKeys: []};
     }
 
     // tslint:disable-next-line:no-shadowed-variable
-    const elements: DynamicControlElement[] = [];
+    const dynamicElements: ControlElement[] = [];
 
     dataLoop: for (const dataFieldKey of dataKeys) {
       if (propertiesKeys.includes(dataFieldKey)) { continue; }
 
       for (const pattern of patterns) {
         if (new RegExp(pattern).test(dataFieldKey)) {
-          elements.push(createDynamicControlElement(
+          dynamicElements.push(createDynamicControlElement(
             [...schemaPathSegments, 'patternProperties', pattern],
             dataFieldKey,
           ));
@@ -558,7 +615,7 @@ const withDynamicElements = (Component: ComponentType<DynamicLayoutProps>) => (p
         }
       }
       if (additionalProperties) {
-        elements.push(createDynamicControlElement(
+        dynamicElements.push(createDynamicControlElement(
           [...schemaPathSegments, 'additionalProperties'],
           dataFieldKey,
         ));
@@ -566,25 +623,51 @@ const withDynamicElements = (Component: ComponentType<DynamicLayoutProps>) => (p
       }
     }
 
-    return {elements, dynamicProperties};
-  }, [dataKeys, properties, patternProperties, additionalProperties, uischemaWithoutElements]);
+    return {dynamicElements, dynamicProperties};
+  }, [
+    patternProperties, additionalProperties, uischemaWithoutElements,
+    ...useDeepMemorizes([dataKeys, propertiesKeys]),
+  ]);
 
-  const uischema = useDeepMemo(
-    () => ({...uischemaWithoutElements, elements}),
-    [elements, uischemaWithoutElements]
-  );
+  const elements = useDeepMemo(() => {
+    const alreadyExistedElements = uischemaElements ?? [];
+    // tslint:disable-next-line:no-shadowed-variable
+    const staticElements = propertiesKeys.reduce((staticElements, key) => {
+        const ref = [...schemaPathSegments, 'properties', key];
+        const refStr = toStringSchemaPath(ref);
+
+        if ( // check if the `ref` already existed:
+          alreadyExistedElements.some((uischemaElement: UISchemaElement) => {
+              if (!isControlElement(uischemaElement)) {return false; }
+              const {scope} = uischemaElement; // tslint:disable-line:no-shadowed-variable
+              return (typeof scope === 'string' ? scope : toStringSchemaPath(scope)) === refStr;
+            },
+          )
+        ) { // => already existed `ref` => do nothing:
+          return staticElements;
+        }
+
+        staticElements.push(createControlElement(ref));
+        return staticElements;
+      }, [],
+    );
+
+    return alreadyExistedElements.concat(staticElements);
+  }, [uischemaElements, propertiesKeys]);
 
   return (
     <Component
       {...props}
-      uischema={uischema}
+      direction={props.uischema.type === 'HorizontalLayout' ? 'row' : 'column'}
+      elements={elements as ControlElement[]}
       dynamicProperties={dynamicProperties}
+      dynamicElements={dynamicElements}
     />
   );
 };
 
 export const withDynamicProperties = (Component: ComponentType<DynamicLayoutProps>) =>
-  withJsonFormsLayoutProps(withDynamicElements(Component));
+  withDynamicLayoutProps(withDynamicElements(Component));
 
 export const withJsonFormsOneOfProps =
   (Component: ComponentType<CombinatorRendererProps>, memoize = true): ComponentType<OwnPropsOfControl> =>

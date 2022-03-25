@@ -24,7 +24,13 @@
 */
 
 import get from 'lodash/get';
-import type { ControlElement, DynamicGroupLayout, JsonSchema, UISchemaElement } from '../models';
+import type {
+  ControlElement,
+  JsonSchema,
+  JsonSchema7,
+  Layout,
+  UISchemaElement,
+} from '../models';
 import find from 'lodash/find';
 import type {
   JsonFormsCellRendererRegistryEntry,
@@ -52,7 +58,7 @@ import { CombinatorKeyword, resolveSubSchemas } from './combinators';
 import { moveDown, moveUp } from './array';
 import type { Dispatch } from './type';
 import { Resolve } from './util';
-import { composePaths, composeWithUi, toSchemaPathSegments } from './path';
+import { composePaths, composeWithUi, EMPTY_PATH, toSchemaPathSegments } from './path';
 import { addNewProperty, CoreActions, removeThisProperty, update } from '../actions';
 import { ErrorObject } from 'ajv';
 import { JsonFormsState } from '../store';
@@ -301,6 +307,8 @@ export interface StatePropsOfRenderer {
    */
 
   cells?: JsonFormsCellRendererRegistryEntry[];
+
+  label?: string;
 }
 
 /**
@@ -428,7 +436,8 @@ export interface StatePropsOfLayout extends StatePropsOfRenderer {
 
 export interface LayoutProps extends StatePropsOfLayout {}
 
-export interface PatternProperty {
+export interface PatternProperty extends JsonSchema7 {
+  label?: string;
   type: string;
   dataFieldKeys: string[];
 }
@@ -443,12 +452,18 @@ export interface DynamicProperty extends PatternProperty {
 
 export interface DynamicProperties extends PatternProperties {}
 
+export const EMPTY_DYNAMIC_PROPERTIES: DynamicProperties = {};
+Object.freeze(EMPTY_DYNAMIC_PROPERTIES);
+
 /**
  * Props of a DynamicLayout.
  */
 export interface DynamicLayoutProps extends LayoutProps {
+  elements: ControlElement[];
+  dynamicElements: ControlElement[];
   dynamicProperties: DynamicProperties;
-  uischema: DynamicGroupLayout;
+  uischema: Layout;
+  label: string;
 }
 
 /**
@@ -923,6 +938,12 @@ export const mapStateToLayoutProps = (
     config
   );
 
+  const labelDesc = createLabelDescriptionFrom(uischema);
+  const label = labelDesc.show ? labelDesc.text : '';
+
+  const t = getTranslator()(state);
+  const i18nLabel = t(getI18nKey(ownProps.schema, uischema, EMPTY_PATH, 'label'), label);
+
   return {
     ...layoutDefaultProps,
     renderers: ownProps.renderers || getRenderers(state),
@@ -931,6 +952,7 @@ export const mapStateToLayoutProps = (
     enabled,
     path: ownProps.path,
     data,
+    label: i18nLabel,
     uischema: ownProps.uischema,
     schema: ownProps.schema,
     direction: ownProps.direction ?? getDirection(uischema)

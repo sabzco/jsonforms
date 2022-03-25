@@ -26,9 +26,8 @@ import React, { useState } from 'react';
 import { Box, Card, CardContent, CardHeader, Hidden, IconButton, Tooltip } from '@mui/material';
 import {
   DispatchPropsOfControl,
-  DynamicGroupLayout,
   GroupLayout,
-  isScopeOfDynamicProperties,
+  isScopeOfDynamicProperty,
   LayoutProps,
   RankedTester,
   rankWith,
@@ -45,7 +44,7 @@ const style: { [x: string]: any } = { marginBottom: '10px' };
 
 const GroupComponent = React.memo(({visible, enabled, uischema, ...props}:
                                      MaterialLayoutRendererProps & DispatchPropsOfControl) => {
-  const groupLayout = uischema as (GroupLayout | DynamicGroupLayout);
+  const groupLayout = uischema as GroupLayout;
   const [isDeleteModalOpen, setDeleteModalOpen] = useState(false);
 
   return (
@@ -55,7 +54,7 @@ const GroupComponent = React.memo(({visible, enabled, uischema, ...props}:
           title={(
             <Box sx={{display: 'flex', alignItems: 'baseline', justifyContent: 'space-between'}}>
               <>{groupLayout.label ?? ''}</>
-              {'scope' in groupLayout && isScopeOfDynamicProperties(groupLayout.scope) && (
+              {'scope' in groupLayout && isScopeOfDynamicProperty(groupLayout.scope) && (
                 <Tooltip title='Remove this object'>
                   <IconButton aria-label='Delete' onClick={() => setDeleteModalOpen(true)} size='large'>
                     <DeleteIcon/>

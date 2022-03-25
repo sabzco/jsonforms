@@ -35,12 +35,12 @@ import {
 import merge from 'lodash/merge';
 import Close from '@mui/icons-material/Close';
 import { JsonFormsTheme, useDebouncedChange } from '../util';
+import { WithInput } from '../controls';
 
-interface MuiTextInputProps {
-  muiInputProps?: InputProps['inputProps'];
+export interface MuiTextInputProps {
   inputComponent?: InputProps['inputComponent'];
 }
-export const MuiInputText = React.memo((props: CellProps & WithClassname & MuiTextInputProps) => { 
+export const MuiInputText = React.memo((props: CellProps & WithClassname & MuiTextInputProps & WithInput) => {
   const [showAdornment, setShowAdornment] = useState(false);
   const {
     data,
@@ -54,7 +54,7 @@ export const MuiInputText = React.memo((props: CellProps & WithClassname & MuiTe
     handleChange,
     schema,
     muiInputProps,
-    inputComponent
+    inputComponent,
   } = props;
   const maxLength = schema.maxLength;
   const appliedUiSchemaOptions = merge({}, config, uischema.options);
@@ -64,19 +64,19 @@ export const MuiInputText = React.memo((props: CellProps & WithClassname & MuiTe
   } else {
     inputProps = {};
   }
-  
+
   inputProps = merge(inputProps, muiInputProps);
-  
+
   if (appliedUiSchemaOptions.trim && maxLength !== undefined) {
     inputProps.size = maxLength;
-  };
-  
+  }
+
   const [inputText, onChange, onClear] = useDebouncedChange(handleChange, '', data, path);
   const onPointerEnter = () => setShowAdornment(true);
   const onPointerLeave = () => setShowAdornment(false);
 
   const theme: JsonFormsTheme = useTheme();
-  
+
   const closeStyle = {
     background: theme.jsonforms?.input?.delete?.background || theme.palette.background.default,
     borderRadius: '50%'
@@ -111,7 +111,7 @@ export const MuiInputText = React.memo((props: CellProps & WithClassname & MuiTe
         >
           <IconButton
             aria-label='Clear input field'
-            onClick={onClear}   
+            onClick={onClear}
             size='large'
           >
             <Close style={closeStyle}/>

@@ -12,6 +12,7 @@ import type { BaseTextFieldProps } from '@mui/material/TextField/TextField';
 
 const ModalWindow = (
   {
+    dir,
     isModalOpen,
     hideModal,
     title = '',
@@ -24,6 +25,7 @@ const ModalWindow = (
     formId = 'global-modal-form',
     dontRefreshOnSubmit = true,
   }: {
+    dir?: 'ltr' | 'rtl' | 'auto'
     isModalOpen: boolean,
     hideModal: Function,
     title?: string,
@@ -38,6 +40,7 @@ const ModalWindow = (
   },
 ) => (
   <Dialog
+    dir={dir}
     onClose={(...args) => {
       onClickOutside(...args);
       if (autoHideOnLostFocus) { hideModal(); }
@@ -63,7 +66,7 @@ const ModalWindow = (
             }
             const textFieldSpec = new TextFieldOptions(textField);
             const {sx} = textFieldSpec;
-            return ( // @ts-ignore
+            return (
               <TextField
                 key={i}
                 {...textFieldSpec}

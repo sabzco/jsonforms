@@ -55,6 +55,7 @@ import {
   Paths,
   pathsAreEqual,
   Resolve,
+  ROOT_SCOPE,
   stringifyPath,
 } from '@jsonforms/core';
 import DeleteIcon from '@mui/icons-material/Delete';
@@ -229,7 +230,7 @@ const NonEmptyCellComponent = React.memo(({path, propName, schema, rootSchema, e
       ) : (
         <DispatchCell
           schema={schema}
-          uischema={controlWithoutLabel(['#'])}
+          uischema={controlWithoutLabel(ROOT_SCOPE)}
           path={path}
           enabled={enabled}
           renderers={renderers}
