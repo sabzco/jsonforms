@@ -118,10 +118,10 @@ export const Paths = {
 
 // Runtime --
 export const Runtime = {
- isEnabled(uischema: UISchemaElement, data: any, ajv: Ajv): boolean {
-   return isEnabled(uischema, data,undefined, ajv);
+ isEnabled(schema: JsonSchema, uischema: UISchemaElement, data: any, ajv: Ajv): boolean {
+   return isEnabled(schema, uischema, data, undefined, ajv);
  },
- isVisible(uischema: UISchemaElement, data: any, ajv: Ajv): boolean {
-   return isVisible(uischema, data, undefined, ajv);
+ isVisible(schema: JsonSchema, uischema: UISchemaElement, data: any, ajv: Ajv): boolean {
+   return isVisible(schema, uischema, data, undefined, ajv);
  }
 };

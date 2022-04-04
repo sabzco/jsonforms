@@ -494,13 +494,13 @@ export const mapStateToControlProps = (
   const { uischema } = ownProps;
   const rootData = getData(state);
   const path = composeWithUi(uischema, ownProps.path);
+  const rootSchema = getSchema(state);
   const visible: boolean =
     ownProps.visible === undefined || hasShowRule(uischema)
-      ? isVisible(uischema, rootData, ownProps.path, getAjv(state))
+      ? isVisible(ownProps.schema || rootSchema, uischema, rootData, ownProps.path, getAjv(state))
       : ownProps.visible;
   const controlElement = uischema as ControlElement;
   const id = ownProps.id;
-  const rootSchema = getSchema(state);
   const required =
     controlElement.scope !== undefined &&
     isRequired(ownProps.schema, controlElement.scope, rootSchema);
@@ -924,7 +924,7 @@ export const mapStateToLayoutProps = (
   const { uischema } = ownProps;
   const visible: boolean =
     ownProps.visible === undefined || hasShowRule(uischema)
-      ? isVisible(ownProps.uischema, rootData, ownProps.path, getAjv(state))
+      ? isVisible(ownProps.schema, ownProps.uischema, rootData, ownProps.path, getAjv(state))
       : ownProps.visible;
 
   const data = Resolve.data(rootData, ownProps.path);
@@ -1027,7 +1027,7 @@ export const mapStateToCombinatorRendererProps = (
   );
   const visible: boolean =
     ownProps.visible === undefined || hasShowRule(uischema)
-      ? isVisible(uischema, getData(state), ownProps.path, getAjv(state))
+      ? isVisible(ownProps.schema, uischema, getData(state), ownProps.path, getAjv(state))
       : ownProps.visible;
   const id = ownProps.id;
 

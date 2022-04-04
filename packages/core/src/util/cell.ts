@@ -119,7 +119,7 @@ export const mapStateToCellProps = (
   const visible =
     ownProps.visible !== undefined
       ? ownProps.visible
-      : isVisible(uischema, rootData, undefined, getAjv(state));
+      : isVisible(schema, uischema, rootData, undefined, getAjv(state));
 
   const rootSchema = getSchema(state);
   const config = getConfig(state);

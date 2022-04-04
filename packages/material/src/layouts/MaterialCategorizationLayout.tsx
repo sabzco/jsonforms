@@ -92,7 +92,7 @@ export const MaterialCategorizationLayoutRenderer = (props: MaterialCategorizati
   const categorization = uischema as Categorization;
   const [activeCategory, setActiveCategory]= useState<number|undefined>(selected??0);
   const categories = categorization.elements.filter((category: Category) =>
-    isVisible(category, data, undefined, ajv)
+    isVisible(schema, category, data, undefined, ajv)
   );
   const childProps: MaterialLayoutRendererProps = {
     elements: categories[activeCategory].elements,

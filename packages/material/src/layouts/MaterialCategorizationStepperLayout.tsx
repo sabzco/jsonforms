@@ -95,7 +95,7 @@ export const MaterialCategorizationStepperLayoutRenderer = (props: MaterialCateg
     marginRight: '1em'
   };
   const categories = categorization.elements.filter((category: Category) =>
-    isVisible(category, data, undefined, ajv)
+    isVisible(schema, category, data, undefined, ajv)
   );
   const childProps: MaterialLayoutRendererProps = {
     elements: categories[activeCategory].elements,
