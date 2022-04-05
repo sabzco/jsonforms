@@ -37,13 +37,13 @@ import MaterialCategorizationLayout, {
 import MaterialArrayLayout, {
   materialArrayLayoutTester
 } from './MaterialArrayLayoutRenderer';
-import MaterialDynamicProperties, {
+import MaterialDynamicGroup, {
   materialDynamicGroupTester,
 } from './MaterialDynamicGroup';
 
 export {
   materialDynamicGroupTester,
-  MaterialDynamicProperties,
+  MaterialDynamicGroup,
   materialArrayLayoutTester,
   MaterialArrayLayout,
   MaterialCategorizationLayout,

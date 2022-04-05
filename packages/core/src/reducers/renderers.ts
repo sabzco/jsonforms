@@ -35,6 +35,7 @@ import { Reducer } from '../util';
 export interface JsonFormsRendererRegistryEntry {
   tester: RankedTester;
   renderer: any;
+  name?: string;
 }
 
 type ValidRendererReducerActions = AddRendererAction | RemoveRendererAction;

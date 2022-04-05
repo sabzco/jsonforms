@@ -83,8 +83,8 @@ import {
   materialArrayLayoutTester,
   MaterialCategorizationLayout,
   materialCategorizationTester,
+  MaterialDynamicGroup,
   materialDynamicGroupTester,
-  MaterialDynamicProperties,
   MaterialGroupLayout,
   materialGroupTester,
   MaterialHorizontalLayout,
@@ -129,65 +129,155 @@ export const materialRenderers: JsonFormsRendererRegistryEntry[] = [
   // controls
   {
     tester: materialArrayControlTester,
-    renderer: MaterialArrayControlRenderer
+    renderer: MaterialArrayControlRenderer,
+    name: 'MaterialArrayControlRenderer',
   },
-  { tester: materialBooleanControlTester, renderer: MaterialBooleanControl },
-  { tester: materialBooleanToggleControlTester, renderer: MaterialBooleanToggleControl },
-  { tester: materialNativeControlTester, renderer: MaterialNativeControl },
-  { tester: materialEnumControlTester, renderer: MaterialEnumControl },
-  { tester: materialIntegerControlTester, renderer: MaterialIntegerControl },
-  { tester: materialNumberControlTester, renderer: MaterialNumberControl },
-  { tester: materialTextControlTester, renderer: MaterialTextControl },
-  { tester: materialDateTimeControlTester, renderer: MaterialDateTimeControl },
-  { tester: materialDateControlTester, renderer: MaterialDateControl },
-  { tester: materialTimeControlTester, renderer: MaterialTimeControl },
-  { tester: materialSliderControlTester, renderer: MaterialSliderControl },
-  { tester: materialObjectControlTester, renderer: MaterialObjectRenderer },
-  { tester: materialAllOfControlTester, renderer: MaterialAllOfRenderer },
-  { tester: materialAnyOfControlTester, renderer: MaterialAnyOfRenderer },
-  { tester: materialOneOfControlTester, renderer: MaterialOneOfRenderer },
+  {
+    tester: materialBooleanControlTester,
+    renderer: MaterialBooleanControl,
+    name: 'MaterialBooleanControl',
+  },
+  {
+    tester: materialBooleanToggleControlTester,
+    renderer: MaterialBooleanToggleControl,
+    name: 'MaterialBooleanToggleControl',
+  },
+  {
+    tester: materialNativeControlTester,
+    renderer: MaterialNativeControl,
+    name: 'MaterialNativeControl',
+  },
+  {
+    tester: materialEnumControlTester,
+    renderer: MaterialEnumControl,
+    name: 'MaterialEnumControl',
+  },
+  {
+    tester: materialIntegerControlTester,
+    renderer: MaterialIntegerControl,
+    name: 'MaterialIntegerControl',
+  },
+  {
+    tester: materialNumberControlTester,
+    renderer: MaterialNumberControl,
+    name: 'MaterialNumberControl',
+  },
+  {
+    tester: materialTextControlTester,
+    renderer: MaterialTextControl,
+    name: 'MaterialTextControl',
+  },
+  {
+    tester: materialDateTimeControlTester,
+    renderer: MaterialDateTimeControl,
+    name: 'MaterialDateTimeControl',
+  },
+  {
+    tester: materialDateControlTester,
+    renderer: MaterialDateControl,
+    name: 'MaterialDateControl',
+  },
+  {
+    tester: materialTimeControlTester,
+    renderer: MaterialTimeControl,
+    name: 'MaterialTimeControl',
+  },
+  {
+    tester: materialSliderControlTester,
+    renderer: MaterialSliderControl,
+    name: 'MaterialSliderControl',
+  },
+  {
+    tester: materialObjectControlTester,
+    renderer: MaterialObjectRenderer,
+    name: 'MaterialObjectRenderer',
+  },
+  {
+    tester: materialAllOfControlTester,
+    renderer: MaterialAllOfRenderer,
+    name: 'MaterialAllOfRenderer',
+  },
+  {
+    tester: materialAnyOfControlTester,
+    renderer: MaterialAnyOfRenderer,
+    name: 'MaterialAnyOfRenderer',
+  },
+  {
+    tester: materialOneOfControlTester,
+    renderer: MaterialOneOfRenderer,
+    name: 'MaterialOneOfRenderer',
+  },
   {
     tester: materialRadioGroupControlTester,
-    renderer: MaterialRadioGroupControl
+    renderer: MaterialRadioGroupControl,
+    name: 'MaterialRadioGroupControl',
   },
   {
     tester: materialOneOfRadioGroupControlTester,
-    renderer: MaterialOneOfRadioGroupControl
+    renderer: MaterialOneOfRadioGroupControl,
+    name: 'MaterialOneOfRadioGroupControl',
   },
-  { tester: materialOneOfEnumControlTester, renderer: MaterialOneOfEnumControl },
+  {
+    tester: materialOneOfEnumControlTester,
+    renderer: MaterialOneOfEnumControl,
+    name: 'MaterialOneOfEnumControl',
+  },
   // layouts
-  { tester: materialGroupTester, renderer: MaterialGroupLayout },
+  {
+    tester: materialGroupTester,
+    renderer: MaterialGroupLayout,
+    name: 'MaterialGroupLayout',
+  },
   {
     tester: materialHorizontalLayoutTester,
-    renderer: MaterialHorizontalLayout
+    renderer: MaterialHorizontalLayout,
+    name: 'MaterialHorizontalLayout',
   },
-  { tester: materialVerticalLayoutTester, renderer: MaterialVerticalLayout },
+  {
+    tester: materialVerticalLayoutTester,
+    renderer: MaterialVerticalLayout,
+    name: 'MaterialVerticalLayout',
+  },
   {
     tester: materialCategorizationTester,
-    renderer: MaterialCategorizationLayout
+    renderer: MaterialCategorizationLayout,
+    name: 'MaterialCategorizationLayout',
   },
   {
     tester: materialCategorizationStepperTester,
-    renderer: MaterialCategorizationStepperLayout
+    renderer: MaterialCategorizationStepperLayout,
+    name: 'MaterialCategorizationStepperLayout',
   },
-  { tester: materialArrayLayoutTester, renderer: MaterialArrayLayout },
+  {
+    tester: materialArrayLayoutTester,
+    renderer: MaterialArrayLayout,
+    name: 'MaterialArrayLayout',
+  },
   // additional
-  { tester: materialLabelRendererTester, renderer: MaterialLabelRenderer },
+  {
+    tester: materialLabelRendererTester,
+    renderer: MaterialLabelRenderer,
+    name: 'MaterialLabelRenderer',
+  },
   {
     tester: materialListWithDetailTester,
-    renderer: MaterialListWithDetailRenderer
+    renderer: MaterialListWithDetailRenderer,
+    name: 'MaterialListWithDetailRenderer',
   },
   {
     tester: materialAnyOfStringOrEnumControlTester,
-    renderer: MaterialAnyOfStringOrEnumControl
+    renderer: MaterialAnyOfStringOrEnumControl,
+    name: 'MaterialAnyOfStringOrEnumControl',
   },
   {
     tester: materialEnumArrayRendererTester,
-    renderer: MaterialEnumArrayRenderer
+    renderer: MaterialEnumArrayRenderer,
+    name: 'MaterialEnumArrayRenderer',
   },
   {
     tester: materialDynamicGroupTester,
-    renderer: MaterialDynamicProperties,
+    renderer: MaterialDynamicGroup,
+    name: 'MaterialDynamicGroup',
   },
 ];
 
