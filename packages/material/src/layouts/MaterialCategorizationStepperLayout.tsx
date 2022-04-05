@@ -46,7 +46,7 @@ import {
 } from '../util/layout';
 
 export const materialCategorizationStepperTester: RankedTester = rankWith(
-  2,
+  3.1, // more than `DynamicGroup` and `CategorizationLayout`
   and(
     uiTypeIs('Categorization'),
     categorizationHasCategory,

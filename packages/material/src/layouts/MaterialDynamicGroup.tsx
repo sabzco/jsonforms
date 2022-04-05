@@ -59,11 +59,11 @@ import {
 import { withDynamicProperties } from '@jsonforms/react';
 
 export const materialDynamicGroupTester: RankedTester = rankWith(
-  2.5, // more than `isObjectControl` and lower than `isOneOfControl`, `isAllOfControl`, ...
+  2, // lower than `OneOfControl`, `AllOfControl`, `CategorizationLayout`, etc...
   isDynamicControl,
 );
 
-export const MaterialDynamicObjectRenderer = React.memo(
+export const MaterialDynamicGroupRenderer = React.memo(
   (props: DynamicLayoutProps & DispatchPropsOfDynamicLayout) => {
     const {visible, enabled, schema, uischema, label, ...otherProps} = props;
     const [isModalOpen, setModalOpen] = useState(false);
@@ -191,7 +191,7 @@ export const MaterialDynamicObjectRenderer = React.memo(
   },
 );
 
-export default withDynamicProperties(MaterialDynamicObjectRenderer);
+export default withDynamicProperties(MaterialDynamicGroupRenderer);
 
 const initialNewPropertyState: NewPropertyState = {
   key: '',

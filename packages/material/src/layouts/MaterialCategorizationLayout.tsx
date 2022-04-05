@@ -60,7 +60,7 @@ export const isSingleLevelCategorization: Tester = and(
 );
 
 export const materialCategorizationTester: RankedTester = rankWith(
-  1,
+  3, // more than `MaterialDynamicGroup`
   isSingleLevelCategorization
 );
 export interface CategorizationState {

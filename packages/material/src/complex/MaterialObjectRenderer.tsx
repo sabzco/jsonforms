@@ -36,6 +36,11 @@ import { JsonFormsDispatch, withJsonFormsDetailProps } from '@jsonforms/react';
 import { Hidden } from '@mui/material';
 import React, { useMemo } from 'react';
 
+/**
+ * @deprecated This renderer is deprecated! Use
+ *   {@link MaterialDynamicGroupRenderer `MaterialDynamicGroup`} instead.
+ * @constructor
+ */
 export const MaterialObjectRenderer = ({
   renderers,
   cells,
@@ -85,7 +90,7 @@ export const MaterialObjectRenderer = ({
 };
 
 export const materialObjectControlTester: RankedTester = rankWith(
-  2,
+  -1, // This renderer is deprecated! Use `MaterialDynamicGroupRenderer` instead.
   isObjectControl
 );
 
