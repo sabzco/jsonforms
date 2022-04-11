@@ -57,7 +57,6 @@ import {
   configReducer,
   coreReducer,
   createControlElement,
-  createDynamicControlElement,
   defaultMapStateToEnumCellProps,
   deriveTypes,
   EMPTY_CONTROL_ELEMENTS,
@@ -569,6 +568,23 @@ const withDynamicElements = (Component: ComponentType<DynamicLayoutProps>) => (p
   const scopedSchema = schemaPath.length ? get(props.schema, schemaPath) : props.schema;
   const {properties, patternProperties, additionalProperties} = scopedSchema;
 
+  if (scopedSchema === undefined) {
+    console.warn(
+      'Error: Schema path %o not found in the schema:',
+      toStringSchemaPath(schemaPath),
+      props.schema,
+    );
+    return (
+      <Component
+        {...props}
+        direction={props.uischema.type === 'HorizontalLayout' ? 'row' : 'column'}
+        elements={props.uischema.elements as ControlElement[]}
+        dynamicProperties={EMPTY_DYNAMIC_PROPERTIES}
+        dynamicElements={EMPTY_CONTROL_ELEMENTS}
+      />
+    );
+  }
+
   const dataKeys = Object.keys(props.data ?? {});
   const propertiesKeys = Object.keys(properties ?? {});
   const {elements: uischemaElements, ...uischemaWithoutElements} = props.uischema;
@@ -606,7 +622,7 @@ const withDynamicElements = (Component: ComponentType<DynamicLayoutProps>) => (p
 
       for (const pattern of patterns) {
         if (new RegExp(pattern).test(dataFieldKey)) {
-          dynamicElements.push(createDynamicControlElement(
+          dynamicElements.push(createControlElement(
             [...schemaPathSegments, 'patternProperties', pattern],
             dataFieldKey,
           ));
@@ -615,7 +631,7 @@ const withDynamicElements = (Component: ComponentType<DynamicLayoutProps>) => (p
         }
       }
       if (additionalProperties) {
-        dynamicElements.push(createDynamicControlElement(
+        dynamicElements.push(createControlElement(
           [...schemaPathSegments, 'additionalProperties'],
           dataFieldKey,
         ));
@@ -647,7 +663,7 @@ const withDynamicElements = (Component: ComponentType<DynamicLayoutProps>) => (p
           return staticElements;
         }
 
-        staticElements.push(createControlElement(ref));
+        staticElements.push(createControlElement(ref, props.uischema.dataFieldKey));
         return staticElements;
       }, [],
     );

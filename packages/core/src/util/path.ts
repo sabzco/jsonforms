@@ -54,23 +54,27 @@ export const toDataPathSegments = (scope: string | string[], dynamicDataFields?:
 
   let j = 0;
   const dataPath: string[] = [];
-  for (let i = 1 /* skip leading '#' */; i < schemaPathSegments.length; i++) {
+  for (let i = schemaPathSegments[0] === '#' ? 1 : 0; i < schemaPathSegments.length; i++) {
     // noinspection FallThroughInSwitchStatementJS
     switch (schemaPathSegments[i]) { // tslint:disable-line:switch-default
       case 'properties':
-        i++; // skip property-name for the next cycle
+        i++; // skip property-name (next cycle)
         dataPath.push(schemaPathSegments[i]); // push property-name to `dataPath` array
         continue;
+
       case 'patternProperties':
-        i++; // skip the pattern
+        i++; // skip the pattern (next cycle)
       case 'additionalProperties': // tslint:disable-line:no-switch-case-fall-through
+      case 'items':
         dataPath.push(dataFieldKeys[j++]);
         continue;
+
       case 'oneOf':
       case 'allOf':
       case 'anyOf':
-        i++; // skip the number
+        i++; // skip the number (next cycle)
         continue;
+
       default:
         console.error(
           'Unexpected schema-path segment.\n' +

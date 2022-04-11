@@ -78,9 +78,9 @@ export const MaterialListWithDetailRenderer = ({
     (index: number) => () => setSelectedIndex(index),
     [setSelectedIndex]
   );
-  const handleCreateDefaultValue = useCallback(
+  const innerCreateDefaultValue = useCallback(
     () => createDefaultValue(schema),
-    [createDefaultValue]
+    [schema]
   );
   const foundUISchema = useMemo(
     () =>
@@ -96,6 +96,10 @@ export const MaterialListWithDetailRenderer = ({
   );
   const appliedUiSchemaOptions = merge({}, config, uischema.options);
 
+  const addItemCb = useCallback(() => {
+    return addItem(path, innerCreateDefaultValue())();
+  }, [innerCreateDefaultValue, addItem]);
+
   return (
     <Hidden xsUp={!visible}>
       <ArrayLayoutToolbar
@@ -105,9 +109,7 @@ export const MaterialListWithDetailRenderer = ({
           appliedUiSchemaOptions.hideRequiredAsterisk
         )}
         errors={errors}
-        path={path}
-        addItem={addItem}
-        createDefault={handleCreateDefaultValue}
+        addItem={addItemCb}
       />
       <Grid container direction='row' spacing={2}>
         <Grid item xs={3}>

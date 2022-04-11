@@ -22,55 +22,99 @@
   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
   THE SOFTWARE.
 */
-import React, { useCallback } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 
+import type { JsonSchema } from '@jsonforms/core';
 import {
   ArrayLayoutProps,
+  composePaths,
+  computeLabel,
+  createDefaultValue,
   isObjectArrayWithNesting,
+  pathsAreEqual,
   RankedTester,
-  rankWith
+  rankWith,
 } from '@jsonforms/core';
-import { Hidden } from '@mui/material';
-import { MaterialArrayLayout } from './MaterialArrayLayout';
+import { Hidden, Typography } from '@mui/material';
 import { withJsonFormsArrayLayoutProps } from '@jsonforms/react';
+import { ArrayLayoutToolbar } from './ArrayToolbar';
+import map from 'lodash/map';
+import range from 'lodash/range';
+import ExpandPanelRenderer from './ExpandPanelRenderer';
 
 export const MaterialArrayLayoutRenderer = ({
   visible,
-  enabled,
-  id,
   uischema,
   schema,
   label,
   rootSchema,
   renderers,
   cells,
-  data,
+  data: dataLength,
   path,
   errors,
   uischemas,
-  addItem
+  addItem,
+  config,
+  required,
 }: ArrayLayoutProps) => {
-  const addItemCb = useCallback((thePath: string[], value: any) => addItem(thePath, value), [
-    addItem
-  ]);
+  const [expanded, setExpanded] = useState<string[]>(composePaths(path, null));
+  const {itemsSchema, innerCreateDefaultValue} = useMemo(() => ({
+    itemsSchema: schema.items as JsonSchema,
+    innerCreateDefaultValue: () => createDefaultValue(itemsSchema)
+  }), [schema]);
+  const handleChange = useCallback((panel: string[]) => (_event: any, expandedPanel: boolean) => {
+    setExpanded(expandedPanel ? panel : null);
+  }, []);
+  const isExpanded = (index: number) =>
+    expanded ? pathsAreEqual(expanded, composePaths(path, `${index}`)) : false;
+
+  const addItemCb = useCallback(() => {
+    setExpanded(composePaths(path, String(dataLength)));
+    return addItem(path, innerCreateDefaultValue())();
+  }, [dataLength, innerCreateDefaultValue, addItem]);
+
+  const appliedUiSchemaOptions = {...config, ...uischema.options};
+
   return (
     <Hidden xsUp={!visible}>
-      <MaterialArrayLayout
-        label={label}
-        uischema={uischema}
-        schema={schema}
-        id={id}
-        rootSchema={rootSchema}
+      <ArrayLayoutToolbar
+        label={computeLabel(
+          label,
+          required,
+          appliedUiSchemaOptions.hideRequiredAsterisk,
+        )}
+        description={uischema.description ?? schema.description}
         errors={errors}
-        enabled={enabled}
-        visible={visible}
-        data={data}
-        path={path}
         addItem={addItemCb}
-        renderers={renderers}
-        cells={cells}
-        uischemas={uischemas}
       />
+      <div>
+        {dataLength > 0 ? (
+          map(range(dataLength), index => {
+            return (
+              <ExpandPanelRenderer
+                index={index}
+                expanded={isExpanded(index)}
+                schema={itemsSchema}
+                path={path}
+                handleExpansion={handleChange}
+                uischema={uischema}
+                renderers={renderers}
+                cells={cells}
+                key={index}
+                rootSchema={rootSchema}
+                enableMoveUp={index > 0}
+                enableMoveDown={index < dataLength - 1}
+                config={config}
+                childLabelProp={appliedUiSchemaOptions.elementLabelProp}
+                uischemas={uischemas}
+              />
+            );
+          })
+        ) : (
+          <Typography>No data</Typography>
+        )}
+      </div>
     </Hidden>
   );
 };
@@ -79,4 +123,4 @@ export const materialArrayLayoutTester: RankedTester = rankWith(
   4,
   isObjectArrayWithNesting
 );
-export default withJsonFormsArrayLayoutProps(MaterialArrayLayoutRenderer);
+export default React.memo(withJsonFormsArrayLayoutProps(React.memo(MaterialArrayLayoutRenderer)));

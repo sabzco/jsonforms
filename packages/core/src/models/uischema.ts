@@ -148,6 +148,11 @@ export interface UISchemaElement {
    * An optional label that will be associated with the control
    */
   label?: LabelType;
+
+  /**
+   * An optional description
+   */
+  description?: string;
 }
 
 export type LayoutType = 'Group' | 'VerticalLayout' | 'HorizontalLayout' | 'Category' | 'Control';

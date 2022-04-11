@@ -23,17 +23,21 @@
   THE SOFTWARE.
 */
 
-import type { JsonSchema, LabelDescription, UISchemaElement } from '../models';
+import type { ControlElement, JsonSchema, LabelDescription, UISchemaElement } from '../models';
 import { isControlElement } from '../models';
+import { isScopeOfDynamicProperty } from './uischema';
 
 const deriveLabel = (
-  uischemaElement: UISchemaElement,
+  uischemaElement: UISchemaElement | ControlElement,
   schemaElement?: JsonSchema
 ): string => {
   if (schemaElement && typeof schemaElement.title === 'string') {
     return schemaElement.title;
   }
-  if ('dataFieldKey' in uischemaElement && typeof uischemaElement.dataFieldKey === 'string') {
+  if (
+    'dataFieldKey' in uischemaElement && typeof uischemaElement.dataFieldKey === 'string' &&
+    'scope' in uischemaElement && isScopeOfDynamicProperty(uischemaElement.scope)
+  ) {
     return uischemaElement.dataFieldKey;
   }
   if (!isControlElement(uischemaElement)) {

@@ -1,34 +1,34 @@
-import { 
+import {
+  FormHelperText,
   Grid,
-  IconButton,
   Hidden,
+  IconButton,
   Toolbar,
   Tooltip,
-  Typography
+  Typography,
 } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import React from 'react';
 import ValidationIcon from '../complex/ValidationIcon';
 export interface ArrayLayoutToolbarProps {
   label: string;
+  description?: string;
   errors: string;
-  path: string[];
-  addItem(path: string[], data: any): () => void;
-  createDefault(): any;
+  addItem(): void;
 }
 export const ArrayLayoutToolbar = React.memo(
   ({
     label,
+    description,
     errors,
     addItem,
-    path,
-    createDefault
   }: ArrayLayoutToolbarProps) => {
     return (
       <Toolbar disableGutters={true}>
         <Grid container alignItems='center' justifyContent='space-between'>
           <Grid item>
-            <Typography variant={'h6'}>{label}</Typography>
+            <Typography variant='h6'>{label}</Typography>
+            {description !== undefined && <FormHelperText sx={{mt: 0, mb: 0.5}}>{description}</FormHelperText>}
           </Grid>
           <Hidden smUp={errors.length === 0}>
             <Grid item>
@@ -45,8 +45,9 @@ export const ArrayLayoutToolbar = React.memo(
                 >
                   <IconButton
                     aria-label={`Add to ${label}`}
-                    onClick={addItem(path, createDefault())}
-                    size='large'>
+                    onClick={addItem}
+                    size='large'
+                  >
                     <AddIcon />
                   </IconButton>
                 </Tooltip>

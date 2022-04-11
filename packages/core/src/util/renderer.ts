@@ -93,7 +93,7 @@ const isRequired = (
 export const computeLabel = (
   label: string | undefined,
   required: boolean,
-  hideRequiredAsterisk: boolean
+  hideRequiredAsterisk = false,
 ): string => {
   return `${label ?? ''}${ required && !hideRequiredAsterisk ? '*' : ''}`;
 };
@@ -810,7 +810,7 @@ export interface DispatchPropsOfArrayControl {
 export const mapDispatchToArrayControlProps = (
   dispatch: Dispatch<CoreActions>
 ): DispatchPropsOfArrayControl => ({
-  addItem: (path: string[], value: any) => () => {
+  addItem: (path: string[], value: any) => () => { // TODO: Why returns a function, instead of doing the work???
     dispatch(
       update(path, array => {
         if (array === undefined || array === null) {
@@ -822,7 +822,7 @@ export const mapDispatchToArrayControlProps = (
       })
     );
   },
-  removeItems: (path: string[], toDelete: number[]) => () => {
+  removeItems: (path: string[], toDelete: number[]) => () => { // TODO: Why returns a function, instead of doing the work???
     dispatch(
       update(path, array => {
         toDelete
@@ -1145,6 +1145,7 @@ export const mapStateToArrayLayoutProps = (
     undefined
   );
 
+  const scope = Array.isArray(uischema.scope) ? uischema.scope : toSchemaPathSegments(uischema.scope);
   const allErrors =
     errors +
     (errors.length > 0 && childErrors.length > 0 ? '\n' : '') +
@@ -1152,8 +1153,8 @@ export const mapStateToArrayLayoutProps = (
   return {
     ...props,
     path,
-    uischema,
-    schema: resolvedSchema,
+    uischema: {...uischema, scope: scope.concat('items')},
+    schema,
     data: props.data ? props.data.length : 0,
     errors: allErrors,
     minItems: schema.minItems

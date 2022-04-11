@@ -53,15 +53,7 @@ const createLayout = (layoutType: LayoutType, ref?: string[]): Layout => ({
 /**
  * Creates a IControlObject with the given label referencing the given ref
  */
-export const createControlElement = (ref: string[]): ControlElement => ({
-  type: 'Control',
-  scope: ref,
-});
-
-/**
- * Creates a Dynamic-IControlObject with the given label referencing the given ref
- */
-export const createDynamicControlElement = (ref: string[], dataFieldKey: string): ControlElement => ({
+export const createControlElement = (ref: string[], dataFieldKey?: string): ControlElement => ({
   type: 'Control',
   scope: ref,
   dataFieldKey,

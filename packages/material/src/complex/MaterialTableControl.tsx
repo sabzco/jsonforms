@@ -29,7 +29,6 @@ import {
   JsonFormsStateContext,
   useJsonForms
 } from '@jsonforms/react';
-import startCase from 'lodash/startCase';
 import range from 'lodash/range';
 import React, { Fragment, useMemo } from 'react';
 import {
@@ -42,16 +41,20 @@ import {
   TableCell,
   TableHead,
   TableRow,
-  Typography
+  Tooltip,
+  Typography,
 } from '@mui/material';
-import {
+import type {
   ArrayLayoutProps,
   ControlElement,
-  errorsAt,
-  formatErrorMessage,
   JsonFormsCellRendererRegistryEntry,
   JsonFormsRendererRegistryEntry,
   JsonSchema,
+} from '@jsonforms/core';
+import {
+  computeLabel,
+  errorsAt,
+  formatErrorMessage,
   Paths,
   pathsAreEqual,
   Resolve,
@@ -99,7 +102,11 @@ const generateCells = (
       const props = {
         propName: prop,
         schema,
-        title: schema.properties?.[prop]?.title ?? startCase(prop),
+        title: computeLabel(
+          schema.properties?.[prop]?.title ?? prop,
+          schema.required?.includes(prop),
+        ),
+        description: schema.properties?.[prop]?.description,
         rowPath,
         cellPath,
         enabled,
@@ -143,10 +150,20 @@ const EmptyTable = ({ numColumns }: EmptyTableProps) => (
 
 interface TableHeaderCellProps {
   title: string;
+  description?: string;
 }
 
-const TableHeaderCell = React.memo(({ title }: TableHeaderCellProps) => (
-  <TableCell>{title}</TableCell>
+const TableHeaderCell = React.memo(({ title, description }: TableHeaderCellProps) => (
+  <TableCell>
+    {description
+      ? (
+        <Tooltip title={description}>
+          <span>{title}</span>
+        </Tooltip>
+      )
+      : title
+    }
+  </TableCell>
 ));
 
 interface NonEmptyCellProps extends OwnPropsOfNonEmptyCell {
@@ -406,10 +423,11 @@ export class MaterialTableControl extends React.Component<
       cells
     } = this.props;
 
+    const itemsSchema = schema.items as JsonSchema;
     const controlElement = uischema as ControlElement;
-    const isObjectSchema = schema.type === 'object';
+    const isObjectSchema = itemsSchema.type === 'object';
     const headerCells: any = isObjectSchema
-      ? generateCells(TableHeaderCell, schema, path, enabled, cells)
+      ? generateCells(TableHeaderCell, itemsSchema, path, enabled, cells)
       : undefined;
 
     return (
@@ -419,11 +437,12 @@ export class MaterialTableControl extends React.Component<
             <TableToolbar
               errors={errors}
               label={label}
+              description={uischema.description ?? schema.description}
               addItem={this.addItem}
               numColumns={isObjectSchema ? headerCells.length : 1}
               path={path}
               uischema={controlElement}
-              schema={schema}
+              schema={itemsSchema}
               rootSchema={rootSchema}
               enabled={enabled}
             />
@@ -435,7 +454,7 @@ export class MaterialTableControl extends React.Component<
             )}
           </TableHead>
           <TableBody>
-            <TableRows openDeleteDialog={openDeleteDialog} {...this.props} />
+            <TableRows openDeleteDialog={openDeleteDialog} {...this.props} schema={itemsSchema} />
           </TableBody>
         </Table>
       </Hidden>

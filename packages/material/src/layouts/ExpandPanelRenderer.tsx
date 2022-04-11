@@ -1,6 +1,6 @@
 import merge from 'lodash/merge';
 import get from 'lodash/get';
-import React, { ComponentType, Dispatch, Fragment, ReducerAction, useMemo, useState, useEffect, useCallback } from 'react';
+import React, { ComponentType, Dispatch, Fragment, ReducerAction, useCallback, useEffect, useMemo, useState } from 'react';
 import {
   JsonFormsDispatch,
   JsonFormsStateContext,
@@ -9,27 +9,28 @@ import {
 import {
   composePaths,
   ControlElement,
-  findUISchema,
+  createId,
+  EMPTY_PATH,
+  getFirstPrimitiveProp,
+  JsonFormsCellRendererRegistryEntry,
   JsonFormsRendererRegistryEntry,
+  JsonFormsUISchemaRegistryEntry,
   JsonSchema,
   moveDown,
   moveUp,
-  Resolve,
-  update,
-  JsonFormsCellRendererRegistryEntry,
-  JsonFormsUISchemaRegistryEntry,
-  getFirstPrimitiveProp,
-  createId,
   removeId,
+  Resolve,
   stringifyPath,
+  update,
 } from '@jsonforms/core';
 import {
   Accordion,
-  AccordionSummary,
   AccordionDetails,
+  AccordionSummary,
   Avatar,
   Grid,
-  IconButton
+  IconButton,
+  Stack,
 } from '@mui/material';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import DeleteIcon from '@mui/icons-material/Delete';
@@ -97,27 +98,11 @@ const ExpandPanelRendererComponent = (props: ExpandPanelProps) => {
     removeItems,
     path,
     rootSchema,
-    schema,
     uischema,
-    uischemas,
     renderers,
     cells,
     config
   } = props;
-
-  const foundUISchema = useMemo(
-    () =>
-      findUISchema(
-        uischemas,
-        schema,
-        uischema.scope,
-        path,
-        undefined,
-        uischema,
-        rootSchema
-      ),
-    [uischemas, schema, uischema.scope, path, uischema, rootSchema]
-  );
 
   const appliedUiSchemaOptions = merge({}, config, uischema.options);
 
@@ -130,14 +115,10 @@ const ExpandPanelRendererComponent = (props: ExpandPanelProps) => {
       <AccordionSummary expandIcon={<ExpandMoreIcon />}>
         <Grid container alignItems={'center'}>
           <Grid item xs={7} md={9}>
-            <Grid container alignItems={'center'}>
-              <Grid item xs={2} md={1}>
-                <Avatar aria-label='Index'>{index + 1}</Avatar>
-              </Grid>
-              <Grid item xs={10} md={11}>
-                <span id={labelHtmlId}>{childLabel}</span>
-              </Grid>
-            </Grid>
+            <Stack direction='row' spacing={2} sx={{alignItems: 'baseline'}}>
+              <Avatar aria-label='Index'>{index + 1}</Avatar>
+              <span id={labelHtmlId}>{childLabel}</span>
+            </Stack>
           </Grid>
           <Grid item xs={5} md={3}>
             <Grid container justifyContent='flex-end'>
@@ -194,9 +175,9 @@ const ExpandPanelRendererComponent = (props: ExpandPanelProps) => {
       </AccordionSummary>
       <AccordionDetails>
         <JsonFormsDispatch
-          schema={schema}
-          uischema={foundUISchema}
-          path={childPath}
+          schema={rootSchema}
+          uischema={uischema}
+          path={EMPTY_PATH}
           key={stringifyPath(childPath)}
           renderers={renderers}
           cells={cells}
@@ -263,16 +244,23 @@ export const withContextToExpandPanelProps = (
 }: JsonFormsStateContext & ExpandPanelProps) => {
   const dispatchProps = ctxDispatchToExpandPanelProps(ctx.dispatch);
   const { childLabelProp, schema, path, index, uischemas } = props;
-  const childPath = composePaths(path, `${index}`);
-  const childData = Resolve.data(ctx.core.data, childPath);
+  const childPath = useMemo(() => composePaths(path, String(index)), [path, index]);
+  const childData = useMemo(() => Resolve.data(ctx.core.data, childPath), [ctx.core.data, childPath]);
   const childLabel = childLabelProp
     ? get(childData, childLabelProp, '')
     : get(childData, getFirstPrimitiveProp(schema), '');
+
+  const uischema = useMemo(() => ({
+    ...props.uischema,
+    type: 'VerticalLayout',
+    dataFieldKey: String(index),
+  }), [props.uischema, index]);
 
   return (
     <Component
       {...props}
       {...dispatchProps}
+      uischema={uischema}
       childLabel={childLabel}
       childPath={childPath}
       uischemas={uischemas}
@@ -283,7 +271,6 @@ export const withContextToExpandPanelProps = (
 export const withJsonFormsExpandPanelProps = (
   Component: ComponentType<ExpandPanelProps>
 ): ComponentType<OwnPropsOfExpandPanel> =>
-  withJsonFormsContext(
-    withContextToExpandPanelProps(Component));
+  withJsonFormsContext(withContextToExpandPanelProps(Component));
 
 export default withJsonFormsExpandPanelProps(ExpandPanelRenderer);

@@ -29,9 +29,10 @@ import {
   JsonSchema,
 } from '@jsonforms/core';
 import {
+  FormHelperText,
   IconButton,
   TableRow,
-  Tooltip
+  Tooltip,
 } from '@mui/material';
 import { Grid, Hidden, Typography } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
@@ -42,6 +43,7 @@ export interface MaterialTableToolbarProps {
   numColumns: number;
   errors: string;
   label: string;
+  description?: string;
   path: string[];
   uischema: ControlElement;
   schema: JsonSchema;
@@ -53,13 +55,14 @@ export interface MaterialTableToolbarProps {
 const fixedCellSmall = {
   paddingLeft: 0,
   paddingRight: 0,
-}
+};
 
 const TableToolbar = React.memo(
   ({
     numColumns,
     errors,
     label,
+    description,
     path,
     addItem,
     schema,
@@ -74,7 +77,8 @@ const TableToolbar = React.memo(
           spacing={2}
         >
           <Grid item>
-            <Typography variant={'h6'}>{label}</Typography>
+            <Typography variant='h6'>{label}</Typography>
+            {description !== undefined && <FormHelperText sx={{mt: 0, mb: 0.5}}>{description}</FormHelperText>}
           </Grid>
           <Grid item>
             <Hidden smUp={errors.length === 0}>

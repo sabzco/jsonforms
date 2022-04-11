@@ -24,6 +24,7 @@
 */
 export * from './MuiCheckbox';
 export * from './MuiSelect';
+export * from './MuiAutocomplete';
 export * from './MuiInputInteger';
 export * from './MuiInputNumber';
 export * from './MuiInputNumberFormat';
