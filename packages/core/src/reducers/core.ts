@@ -47,7 +47,14 @@ import {
   UPDATE_ERRORS,
   UpdateCoreAction,
 } from '../actions';
-import { composePaths, pathsAreEqual, createAjv, pathStartsWith, Reducer } from '../util';
+import {
+  ajvInstancePathDecoder,
+  composePaths,
+  createAjv,
+  pathsAreEqual,
+  pathStartsWith,
+  Reducer,
+} from '../util';
 import { JsonSchema, UISchemaElement } from '../models';
 
 export const validate = (validator: ValidateFunction | undefined, data: any): ErrorObject[] => {
@@ -349,12 +356,15 @@ export const getControlPath = (error: ErrorObject) => {
   const dataPath = (error as any).dataPath;
   // older AJV version
   if (dataPath) {
-    return dataPath.replace(/\//g, '.').substr(1);
+    return dataPath.replace(/^\//, '').split('/').map(ajvInstancePathDecoder);
   }
   // dataPath was renamed to instancePath in AJV v8
-  const controlPath = error.instancePath
-    .replace(/^\//, '') // remove leading slash
-    .split('/'); // convert to string[]
+  const controlPath = !error.instancePath || error.instancePath === '/'
+    ? []
+    : error.instancePath
+      .replace(/^\//, '') // remove leading slash
+      .split('/') // convert to string[]
+      .map(ajvInstancePathDecoder); // replace ~1 and ~0
 
   const invalidProperty = getInvalidProperty(error);
   if (invalidProperty !== undefined && controlPath.at(-1) !== invalidProperty) {
@@ -372,14 +382,14 @@ export const errorsAt = (
   // Get data paths of oneOf and anyOf errors to later determine whether an error occurred inside a subschema of oneOf or anyOf.
   const combinatorPaths = filter(
     errors,
-    error => error.keyword === 'oneOf' || error.keyword === 'anyOf'
-    ).map(error => getControlPath(error));
+    error => error.keyword === 'oneOf' || error.keyword === 'anyOf',
+  ).map(error => getControlPath(error));
 
-    return filter(errors, error => {
-      // Filter errors that match any keyword that we don't want to show in the UI
-      if (filteredErrorKeywords.indexOf(error.keyword) !== -1) {
-        return false;
-      }
+  return filter(errors, error => {
+    // Filter errors that match any keyword that we don't want to show in the UI
+    if (filteredErrorKeywords.indexOf(error.keyword) !== -1) {
+      return false;
+    }
     const controlPath = getControlPath(error);
     let result = matchPath(controlPath);
     // In anyOf and oneOf blocks with "primitive" (i.e. string, number etc.) or array subschemas,
