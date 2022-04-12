@@ -50,7 +50,7 @@ export const MaterialLabelRenderer = ({ uischema, visible }: OwnPropsOfRenderer)
   return (
     <Hidden xsUp={!visible}>
       <Typography variant='h6'>
-        {labelElement.text !== undefined && labelElement.text !== null && labelElement.text}
+        {labelElement.text ?? labelElement.label ?? ''}
       </Typography>
     </Hidden>
   );

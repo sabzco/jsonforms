@@ -31,9 +31,21 @@ import { withJsonFormsDispatchCellProps } from './JsonFormsContext';
 /**
  * Dispatch renderer component for cells.
  */
-export const Dispatch = ({uischema, schema, path, cells, id, enabled, renderers}:DispatchCellProps) => {
-  const cell = useMemo(() => maxBy(cells, r => r.tester(uischema, schema)), [cells, uischema, schema]);
-  if (cell === undefined || cell.tester(uischema, schema) === -1) {
+export const Dispatch = ({uischema, schema, path, cells, id, enabled, renderers}: DispatchCellProps) => {
+  const cell = useMemo(() => {
+      const specifiedCell = uischema.renderer &&
+        cells.find(r => r.name?.toLowerCase() === uischema.renderer.toLowerCase());
+      if (specifiedCell) {
+        return specifiedCell;
+      }
+      const preferredCell = maxBy(cells, r => r.tester(uischema, schema));
+      if (preferredCell.tester(uischema, schema) > 0) {
+        return preferredCell;
+      }
+    },
+    [cells, uischema, schema]
+  );
+  if (!cell) {
     return <UnknownRenderer type={'cell'} />;
   } else {
     const Cell = cell.cell;

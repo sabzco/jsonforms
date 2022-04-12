@@ -153,6 +153,11 @@ export interface UISchemaElement {
    * An optional description
    */
   description?: string;
+
+  /**
+   * An optional renderer name to explicitly specify the renderer to use
+   */
+  renderer?: string;
 }
 
 export type LayoutType = 'Group' | 'VerticalLayout' | 'HorizontalLayout' | 'Category' | 'Control';

@@ -39,6 +39,7 @@ export type JsonFormsCellRendererRegistryState = JsonFormsCellRendererRegistryEn
 export interface JsonFormsCellRendererRegistryEntry {
   tester: RankedTester;
   cell: any;
+  name?: string;
 }
 
 export const cellReducer: Reducer<JsonFormsCellRendererRegistryState, ValidCellReducerActions> = (

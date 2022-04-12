@@ -107,14 +107,19 @@ const TestAndRender = React.memo(
     cells: JsonFormsCellRendererRegistryEntry[];
     id: string;
   }) => {
-    const renderer = useMemo(
-      () => maxBy(props.renderers, r => r.tester(props.uischema, props.schema)),
-      [props.renderers, props.uischema, props.schema]
+    const renderer = useMemo(() => {
+        const specifiedRenderer = props.uischema.renderer &&
+          props.renderers.find(r => r.name?.toLowerCase() === props.uischema.renderer.toLowerCase());
+        if (specifiedRenderer) {
+          return specifiedRenderer;
+        }
+        const preferredRenderer = maxBy(props.renderers, r => r.tester(props.uischema, props.schema));
+        if (preferredRenderer.tester(props.uischema, props.schema) > 0) {
+          return preferredRenderer;
+        }
+      }, [props.renderers, props.uischema, props.schema],
     );
-    if (
-      renderer === undefined ||
-      renderer.tester(props.uischema, props.schema) === -1
-    ) {
+    if (!renderer) {
       return <UnknownRenderer type={'renderer'} />;
     }
     const Render = renderer.renderer;
