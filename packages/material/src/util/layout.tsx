@@ -47,7 +47,7 @@ export const renderLayoutElements = (
   cells?: JsonFormsCellRendererRegistryEntry[]
 ) => {
   return elements.map((child, index) => (
-    <Grid item key={`${stringifyPath(path)}-${index}`} xs>
+    <Grid item key={`${stringifyPath(path)}-${index}`} xs style={{flexGrow: child.options?.flexGrow}}>
       <JsonFormsDispatch
         uischema={child}
         schema={schema}
@@ -83,7 +83,7 @@ const MaterialLayoutRendererComponent =
           <Grid
             container
             direction={direction}
-            spacing={direction === 'row' ? 2 : 0}
+            columnSpacing={2}
           >
             {renderLayoutElements(
               elements,
