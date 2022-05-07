@@ -96,7 +96,7 @@ import React, {
   useReducer,
   useRef,
 } from 'react';
-import { useDeepMemo, useDeepMemorizes } from './util/deep-effect';
+import { useDeepMemo } from './util/deep-effect';
 import { get } from 'lodash';
 
 const initialCoreState: JsonFormsCore = {
@@ -597,11 +597,10 @@ const withDynamicElements = (Component: ComponentType<DynamicLayoutProps>) => (p
         ([pattern, subSchema]: [string, JsonSchema]) => {
           patterns.push(pattern);
           return [
-            pattern, {
+            pattern, // key
+            { // value
               type: deriveTypes(subSchema)[0],
-              description: subSchema.description, // @ts-ignore
-              label: subSchema.label,
-              title: subSchema.title,
+              schema: subSchema,
               dataFieldKeys: [],
             },
           ];
@@ -642,7 +641,7 @@ const withDynamicElements = (Component: ComponentType<DynamicLayoutProps>) => (p
     return {dynamicElements, dynamicProperties};
   }, [
     patternProperties, additionalProperties, uischemaWithoutElements,
-    ...useDeepMemorizes([dataKeys, propertiesKeys]),
+    JSON.stringify(dataKeys), JSON.stringify(propertiesKeys),
   ]);
 
   const elements = useDeepMemo(() => {

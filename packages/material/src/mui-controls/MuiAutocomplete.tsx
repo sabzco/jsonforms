@@ -22,16 +22,11 @@
   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
   THE SOFTWARE.
 */
-import React, { ReactNode } from 'react';
-import { EnumCellProps, EnumOption, WithClassname } from '@jsonforms/core';
+import React, {ReactNode} from 'react'
+import {EnumCellProps, EnumOption, WithClassname} from '@jsonforms/core'
 
-import {
-  Autocomplete,
-  AutocompleteRenderOptionState,
-  Input,
-  FilterOptionsState
-} from '@mui/material';
-import merge from 'lodash/merge';
+import {Autocomplete, AutocompleteRenderOptionState, FilterOptionsState, Input} from '@mui/material'
+import merge from 'lodash/merge'
 
 export interface WithOptionLabel {
   getOptionLabel?(option: EnumOption) : string;
@@ -76,7 +71,7 @@ export const MuiAutocomplete = (props: EnumCellProps & WithClassname & WithOptio
       autoComplete
       fullWidth
       options={options}
-      getOptionLabel={getOptionLabel || (option => option?.label)}
+      getOptionLabel={getOptionLabel || ((option: EnumOption) => option?.label)}
       style={{ marginTop: 16 }}
       renderInput={params => (
         <Input

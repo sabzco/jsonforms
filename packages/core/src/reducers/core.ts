@@ -23,14 +23,14 @@
   THE SOFTWARE.
 */
 
-import cloneDeep from 'lodash/cloneDeep';
-import setFp from 'lodash/fp/set';
-import unsetFp from 'lodash/fp/unset';
-import get from 'lodash/get';
-import filter from 'lodash/filter';
-import isEqual from 'lodash/isEqual';
-import isFunction from 'lodash/isFunction';
-import Ajv, { ErrorObject, ValidateFunction } from 'ajv';
+import cloneDeep from 'lodash/cloneDeep'
+import setFp from 'lodash/fp/set'
+import unsetFp from 'lodash/fp/unset'
+import get from 'lodash/get'
+import filter from 'lodash/filter'
+import isEqual from 'lodash/isEqual'
+import isFunction from 'lodash/isFunction'
+import Ajv, {ErrorObject, ValidateFunction} from 'ajv'
 import {
   ADD_NEW_PROPERTY,
   CoreActions,
@@ -46,16 +46,9 @@ import {
   UPDATE_DATA,
   UPDATE_ERRORS,
   UpdateCoreAction,
-} from '../actions';
-import {
-  ajvInstancePathDecoder,
-  composePaths,
-  createAjv,
-  pathsAreEqual,
-  pathStartsWith,
-  Reducer,
-} from '../util';
-import { JsonSchema, UISchemaElement } from '../models';
+} from '../actions'
+import {ajvInstancePathDecoder, composePaths, createAjv, pathsAreEqual, pathStartsWith, Reducer} from '../util'
+import {JsonSchema, UISchemaElement} from '../models'
 
 export const validate = (validator: ValidateFunction | undefined, data: any): ErrorObject[] => {
   if (validator === undefined) {
@@ -353,21 +346,19 @@ const getInvalidProperty = (error: ErrorObject): string | undefined => {
 };
 
 export const getControlPath = (error: ErrorObject) => {
-  const dataPath = (error as any).dataPath;
-  // older AJV version
-  if (dataPath) {
-    return dataPath.replace(/^\//, '').split('/').map(ajvInstancePathDecoder);
-  }
+  const dataPath = (error as any).dataPath; // older AJV version
+  const instancePath = dataPath ?? error.instancePath;
+
   // dataPath was renamed to instancePath in AJV v8
-  const controlPath = !error.instancePath || error.instancePath === '/'
+  const controlPath = !instancePath || instancePath === '/'
     ? []
-    : error.instancePath
+    : instancePath
       .replace(/^\//, '') // remove leading slash
       .split('/') // convert to string[]
       .map(ajvInstancePathDecoder); // replace ~1 and ~0
 
   const invalidProperty = getInvalidProperty(error);
-  if (invalidProperty !== undefined && controlPath.at(-1) !== invalidProperty) {
+  if (invalidProperty !== undefined) {
     controlPath.push(invalidProperty);
   }
 
