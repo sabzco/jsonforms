@@ -23,22 +23,8 @@
   THE SOFTWARE.
 */
 import React from 'react';
-import {
-  ControlProps,
-  isDescriptionHidden,
-  isScopeOfDynamicProperty,
-  showAsRequired,
-} from '@jsonforms/core';
-import {
-  FormControl,
-  FormHelperText,
-  Grid,
-  Hidden,
-  IconButton,
-  InputLabel,
-  InputProps,
-  Tooltip,
-} from '@mui/material';
+import { ControlProps, isDescriptionHidden, isScopeOfDynamicProperty, showAsRequired } from '@jsonforms/core';
+import { FormControl, FormHelperText, Grid, Hidden, IconButton, InputLabel, InputProps, Tooltip } from '@mui/material';
 import merge from 'lodash/merge';
 import { useFocus } from '../util';
 import { Delete as DeleteIcon } from '@mui/icons-material';
@@ -97,7 +83,7 @@ export const MaterialInputControl = (props: ControlProps & WithInput) => {
         error={!isValid}
         required={showAsRequired(required, appliedUiSchemaOptions.hideRequiredAsterisk)}
       >
-        {isDynamicProperty ? uischema.dataFieldKey : label}
+        {isDynamicProperty ? uischema.dataFieldKeys.at(-1) : label}
       </InputLabel>
       <InnerComponent
         {...props}

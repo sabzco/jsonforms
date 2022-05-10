@@ -589,6 +589,8 @@ const withDynamicElements = (Component: ComponentType<DynamicLayoutProps>) => (p
   const propertiesKeys = Object.keys(properties ?? {});
   const {elements: uischemaElements, ...uischemaWithoutElements} = props.uischema;
 
+  const dataFieldKeys = props.uischema.dataFieldKeys ?? [];
+
   const {dynamicElements, dynamicProperties} = useMemo(() => {
     const patterns: string[] = [];
     // tslint:disable-next-line:no-shadowed-variable
@@ -601,7 +603,7 @@ const withDynamicElements = (Component: ComponentType<DynamicLayoutProps>) => (p
             { // value
               type: deriveTypes(subSchema)[0],
               schema: subSchema,
-              dataFieldKeys: [],
+              dataKeys: [],
             },
           ];
         },
@@ -610,7 +612,7 @@ const withDynamicElements = (Component: ComponentType<DynamicLayoutProps>) => (p
     const additionalPropertiesType = deriveTypes(additionalProperties)[0];
     if (additionalProperties) {
       // '*' is an invalid RegExp-pattern and we use it for `additionalProperties`:
-      dynamicProperties['*'] = {type: additionalPropertiesType, dataFieldKeys: []};
+      dynamicProperties['*'] = {type: additionalPropertiesType, dataKeys: []};
     }
 
     // tslint:disable-next-line:no-shadowed-variable
@@ -623,25 +625,25 @@ const withDynamicElements = (Component: ComponentType<DynamicLayoutProps>) => (p
         if (new RegExp(pattern).test(dataFieldKey)) {
           dynamicElements.push(createControlElement(
             [...schemaPathSegments, 'patternProperties', pattern],
-            dataFieldKey,
+            dataFieldKeys.concat(dataFieldKey),
           ));
-          dynamicProperties[pattern].dataFieldKeys.push(dataFieldKey);
+          dynamicProperties[pattern].dataKeys.push(dataFieldKey);
           continue dataLoop;
         }
       }
       if (additionalProperties) {
         dynamicElements.push(createControlElement(
           [...schemaPathSegments, 'additionalProperties'],
-          dataFieldKey,
+          dataFieldKeys.concat(dataFieldKey),
         ));
-        dynamicProperties['*'].dataFieldKeys.push(dataFieldKey);
+        dynamicProperties['*'].dataKeys.push(dataFieldKey);
       }
     }
 
     return {dynamicElements, dynamicProperties};
   }, [
     patternProperties, additionalProperties, uischemaWithoutElements,
-    JSON.stringify(dataKeys), JSON.stringify(propertiesKeys),
+    dataKeys, propertiesKeys, dataFieldKeys,
   ]);
 
   const elements = useDeepMemo(() => {
@@ -662,13 +664,13 @@ const withDynamicElements = (Component: ComponentType<DynamicLayoutProps>) => (p
           return staticElements;
         }
 
-        staticElements.push(createControlElement(ref, props.uischema.dataFieldKey));
+        staticElements.push(createControlElement(ref, dataFieldKeys));
         return staticElements;
       }, [],
     );
 
     return alreadyExistedElements.concat(staticElements);
-  }, [uischemaElements, propertiesKeys]);
+  }, [uischemaElements, propertiesKeys, dataFieldKeys]);
 
   return (
     <Component

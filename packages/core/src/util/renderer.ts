@@ -24,18 +24,9 @@
 */
 
 import get from 'lodash/get';
-import type {
-  ControlElement,
-  JsonSchema,
-  JsonSchema7,
-  Layout,
-  UISchemaElement,
-} from '../models';
+import type { ControlElement, JsonSchema, JsonSchema7, Layout, UISchemaElement } from '../models';
 import find from 'lodash/find';
-import type {
-  JsonFormsCellRendererRegistryEntry,
-  JsonFormsRendererRegistryEntry,
-} from '../reducers';
+import type { JsonFormsCellRendererRegistryEntry, JsonFormsRendererRegistryEntry } from '../reducers';
 import {
   findUISchema,
   getAjv,
@@ -369,13 +360,6 @@ export interface StatePropsOfControl extends StatePropsOfScopedRenderer {
 }
 
 /**
- * State-based props of a Dynamic Control
- */
-export interface StatePropsOfDynamicControl extends StatePropsOfControl {
-  dataFieldKey: string;
-}
-
-/**
  * Dispatch-based props of a Control.
  */
 export interface DispatchPropsOfControl {
@@ -439,7 +423,7 @@ export interface LayoutProps extends StatePropsOfLayout {}
 export interface PatternProperty extends JsonSchema7 {
   label?: string;
   type: string;
-  dataFieldKeys: string[];
+  dataKeys: string[];
 }
 
 export interface PatternProperties {

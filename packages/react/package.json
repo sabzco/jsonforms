@@ -1,6 +1,6 @@
 {
   "name": "@jsonforms-forked/react",
-  "version": "3.0.0-gamma.2.17",
+  "version": "3.0.0-gamma.2.18",
   "description": "React module of JSON Forms",
   "repository": "https://github.com/eclipsesource/jsonforms",
   "bugs": "https://github.com/eclipsesource/jsonforms/issues",
@@ -84,14 +84,14 @@
     "lodash": "^4.17.15"
   },
   "peerDependencies": {
-    "@jsonforms/core": "npm:@jsonforms-forked/core@3.0.0-gamma.2.17",
+    "@jsonforms/core": "npm:@jsonforms-forked/core@3.0.0-gamma.2.18",
     "react": "^16.12.0 || ^17.0.0"
   },
   "optionalPeerDependencies": {
     "react-redux": "^7.1.3"
   },
   "devDependencies": {
-    "@jsonforms/core": "npm:@jsonforms-forked/core@3.0.0-gamma.2.17",
+    "@jsonforms/core": "npm:@jsonforms-forked/core@3.0.0-gamma.2.18",
     "@rollup/plugin-alias": "^3.1.8",
     "@types/enzyme": "^3.10.3",
     "@types/object-hash": "^1.3.0",

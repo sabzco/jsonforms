@@ -49,13 +49,7 @@ import type {
   DynamicProperties,
   DynamicProperty,
 } from '@jsonforms/core';
-import {
-  EMPTY_PATH,
-  isDynamicControl,
-  isScopeOfDynamicProperty,
-  RankedTester,
-  rankWith,
-} from '@jsonforms/core';
+import { EMPTY_PATH, isDynamicControl, isScopeOfDynamicProperty, RankedTester, rankWith } from '@jsonforms/core';
 import { withDynamicProperties } from '@jsonforms/react';
 
 export const materialDynamicGroupTester: RankedTester = rankWith(
@@ -205,7 +199,7 @@ const initialNewPropertyState: NewPropertyState = {
   selectedDynamicProperty: {
     pattern: undefined, // will match everything
     type: '',
-    dataFieldKeys: [],
+    dataKeys: [],
   },
 };
 const initializer = ({alreadyDefinedKeys, dynamicProperties}: {

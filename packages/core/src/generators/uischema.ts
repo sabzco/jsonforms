@@ -38,25 +38,20 @@ import {
 } from '../models';
 import { deriveTypes, EMPTY_PATH, resolveSchema, ROOT_SCOPE } from '../util';
 
-/**
- * Creates a new ILayout.
- * @param layoutType The type of the layout
- * @param ref Used as scope
- * @returns the new ILayout
- */
-const createLayout = (layoutType: LayoutType, ref?: string[]): Layout => ({
+const createLayout = (layoutType: LayoutType, ref?: string[], dataFieldKeys?: string[]): Layout => ({
   type: layoutType,
   scope: ref,
+  dataFieldKeys,
   elements: [],
 });
 
 /**
  * Creates a IControlObject with the given label referencing the given ref
  */
-export const createControlElement = (ref: string[], dataFieldKey?: string): ControlElement => ({
+export const createControlElement = (ref: string[], dataFieldKeys: string[]): ControlElement => ({
   type: 'Control',
   scope: ref,
-  dataFieldKey,
+  dataFieldKeys,
 });
 
 /**
@@ -70,7 +65,7 @@ const wrapInLayoutIfNecessary = (
   layoutType: LayoutType
 ): Layout => {
   if (!isEmpty(uischema) && !isLayout(uischema)) {
-    const verticalLayout: Layout = createLayout(layoutType);
+    const verticalLayout: Layout = createLayout(layoutType, undefined, uischema.dataFieldKeys);
     verticalLayout.elements.push(uischema);
 
     return verticalLayout;
@@ -117,13 +112,16 @@ const isCombinator = (jsonSchema: JsonSchema): boolean => {
   );
 };
 
+const EMPTY_DATA_FIELD_KEYS: string[] = [];
+
 const generateUISchema = (
   jsonSchema: JsonSchema,
   schemaElements: UISchemaElement[],
   currentRef: string[],
   schemaName: string,
   layoutType: LayoutType,
-  rootSchema?: JsonSchema
+  rootSchema?: JsonSchema,
+  dataFieldKeys = EMPTY_DATA_FIELD_KEYS,
 ): UISchemaElement => {
   if (!isEmpty(jsonSchema) && jsonSchema.$ref !== undefined) {
     return generateUISchema(
@@ -137,7 +135,7 @@ const generateUISchema = (
   }
 
   if (isCombinator(jsonSchema)) {
-    const controlObject: ControlElement = createControlElement(currentRef);
+    const controlObject: ControlElement = createControlElement(currentRef, dataFieldKeys);
     schemaElements.push(controlObject);
 
     return controlObject;
@@ -149,14 +147,14 @@ const generateUISchema = (
   }
 
   if (types.length > 1) {
-    const controlObject: ControlElement = createControlElement(currentRef);
+    const controlObject: ControlElement = createControlElement(currentRef, dataFieldKeys);
     schemaElements.push(controlObject);
     return controlObject;
   }
 
   if (currentRef[0] === '#' && types[0] === 'object') {
     const newLayoutType = layoutType ?? 'Group';
-    const layout: Layout = createLayout(newLayoutType, currentRef);
+    const layout: Layout = createLayout(newLayoutType, currentRef, dataFieldKeys);
     schemaElements.push(layout);
 
     if (jsonSchema.properties && keys(jsonSchema.properties).length > 1) {
@@ -178,7 +176,8 @@ const generateUISchema = (
           nextRef,
           propName,
           newLayoutType,
-          rootSchema
+          rootSchema,
+          dataFieldKeys,
         );
       });
     }
@@ -198,7 +197,7 @@ const generateUISchema = (
     case 'integer':
     /* falls through */
     case 'boolean':
-      const controlObject: ControlElement = createControlElement(currentRef);
+      const controlObject: ControlElement = createControlElement(currentRef, dataFieldKeys);
       schemaElements.push(controlObject);
 
       return controlObject;
@@ -207,25 +206,16 @@ const generateUISchema = (
   }
 };
 
-/**
- * Generate a default UI schema.
- * @param {JsonSchema} jsonSchema the JSON schema to generated a UI schema for
- * @param {string} [layoutType='VerticalLayout'] the desired layout type for the root layout
- *        of the generated UI schema
- * @param {string[]} [prefix=['#']]
- * @param {JsonSchema} [rootSchema=jsonSchema]
- * @param {string[]} [path=[]]
- * @param {string} [schemaName]
- */
 export const generateDefaultUISchema = (
   jsonSchema: JsonSchema,
   layoutType: LayoutType = 'VerticalLayout',
   prefix = ROOT_SCOPE,
   rootSchema = jsonSchema,
+  dataFieldKeys: string[] = [],
   path: string[] = EMPTY_PATH,
-  schemaName = path?.at(-1)
+  schemaName = path?.at(-1),
 ): UISchemaElement =>
   wrapInLayoutIfNecessary(
-    generateUISchema(jsonSchema, [], prefix, schemaName, layoutType, rootSchema),
+    generateUISchema(jsonSchema, [], prefix, schemaName, layoutType, rootSchema, dataFieldKeys),
     layoutType,
   );

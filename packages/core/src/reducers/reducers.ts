@@ -24,24 +24,13 @@
 */
 
 import { ControlElement, UISchemaElement } from '../models';
-import {
-  coreReducer,
-  errorAt,
-  subErrorsAt,
-} from './core';
+import { coreReducer, errorAt, subErrorsAt } from './core';
 import { defaultDataReducer } from './default-data';
 import { rendererReducer } from './renderers';
 import { JsonFormsState } from '../store';
 import type { JsonFormsUISchemaRegistryEntry } from './uischemas';
-import {
-  findMatchingUISchema,
-  uischemaRegistryReducer,
-} from './uischemas';
-import {
-  fetchErrorTranslator,
-  fetchLocale,
-  i18nReducer,
-} from './i18n';
+import { findMatchingUISchema, uischemaRegistryReducer } from './uischemas';
+import { fetchErrorTranslator, fetchLocale, i18nReducer } from './i18n';
 
 import { Generate } from '../generators';
 import { JsonSchema } from '../models/jsonSchema';
@@ -107,7 +96,8 @@ export const findUISchema = (
       schema,
       fallbackLayoutType,
       Array.isArray(scope) ? scope : toSchemaPathSegments(scope),
-      rootSchema
+      rootSchema,
+      control.dataFieldKeys,
     );
   }
   return uiSchema;

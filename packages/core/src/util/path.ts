@@ -48,9 +48,8 @@ export { compose as composePaths };
  * @returns {string[]} An array containing only non-schema-specific segments in a raw (not-encoded)
  * format
  */
-export const toDataPathSegments = (scope: string | string[], dynamicDataFields?: string[] | string): string[] => {
+export const toDataPathSegments = (scope: string | string[], dynamicDataFields?: string[]): string[] => {
   const schemaPathSegments = Array.isArray(scope) ? scope : toSchemaPathSegments(scope);
-  const dataFieldKeys = dynamicDataFields instanceof Array ? dynamicDataFields : [dynamicDataFields];
 
   let j = 0;
   const dataPath: string[] = [];
@@ -66,7 +65,7 @@ export const toDataPathSegments = (scope: string | string[], dynamicDataFields?:
         i++; // skip the pattern (next cycle)
       case 'additionalProperties': // tslint:disable-line:no-switch-case-fall-through
       case 'items':
-        dataPath.push(dataFieldKeys[j++]);
+        dataPath.push(dynamicDataFields[j++]);
         continue;
 
       case 'oneOf':
@@ -105,7 +104,7 @@ export const composeWithUi = (
 ): string[] => {
   const segments = toDataPathSegments(
     scopableUi.scope,
-    'dataFieldKey' in scopableUi ? scopableUi.dataFieldKey : undefined
+    'dataFieldKeys' in scopableUi ? scopableUi.dataFieldKeys : undefined
   );
   return compose(path, segments);
 };

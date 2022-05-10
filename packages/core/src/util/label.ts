@@ -35,10 +35,10 @@ const deriveLabel = (
     return schemaElement.title;
   }
   if (
-    'dataFieldKey' in uischemaElement && typeof uischemaElement.dataFieldKey === 'string' &&
-    'scope' in uischemaElement && isScopeOfDynamicProperty(uischemaElement.scope)
+    'scope' in uischemaElement && isScopeOfDynamicProperty(uischemaElement.scope) &&
+    'dataFieldKeys' in uischemaElement && typeof uischemaElement.dataFieldKeys?.at(-1) === 'string'
   ) {
-    return uischemaElement.dataFieldKey;
+    return uischemaElement.dataFieldKeys.at(-1);
   }
   if (!isControlElement(uischemaElement)) {
     return '';

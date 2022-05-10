@@ -132,7 +132,7 @@ export interface UISchemaElement {
    */
   type: string;
 
-  dataFieldKey?: string;
+  dataFieldKeys?: string[];
 
   /**
    * An optional rule.
@@ -168,6 +168,7 @@ export type LayoutType = 'Group' | 'VerticalLayout' | 'HorizontalLayout' | 'Cate
  */
 export interface Layout extends UISchemaElement, Partial<Scopable> {
   label?: LabelType;
+  dataFieldKeys?: string[];
   type: LayoutType;
   /**
    * The child elements of this layout.
