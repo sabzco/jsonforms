@@ -610,7 +610,7 @@ const withDynamicElements = (Component: ComponentType<DynamicLayoutProps>) => (p
       ));
 
     const additionalPropertiesType = deriveTypes(additionalProperties)[0];
-    if (additionalProperties) {
+    if (additionalProperties && additionalProperties !== true) { // `additionalProperties: true` means no special thing
       // '*' is an invalid RegExp-pattern and we use it for `additionalProperties`:
       dynamicProperties['*'] = {type: additionalPropertiesType, dataKeys: []};
     }
