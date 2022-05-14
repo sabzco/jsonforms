@@ -26,30 +26,29 @@
 import type { ControlElement, JsonSchema, LabelDescription, UISchemaElement } from '../models';
 import { isControlElement } from '../models';
 import { isScopeOfDynamicProperty } from './uischema';
+import { toSchemaPathSegments } from './path';
 
 const deriveLabel = (
   uischemaElement: UISchemaElement | ControlElement,
   schemaElement?: JsonSchema
 ): string => {
-  if (schemaElement && typeof schemaElement.title === 'string') {
-    return schemaElement.title;
-  }
   if (
     'scope' in uischemaElement && isScopeOfDynamicProperty(uischemaElement.scope) &&
     'dataFieldKeys' in uischemaElement && typeof uischemaElement.dataFieldKeys?.at(-1) === 'string'
   ) {
     return uischemaElement.dataFieldKeys.at(-1);
   }
+  if (schemaElement && typeof schemaElement.title === 'string') {
+    return schemaElement.title;
+  }
   if (!isControlElement(uischemaElement)) {
     return '';
   }
-  if (typeof uischemaElement.scope === 'string') {
-    const ref = uischemaElement.scope;
-    return ref.substr(ref.lastIndexOf('/') + 1);
-  }
-  if (Array.isArray(uischemaElement.scope)) {
-    const ref = uischemaElement.scope;
-    return ref.at(-1);
+  if (uischemaElement.scope) {
+    const scope = Array.isArray(uischemaElement.scope)
+      ? uischemaElement.scope
+      : toSchemaPathSegments(uischemaElement.scope);
+    return scope.at(-1);
   }
 
   return '';
