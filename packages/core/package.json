@@ -1,6 +1,6 @@
 {
   "name": "@jsonforms-forked/core",
-  "version": "3.0.0-gamma.2.18",
+  "version": "3.0.0-gamma.2.20",
   "description": "Core module of JSON Forms",
   "repository": "https://github.com/eclipsesource/jsonforms",
   "bugs": "https://github.com/eclipsesource/jsonforms/issues",
