@@ -36,19 +36,10 @@ import type {
   JsonSchema,
   OwnPropsOfJsonFormsRenderer,
   UISchemaElement,
-  ValidationMode
+  ValidationMode,
 } from '@jsonforms/core';
-import {
-  ajvInstancePathEncoder,
-  createId,
-  Generate,
-  isControl,
-  removeId,
-} from '@jsonforms/core';
-import {
-  JsonFormsStateProvider,
-  useJsonForms
-} from './JsonFormsContext';
+import { ajvInstancePathEncoder, createId, Generate, isControl, removeId } from '@jsonforms/core';
+import { JsonFormsStateProvider, useJsonForms } from './JsonFormsContext';
 
 interface JsonFormsRendererState {
   id: string;
@@ -120,7 +111,7 @@ const TestAndRender = React.memo(
       }, [props.renderers, props.uischema, props.schema],
     );
     if (!renderer) {
-      return <UnknownRenderer type={'renderer'} />;
+      return <UnknownRenderer type='renderer' />;
     }
     const Render = renderer.renderer;
     return (

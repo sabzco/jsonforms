@@ -75,7 +75,7 @@ export const MaterialInputControl = (props: ControlProps & WithInput) => {
       onFocus={onFocus}
       onBlur={onBlur}
       id={id}
-      variant={'standard'}
+      variant='standard'
     >
       <InputLabel
         {...muiInputLabelProps}

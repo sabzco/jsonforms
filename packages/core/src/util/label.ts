@@ -33,7 +33,7 @@ const deriveLabel = (
   schemaElement?: JsonSchema
 ): string => {
   if (
-    'scope' in uischemaElement && isScopeOfDynamicProperty(uischemaElement.scope) &&
+    'scope' in uischemaElement && uischemaElement.scope && isScopeOfDynamicProperty(uischemaElement.scope) &&
     'dataFieldKeys' in uischemaElement && typeof uischemaElement.dataFieldKeys?.at(-1) === 'string'
   ) {
     return uischemaElement.dataFieldKeys.at(-1);
