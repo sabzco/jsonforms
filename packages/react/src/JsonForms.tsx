@@ -22,7 +22,6 @@
   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
   THE SOFTWARE.
 */
-import maxBy from 'lodash/maxBy';
 import React, { useMemo } from 'react';
 import Ajv from 'ajv';
 import { UnknownRenderer } from './UnknownRenderer';
@@ -98,18 +97,25 @@ const TestAndRender = React.memo(
     cells: JsonFormsCellRendererRegistryEntry[];
     id: string;
   }) => {
+    const {renderers} = props;
     const renderer = useMemo(() => {
         const specifiedRenderer = props.uischema.renderer &&
-          props.renderers.find(r => r.name?.toLowerCase() === props.uischema.renderer.toLowerCase());
+          renderers.find(r => r.name?.toLowerCase() === props.uischema.renderer.toLowerCase());
         if (specifiedRenderer) {
           return specifiedRenderer;
         }
-        const preferredRenderer = maxBy(props.renderers, r => r.tester(props.uischema, props.schema));
-        if (preferredRenderer.tester(props.uischema, props.schema) > 0) {
+        const [preferredRenderer, maxRank] = renderers.reduce((preferredRendererWithGainedRank, r) => {
+          const rank = r.tester(props.uischema, props.schema);
+          // console.info(r.name, rank);
+          return rank > preferredRendererWithGainedRank[1] ? [r, rank] : preferredRendererWithGainedRank;
+        }, [renderers[0], Number.NEGATIVE_INFINITY]);
+
+        if (maxRank > 0) {
           return preferredRenderer;
         }
-      }, [props.renderers, props.uischema, props.schema],
+      }, [renderers, props.uischema, props.schema],
     );
+    // console.info(renderer?.name);
     if (!renderer) {
       return <UnknownRenderer type='renderer' />;
     }
@@ -120,7 +126,7 @@ const TestAndRender = React.memo(
         schema={props.schema}
         path={props.path}
         enabled={props.enabled}
-        renderers={props.renderers}
+        renderers={renderers}
         cells={props.cells}
         id={props.id}
       />

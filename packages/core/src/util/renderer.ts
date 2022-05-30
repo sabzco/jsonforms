@@ -479,15 +479,12 @@ export const mapStateToControlProps = (
   const rootData = getData(state);
   const path = composeWithUi(uischema, ownProps.path);
   const rootSchema = getSchema(state);
-  const visible: boolean =
-    ownProps.visible === undefined || hasShowRule(uischema)
+  const visible = ownProps.visible === undefined || hasShowRule(uischema)
       ? isVisible(ownProps.schema || rootSchema, uischema, rootData, ownProps.path, getAjv(state))
       : ownProps.visible;
   const controlElement = uischema as ControlElement;
   const id = ownProps.id;
-  const required =
-    controlElement.scope !== undefined &&
-    isRequired(ownProps.schema, controlElement.scope, rootSchema);
+  const required = controlElement.scope !== undefined && isRequired(ownProps.schema, controlElement.scope, rootSchema);
   const resolvedSchema = Resolve.schema(
     ownProps.schema || rootSchema,
     controlElement.scope,
@@ -495,8 +492,7 @@ export const mapStateToControlProps = (
   );
   const errors = getErrorAt(path, resolvedSchema)(state);
 
-  const description =
-    resolvedSchema !== undefined ? resolvedSchema.description : '';
+  const description = resolvedSchema !== undefined ? resolvedSchema.description : '';
   const data = Resolve.data(rootData, path);
   const labelDesc = createLabelDescriptionFrom(uischema, resolvedSchema);
   const label = labelDesc.show ? labelDesc.text : '';

@@ -618,25 +618,25 @@ const withDynamicElements = (Component: ComponentType<DynamicLayoutProps>) => (p
     // tslint:disable-next-line:no-shadowed-variable
     const dynamicElements: ControlElement[] = [];
 
-    dataLoop: for (const dataFieldKey of dataKeys) {
-      if (propertiesKeys.includes(dataFieldKey)) { continue; }
+    dataLoop: for (const dataKey of dataKeys) {
+      if (propertiesKeys.includes(dataKey)) { continue; }
 
       for (const pattern of patterns) {
-        if (new RegExp(pattern).test(dataFieldKey)) {
+        if (new RegExp(pattern).test(dataKey)) {
           dynamicElements.push(createControlElement(
             [...schemaPathSegments, 'patternProperties', pattern],
-            dataFieldKeys.concat(dataFieldKey),
+            dataFieldKeys.concat(dataKey),
           ));
-          dynamicProperties[pattern].dataKeys.push(dataFieldKey);
+          dynamicProperties[pattern].dataKeys.push(dataKey);
           continue dataLoop;
         }
       }
       if (additionalProperties) {
         dynamicElements.push(createControlElement(
           [...schemaPathSegments, 'additionalProperties'],
-          dataFieldKeys.concat(dataFieldKey),
+          dataFieldKeys.concat(dataKey),
         ));
-        dynamicProperties['*'].dataKeys.push(dataFieldKey);
+        dynamicProperties['*'].dataKeys.push(dataKey);
       }
     }
 
