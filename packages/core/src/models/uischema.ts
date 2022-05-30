@@ -268,6 +268,3 @@ export const isGroup = (layout: Layout): layout is GroupLayout =>
 
 export const isLayout = (uischema: UISchemaElement): uischema is Layout =>
   (uischema as Layout).elements !== undefined;
-
-export const isControlElement = (uischema: UISchemaElement): uischema is ControlElement =>
-  uischema.type === 'Control' && 'scope' in uischema;

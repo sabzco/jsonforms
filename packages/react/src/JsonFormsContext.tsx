@@ -62,7 +62,7 @@ import {
   EMPTY_CONTROL_ELEMENTS,
   EMPTY_DYNAMIC_PROPERTIES,
   i18nReducer,
-  isControlElement,
+  isControl,
   mapDispatchToArrayControlProps,
   mapDispatchToControlProps,
   mapDispatchToDynamicLayoutProps,
@@ -655,7 +655,7 @@ const withDynamicElements = (Component: ComponentType<DynamicLayoutProps>) => (p
 
         if ( // check if the `ref` already existed:
           alreadyExistedElements.some((uischemaElement: UISchemaElement) => {
-              if (!isControlElement(uischemaElement)) {return false; }
+              if (!isControl(uischemaElement)) {return false; }
               const {scope} = uischemaElement; // tslint:disable-line:no-shadowed-variable
               return (typeof scope === 'string' ? scope : toStringSchemaPath(scope)) === refStr;
             },

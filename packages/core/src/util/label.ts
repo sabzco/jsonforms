@@ -24,9 +24,9 @@
 */
 
 import type { ControlElement, JsonSchema, LabelDescription, UISchemaElement } from '../models';
-import { isControlElement } from '../models';
 import { isScopeOfDynamicProperty } from './uischema';
 import { toSchemaPathSegments } from './path';
+import { isControl } from '../testers';
 
 const deriveLabel = (
   uischemaElement: UISchemaElement | ControlElement,
@@ -41,7 +41,7 @@ const deriveLabel = (
   if (schemaElement && typeof schemaElement.title === 'string') {
     return schemaElement.title;
   }
-  if (!isControlElement(uischemaElement)) {
+  if (!isControl(uischemaElement)) {
     return '';
   }
   if (uischemaElement.scope) {
