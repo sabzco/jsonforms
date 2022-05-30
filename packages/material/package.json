@@ -75,7 +75,8 @@
   },
   "dependencies": {
     "@date-io/dayjs": "^2.13.1",
-    "dayjs": "^1.11.1"
+    "dayjs": "^1.11.1",
+    "immer": "^9.0.12"
   },
   "peerDependencies": {
     "@jsonforms/core": "npm:@jsonforms-forked/core@3.0.0-gamma.2.20",
