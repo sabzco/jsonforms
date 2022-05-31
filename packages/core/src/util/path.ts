@@ -113,13 +113,13 @@ export const composeWithUi = (
  * Check if two paths are equal (section by section)
  */
 export const pathsAreEqual = (path1: string[], path2: string[]) =>
-  path2.length === path1.length && path2.every((section, i) => section === path1[i]);
+  path2.length === path1.length && path2.every((section, i) => String(section) === String(path1[i]));
 
 /**
  * Check if a path starts with another path (`subPath`)
  */
 export const pathStartsWith = (path: string[], subPath: string[]) =>
-  subPath.length <= path.length && subPath.every((section, i) => section === path[i]);
+  subPath.length <= path.length && subPath.every((section, i) => String(section) === String(path[i]));
 
 export const EMPTY_PATH: string[] = [];
 Object.freeze(EMPTY_PATH);
@@ -131,7 +131,7 @@ Object.freeze(ROOT_SCOPE);
  * Convert path `array` to a `string`, injectively (in a reversible way)
  */
 export const stringifyPath = (path: string[]) =>
-  path.map(segment => ajvInstancePathEncoder(segment)).join('/');
+  path.map(segment => ajvInstancePathEncoder(String(segment))).join('/');
 
 export const ajvInstancePathEncoder = (pathSegment: string) =>
   pathSegment.replace(/[~\/]/g, match => match === '~' ? '~0' : '~1');
