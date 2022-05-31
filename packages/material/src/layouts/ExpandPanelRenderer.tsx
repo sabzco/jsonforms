@@ -1,15 +1,6 @@
 import merge from 'lodash/merge';
 import get from 'lodash/get';
-import React, {
-  ComponentType,
-  Dispatch,
-  Fragment,
-  ReducerAction,
-  useCallback,
-  useEffect,
-  useMemo,
-  useState,
-} from 'react';
+import React, { ComponentType, Dispatch, ReducerAction, useCallback, useEffect, useMemo, useState } from 'react';
 import { JsonFormsDispatch, JsonFormsStateContext, withJsonFormsContext } from '@jsonforms/react';
 import {
   composePaths,
@@ -120,51 +111,38 @@ const ExpandPanelRendererComponent = (props: ExpandPanelProps) => {
           <Grid item xs={5} md={3}>
             <Grid container justifyContent='flex-end'>
               <Grid item>
-                <Grid
-                  container
-                  direction='row'
-                  justifyContent='center'
-                  alignItems='center'
-                >
-                  {appliedUiSchemaOptions.showSortButtons ? (
-                    <Fragment>
-                      <Grid item>
-                        <IconButton
-                          onClick={moveUp(path, index)}
-                          style={iconStyle}
-                          disabled={!enableMoveUp}
-                          aria-label={`Move up`}
-                          size='large'
-                        >
-                          <ArrowUpward />
-                        </IconButton>
-                      </Grid>
-                      <Grid item>
-                        <IconButton
-                          onClick={moveDown(path, index)}
-                          style={iconStyle}
-                          disabled={!enableMoveDown}
-                          aria-label={`Move down`}
-                          size='large'
-                        >
-                          <ArrowDownward />
-                        </IconButton>
-                      </Grid>
-                    </Fragment>
-                  ) : (
-                    ''
+                <Stack direction='row'>
+                  {appliedUiSchemaOptions.showSortButtons && (
+                    <>
+                      <IconButton
+                        onClick={moveUp(path, index)}
+                        style={iconStyle}
+                        disabled={!enableMoveUp}
+                        aria-label={`Move up`}
+                        size='small'
+                      >
+                        <ArrowUpward />
+                      </IconButton>
+                      <IconButton
+                        onClick={moveDown(path, index)}
+                        style={iconStyle}
+                        disabled={!enableMoveDown}
+                        aria-label={`Move down`}
+                        size='small'
+                      >
+                        <ArrowDownward />
+                      </IconButton>
+                    </>
                   )}
-                  <Grid item>
-                    <IconButton
-                      onClick={removeItems(path, [index])}
-                      style={iconStyle}
-                      aria-label={`Delete`}
-                      size='large'
-                    >
-                      <DeleteIcon />
-                    </IconButton>
-                  </Grid>
-                </Grid>
+                  <IconButton
+                    onClick={removeItems(path, [index])}
+                    style={iconStyle}
+                    aria-label={`Delete`}
+                    size='large'
+                  >
+                    <DeleteIcon />
+                  </IconButton>
+                </Stack>
               </Grid>
             </Grid>
           </Grid>
