@@ -1,11 +1,16 @@
 import merge from 'lodash/merge';
 import get from 'lodash/get';
-import React, { ComponentType, Dispatch, Fragment, ReducerAction, useCallback, useEffect, useMemo, useState } from 'react';
-import {
-  JsonFormsDispatch,
-  JsonFormsStateContext,
-  withJsonFormsContext
-} from '@jsonforms/react';
+import React, {
+  ComponentType,
+  Dispatch,
+  Fragment,
+  ReducerAction,
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+} from 'react';
+import { JsonFormsDispatch, JsonFormsStateContext, withJsonFormsContext } from '@jsonforms/react';
 import {
   composePaths,
   ControlElement,
@@ -23,15 +28,7 @@ import {
   stringifyPath,
   update,
 } from '@jsonforms/core';
-import {
-  Accordion,
-  AccordionDetails,
-  AccordionSummary,
-  Avatar,
-  Grid,
-  IconButton,
-  Stack,
-} from '@mui/material';
+import { Accordion, AccordionDetails, AccordionSummary, Avatar, Grid, IconButton, Stack } from '@mui/material';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import DeleteIcon from '@mui/icons-material/Delete';
 import ArrowUpward from '@mui/icons-material/ArrowUpward';
@@ -253,7 +250,7 @@ export const withContextToExpandPanelProps = (
   const uischema = useMemo(() => ({
     ...props.uischema,
     type: 'VerticalLayout',
-    dataFieldKey: String(index),
+    dataFieldKeys: (props.uischema.dataFieldKeys ?? []).concat(index),
   }), [props.uischema, index]);
 
   return (
