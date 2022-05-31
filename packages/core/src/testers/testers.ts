@@ -79,7 +79,7 @@ export const schemaMatches = (
     return false;
   }
   let currentDataSchema = schema;
-  if (hasType(schema, 'object')) {
+  if (['array', 'object'].includes(deriveTypes(schema)[0])) {
     currentDataSchema = resolveSchema(schema, schemaPath);
   }
   if (currentDataSchema === undefined) {
