@@ -1,6 +1,6 @@
 {
   "name": "@jsonforms-forked/material-renderers",
-  "version": "3.0.0-gamma.2.21",
+  "version": "3.0.0-gamma.2.22",
   "description": "Material Renderer Set for JSON Forms",
   "repository": "https://github.com/eclipsesource/jsonforms",
   "bugs": "https://github.com/eclipsesource/jsonforms/issues",
@@ -79,8 +79,8 @@
     "immer": "^9.0.12"
   },
   "peerDependencies": {
-    "@jsonforms/core": "npm:@jsonforms-forked/core@3.0.0-gamma.2.21",
-    "@jsonforms/react": "npm:@jsonforms-forked/react@3.0.0-gamma.2.21",
+    "@jsonforms/core": "npm:@jsonforms-forked/core@3.0.0-gamma.2.22",
+    "@jsonforms/react": "npm:@jsonforms-forked/react@3.0.0-gamma.2.22",
     "@mui/icons-material": "^5.0.0",
     "@mui/lab": "^5.0.0-alpha.54",
     "@mui/material": "^5.0.0"
@@ -88,8 +88,8 @@
   "devDependencies": {
     "@emotion/react": "^11.5.0",
     "@emotion/styled": "^11.3.0",
-    "@jsonforms/core": "npm:@jsonforms-forked/core@3.0.0-gamma.2.21",
-    "@jsonforms/react": "npm:@jsonforms-forked/react@3.0.0-gamma.2.21",
+    "@jsonforms/core": "npm:@jsonforms-forked/core@3.0.0-gamma.2.22",
+    "@jsonforms/react": "npm:@jsonforms-forked/react@3.0.0-gamma.2.22",
     "@mui/icons-material": "^5.6.2",
     "@mui/lab": "5.0.0-alpha.78",
     "@mui/material": "^5.6.2",
