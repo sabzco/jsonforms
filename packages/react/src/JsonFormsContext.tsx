@@ -566,8 +566,7 @@ const withDynamicElements = (Component: ComponentType<DynamicLayoutProps>) => (p
     ? schemaPathSegments.slice(1) // remove leading '#'
     : schemaPathSegments;
   const scopedSchema = schemaPath.length ? get(props.schema, schemaPath) : props.schema;
-  const {properties, patternProperties, additionalProperties} = scopedSchema;
-
+  const {properties, patternProperties} = scopedSchema;
   if (scopedSchema === undefined) {
     console.warn(
       'Error: Schema path %o not found in the schema:',
@@ -584,6 +583,9 @@ const withDynamicElements = (Component: ComponentType<DynamicLayoutProps>) => (p
       />
     );
   }
+  const additionalProperties = scopedSchema.additionalProperties === true
+    ? undefined // `additionalProperties: true` means no special thing
+    : scopedSchema.additionalProperties;
 
   const dataKeys = Object.keys(props.data ?? {});
   const propertiesKeys = Object.keys(properties ?? {});
@@ -610,7 +612,7 @@ const withDynamicElements = (Component: ComponentType<DynamicLayoutProps>) => (p
       ));
 
     const additionalPropertiesType = deriveTypes(additionalProperties)[0];
-    if (additionalProperties && additionalProperties !== true) { // `additionalProperties: true` means no special thing
+    if (additionalProperties) {
       // '*' is an invalid RegExp-pattern and we use it for `additionalProperties`:
       dynamicProperties['*'] = {type: additionalPropertiesType, dataKeys: []};
     }
