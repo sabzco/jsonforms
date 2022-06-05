@@ -185,25 +185,10 @@ const generateUISchema = (
     return layout;
   }
 
-  switch (types[0]) {
-    case 'object': // object items will be handled by the object control itself
-    /* falls through */
-    case 'array': // array items will be handled by the array control itself
-    /* falls through */
-    case 'string':
-    /* falls through */
-    case 'number':
-    /* falls through */
-    case 'integer':
-    /* falls through */
-    case 'boolean':
-      const controlObject: ControlElement = createControlElement(currentRef, dataFieldKeys);
-      schemaElements.push(controlObject);
+  const controlObject: ControlElement = createControlElement(currentRef, dataFieldKeys);
+  schemaElements.push(controlObject);
 
-      return controlObject;
-    default:
-      throw new Error('Unknown type: ' + JSON.stringify(jsonSchema));
-  }
+  return controlObject;
 };
 
 export const generateDefaultUISchema = (
