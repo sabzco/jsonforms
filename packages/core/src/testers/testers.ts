@@ -282,7 +282,10 @@ export const isAnyOfControl = and(
 
 export const isOneOfControl = and(
   uiTypeIs('Control'),
-  schemaMatches(schema => schema.hasOwnProperty('oneOf'))
+  schemaMatches(schema =>
+    schema.oneOf instanceof Array &&
+    schema.oneOf.some(one => one.type || typeof one.properties === 'object')
+  )
 );
 
 /**
