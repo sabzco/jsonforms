@@ -1,19 +1,19 @@
 /*
   The MIT License
-  
+
   Copyright (c) 2017-2019 EclipseSource Munich
   https://github.com/eclipsesource/jsonforms
-  
+
   Permission is hereby granted, free of charge, to any person obtaining a copy
   of this software and associated documentation files (the "Software"), to deal
   in the Software without restriction, including without limitation the rights
   to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
   copies of the Software, and to permit persons to whom the Software is
   furnished to do so, subject to the following conditions:
-  
+
   The above copyright notice and this permission notice shall be included in
   all copies or substantial portions of the Software.
-  
+
   THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
   IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
   FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -22,23 +22,14 @@
   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
   THE SOFTWARE.
 */
-import React, { useMemo } from 'react';
-import merge from 'lodash/merge';
-import {
-  ControlProps,
-  isDateTimeControl,
-  isDescriptionHidden,
-  RankedTester,
-  rankWith
-} from '@jsonforms/core';
-import { withJsonFormsControlProps } from '@jsonforms/react';
-import { FormHelperText, Hidden, TextField } from '@mui/material';
-import {
-  DateTimePicker,
-  LocalizationProvider 
-} from '@mui/lab';
-import AdapterDayjs from '@mui/lab/AdapterDayjs';
-import { createOnChangeHandler, getData, useFocus } from '../util';
+import React, { useMemo } from 'react'
+import merge from 'lodash/merge'
+import { ControlProps, isDateTimeControl, isDescriptionHidden, RankedTester, rankWith } from '@jsonforms/core'
+import { withJsonFormsControlProps } from '@jsonforms/react'
+import { FormHelperText, Hidden, TextField } from '@mui/material'
+import { DateTimePicker, LocalizationProvider } from '@mui/lab'
+import AdapterDayjs from '@mui/lab/AdapterDayjs'
+import { createOnChangeHandler, getData, useFocus } from '../util'
 
 export const MaterialDateTimeControl = (props: ControlProps) => {
   const [focused, onFocus, onBlur] = useFocus();
@@ -98,8 +89,8 @@ export const MaterialDateTimeControl = (props: ControlProps) => {
           cancelText={appliedUiSchemaOptions.cancelLabel}
           clearText={appliedUiSchemaOptions.clearLabel}
           okText={appliedUiSchemaOptions.okLabel}
-          renderInput={params => (
-            <TextField 
+          renderInput={(params: any) => (
+            <TextField
               {...params}
               id={id + '-input'}
               required={required && !appliedUiSchemaOptions.hideRequiredAsterisk}
